@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
-import { users } from '../data/FakeData';
+//import { users } from '../data/FakeData';
 
 function Login() {
   const navigate = useNavigate();
@@ -10,18 +10,24 @@ function Login() {
     password: ''
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const user = users.find(u => 
-      u.username === formData.username && 
-      u.password === formData.password
-    );
-
-    if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
-      navigate('/sale', { state: { user } });
-    } else {
-      alert('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+    try{
+      const response = await fetch('http://localhost:5000/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const data = await response.json();
+      if(response.ok){
+        localStorage.setItem('user', JSON.stringify(data));
+        navigate('/sale', { state: { user: data } });
+      }else{
+        alert(data.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+      }
+    }catch(error){
+      console.error('Login error:', error);
+      alert('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
     }
   };
 
