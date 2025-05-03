@@ -43,11 +43,11 @@ html, body {
   cursor: pointer;
 }
 .search-btn {
-  background: #1976d2;
+  background: #0072AC;
   color: #fff;
 }
 .add-btn {
-  background: #0288d1;
+  background: #0072AC;
   color: #fff;
 }
 .employees-table-wrapper {
