@@ -56,7 +56,9 @@ html, body {
   border-radius: 6px;
   flex: 1 1 auto;
   min-height: 0;
+  max-height: 400px;
   overflow-y: auto;
+  overflow-x: auto;
 }
 .employees-table {
   width: 100%;
