@@ -16,7 +16,7 @@ app.post('/api/login', (req, res) => {
         return res.status(400).json({ message: 'กรุณากรอก username และ password' });
     }
 
-    const sql = 'SELECT Emp_user, Role, Fname, Lname FROM Employee WHERE Emp_user = ? AND Password = ? AND Emp_Status = 1';
+    const sql = 'SELECT Emp_user, Role, Fname, Lname FROM Employee WHERE Emp_user = ? AND Password = ? AND Emp_Status = "W"';
     db.query(sql, [username, password], (err, results) => {
         if (err) {
             console.error('Database error:', err);
