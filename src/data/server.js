@@ -35,6 +35,47 @@ app.post('/api/login', (req, res) => {
     });
 });
 
+// API สำหรับดึงข้อมูลพนักงานทั้งหมด
+app.get('/api/employees', (req, res) => {
+    const sql = 'SELECT Emp_Id, Emp_user, Password, Emp_Tel, Fname, Lname, Emp_Address, Role, Emp_Status FROM Employee';
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ message: 'เกิดข้อผิดพลาดของเซิร์ฟเวอร์' });
+        }
+        res.json(results);
+    });
+});
+
+// API สำหรับเพิ่มข้อมูลพนักงาน
+app.post('/api/employees', (req, res) => {
+    const { Emp_user, Password, Fname, Lname, Emp_Tel, Role, Emp_Status, Emp_Address } = req.body;
+    const sql = 'INSERT INTO Employee (Emp_user, Password, Fname, Lname, Emp_Tel, Role, Emp_Status, Emp_Address) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+    db.query(sql, [Emp_user, Password, Fname, Lname, Emp_Tel, Role, Emp_Status, Emp_Address], (err, result) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ message: 'เกิดข้อผิดพลาดของเซิร์ฟเวอร์' });
+        }
+        res.json({ message: 'เพิ่มข้อมูลสำเร็จ', id: result.insertId });
+    });
+});
+
+// API สำหรับแก้ไขข้อมูลพนักงาน
+app.put('/api/employees/:id', (req, res) => {
+    const { Emp_user, Password, Fname, Lname, Emp_Tel, Role, Emp_Status, Emp_Address } = req.body;
+    const { id } = req.params;
+    console.log('PUT /api/employees/:id', { id, Emp_user, Password, Fname, Lname, Emp_Tel, Role, Emp_Status, Emp_Address });
+    const sql = 'UPDATE Employee SET Emp_user=?, Password=?, Fname=?, Lname=?, Emp_Tel=?, Role=?, Emp_Status=?, Emp_Address=? WHERE Emp_Id=?';
+    db.query(sql, [Emp_user, Password, Fname, Lname, Emp_Tel, Role, Emp_Status, Emp_Address, id], (err, result) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ message: 'เกิดข้อผิดพลาดของเซิร์ฟเวอร์' });
+        }
+        console.log('UPDATE result:', result);
+        res.json({ message: 'แก้ไขข้อมูลสำเร็จ' });
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

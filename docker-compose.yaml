@@ -1,0 +1,26 @@
+version: '3.7'
+
+services:
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: a1234
+      MYSQL_DATABASE: shopease
+    volumes: 
+      - db_data:/var/lib/mysql
+    ports: 
+      - "3306:3306"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    restart: always
+    depends_on: 
+      - db
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: a1234
+    ports: 
+      - "8080:80"
+
+volumes:
+  db_data:
