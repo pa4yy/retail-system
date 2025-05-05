@@ -356,7 +356,7 @@ app.post("/api/product_types", (req, res) => {
   );
 });
 
-// API สำหรับแก้ไขข้อมูลปรเภทสินค้า
+// API สำหรับแก้ไขข้อมูลประเภทสินค้า
 app.put("/api/product_types/:id", (req, res) => {
   const { PType_Name } = req.body;
   db.query(
@@ -369,41 +369,40 @@ app.put("/api/product_types/:id", (req, res) => {
   );
 });
 
-// API สำหรับลบข้อมูลปรเภทสินค้า
-app.delete("/api/product_types/:id", (req, res) => {
-  const typeId = req.params.id;
+// API สำหรับลบข้อมูลประเภทสินค้า
+// app.delete("/api/product_types/:id", (req, res) => {
+//   const typeId = req.params.id;
 
-  db.query(
-    "SELECT COUNT(*) AS total FROM Product WHERE PType_Id = ?",
-    [typeId],
-    (err, results) => {
-      if (err) return res.status(500).json({ message: "DB error" });
+//   db.query(
+//     "SELECT COUNT(*) AS total FROM Product WHERE PType_Id = ?",
+//     [typeId],
+//     (err, results) => {
+//       if (err) return res.status(500).json({ message: "DB error" });
 
-      const count = results[0].total;
-      if (count > 0) {
-        return res.status(400).json({
-          message: "ไม่สามารถลบได้ เนื่องจากมีสินค้าที่ใช้ประเภทนี้อยู่",
-        });
-      }
+//       const count = results[0].total;
+//       if (count > 0) {
+//         return res.status(400).json({
+//           message: "ไม่สามารถลบได้ เนื่องจากมีสินค้าที่ใช้ประเภทนี้อยู่",
+//         });
+//       }
 
-      db.query(
-        "DELETE FROM Product_Type WHERE PType_Id = ?",
-        [typeId],
-        (err, result) => {
-          if (err) return res.status(500).json({ message: "DB error" });
-          res.json({ message: "ลบประเภทสินค้าเรียบร้อย" });
-        }
-      );
-    }
-  );
-});
+//       db.query(
+//         "DELETE FROM Product_Type WHERE PType_Id = ?",
+//         [typeId],
+//         (err, result) => {
+//           if (err) return res.status(500).json({ message: "DB error" });
+//           res.json({ message: "ลบประเภทสินค้าเรียบร้อย" });
+//         }
+//       );
+//     }
+//   );
+// });
 
 // API สำหรับดึงข้อมูลคู่ค้า
 app.get('/api/suppliers', (req, res) => {
   const sql = `
     SELECT Supplier_Id, Supplier_Name, Supplier_Tel, Supplier_Address , is_Active
-    FROM Supplier 
-    
+    FROM Supplier   
   `;
   db.query(sql, (err, results) => {
     if (err) return res.status(500).json({ message: 'ดึงข้อมูลล้มเหลว' });
@@ -460,28 +459,28 @@ app.put('/api/suppliers/:id', (req, res) => {
 });
 
 // API สำหรับลบข้อมูลคู่ค้า
-app.delete('/api/suppliers/:id', (req, res) => {
-  const supplierId = req.params.id;
-  const sql = `
-    UPDATE Supplier 
-    SET Is_Deleted = 1 
-    WHERE Supplier_Id = ?
-  `;
+// app.delete('/api/suppliers/:id', (req, res) => {
+//   const supplierId = req.params.id;
+//   const sql = `
+//     UPDATE Supplier 
+//     SET Is_Deleted = 1 
+//     WHERE Supplier_Id = ?
+//   `;
 
-  db.query(sql, [supplierId], (err, result) => {
-    if (err) {
-      console.error('เกิดข้อผิดพลาดในการลบ:', err);
-      return res.status(500).json({ message: 'ลบไม่สำเร็จ' });
-    }
+//   db.query(sql, [supplierId], (err, result) => {
+//     if (err) {
+//       console.error('เกิดข้อผิดพลาดในการลบ:', err);
+//       return res.status(500).json({ message: 'ลบไม่สำเร็จ' });
+//     }
 
-    // ถ้าไม่มีข้อมูลนี้เลย (ไม่มีแถวที่ถูกอัปเดต)
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'ไม่พบข้อมูลที่จะลบ' });
-    }
+//     // ถ้าไม่มีข้อมูลนี้เลย (ไม่มีแถวที่ถูกอัปเดต)
+//     if (result.affectedRows === 0) {
+//       return res.status(404).json({ message: 'ไม่พบข้อมูลที่จะลบ' });
+//     }
 
-    res.json({ message: 'ลบแบบ Soft Delete สำเร็จ' });
-  });
-});
+//     res.json({ message: 'ลบแบบ Soft Delete สำเร็จ' });
+//   });
+// });
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
