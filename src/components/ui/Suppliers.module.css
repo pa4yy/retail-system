@@ -25,11 +25,13 @@ html, body {
 
 .tableBox {
   width: 100%;
-  height: 50%;
+  height: 600px;
   margin: 0 auto;
   background: #e6dfdf;
   border-radius: 0.75rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  overflow-y: auto;
+  overflow-x: auto;
   
 }
 .tableRow {
@@ -38,17 +40,12 @@ html, body {
   text-align: center;
 }
 .tableHead {
-  background: #e0e7ef;
+  background: #e0e0e0;
   font-size: 1.1rem;
   font-weight: bold;
   height: 56px; 
-}
-
-.tableHead th {
-  padding-top: 18px !important;
-  padding-bottom: 18px !important;
-  background: #e0e7ef;
-  font-weight: bold;
+  position: sticky;
+  top: 0;
 }
 
 .thName {

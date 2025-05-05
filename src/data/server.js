@@ -400,14 +400,15 @@ app.delete("/api/product_types/:id", (req, res) => {
 
 // API สำหรับดึงข้อมูลคู่ค้า
 app.get('/api/suppliers', (req, res) => {
-    const sql = 'SELECT Supplier_Id, Supplier_Name, Supplier_Tel, Supplier_Address FROM Supplier';
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error('Database error:', err);
-            return res.status(500).json({ message: 'เกิดข้อผิดพลาดของเซิร์ฟเวอร์' });
-        }
-        res.json(results);
-    });
+  const sql = `
+    SELECT Supplier_Id, Supplier_Name, Supplier_Tel, Supplier_Address 
+    FROM Supplier 
+    WHERE Is_Deleted = 0
+  `;
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ message: 'ดึงข้อมูลล้มเหลว' });
+    res.json(results);
+  });
 });
 
 // API สำหรับเพิ่มข้อมูลคู่ค้า
@@ -458,9 +459,29 @@ app.put('/api/suppliers/:id', (req, res) => {
     });
 });
 
+// API สำหรับลบข้อมูลคู่ค้า
+app.delete('/api/suppliers/:id', (req, res) => {
+  const supplierId = req.params.id;
+  const sql = `
+    UPDATE Supplier 
+    SET Is_Deleted = 1 
+    WHERE Supplier_Id = ?
+  `;
 
+  db.query(sql, [supplierId], (err, result) => {
+    if (err) {
+      console.error('เกิดข้อผิดพลาดในการลบ:', err);
+      return res.status(500).json({ message: 'ลบไม่สำเร็จ' });
+    }
 
+    // ถ้าไม่มีข้อมูลนี้เลย (ไม่มีแถวที่ถูกอัปเดต)
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'ไม่พบข้อมูลที่จะลบ' });
+    }
 
+    res.json({ message: 'ลบแบบ Soft Delete สำเร็จ' });
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

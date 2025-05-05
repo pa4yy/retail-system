@@ -125,10 +125,27 @@ function Suppliers(props) {
     setShowDeleteModal(true);
   };
 
+
   const confirmDelete = () => {
-    setSuppliers(suppliers.filter((_, i) => i !== deleteIndex));
-    setShowDeleteModal(false);
-    setDeleteIndex(null);
+    const supplierId = suppliers[deleteIndex].Supplier_Id;
+  
+    fetch(`http://localhost:5000/api/suppliers/${supplierId}`, {
+      method: 'DELETE'
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('ลบไม่สำเร็จ');
+        return res.json();
+      })
+      .then(data => {
+        // ลบออกจาก state
+        setSuppliers(prev => prev.filter((_, i) => i !== deleteIndex));
+        setShowDeleteModal(false);
+        setDeleteIndex(null);
+      })
+      .catch(err => {
+        console.error('เกิดข้อผิดพลาดในการลบ:', err);
+        alert('ไม่สามารถลบรายการนี้ได้');
+      });
   };
 
 
@@ -148,7 +165,7 @@ function Suppliers(props) {
           {/* ตารางข้อมูลคู่ค้า */}
           <table className={styles.table}>
 
-            <thead>
+            <thead className={styles.tableHead}>
               <tr className="bg-gray-100">
                 <th className={`${styles.thName}`}>ชื่อคู่ค้า</th>
                 <th className={`${styles.thAddress}`}>ที่อยู่คู่ค้า</th>
@@ -213,7 +230,7 @@ function Suppliers(props) {
                   <label>ที่อยู่คู่ค้า</label>
                   <textarea rows={4} value={newAddress} onChange={e => setNewAddress(e.target.value)} required />
                   <div className={styles.modalActions}>
-                    <button type="submit" className="bg-blue-500 text-white p-2 rounded">เพิ่มข้อมูล</button>
+                    <button type="submit" className={styles.confirmBtn}>เพิ่มข้อมูล</button>
                     <button type="button" className={styles.cancelBtn} onClick={() => setShowModal(false)}>ยกเลิก</button>
                   </div>
                 </form>
