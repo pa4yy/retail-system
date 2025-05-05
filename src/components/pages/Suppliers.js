@@ -53,7 +53,8 @@ function Suppliers(props) {
     const newSupplier = {
       Supplier_Name: newName,
       Supplier_Tel: newPhone,
-      Supplier_Address: newAddress
+      Supplier_Address: newAddress,
+      is_Active: true,
     };
 
     fetch('http://localhost:5000/api/suppliers', {
