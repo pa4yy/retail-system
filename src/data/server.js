@@ -398,6 +398,92 @@ app.delete("/api/product_types/:id", (req, res) => {
   );
 });
 
+// API สำหรับดึงข้อมูลคู่ค้า
+app.get('/api/suppliers', (req, res) => {
+  const sql = `
+    SELECT Supplier_Id, Supplier_Name, Supplier_Tel, Supplier_Address 
+    FROM Supplier 
+    WHERE Is_Deleted = 0
+  `;
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ message: 'ดึงข้อมูลล้มเหลว' });
+    res.json(results);
+  });
+});
+
+// API สำหรับเพิ่มข้อมูลคู่ค้า
+app.post('/api/suppliers', (req, res) => {
+    console.log('📥 Data received:', req.body); // << เพิ่มตรงนี้
+
+    const { Supplier_Name, Supplier_Tel, Supplier_Address } = req.body;
+    const sql = 'INSERT INTO Supplier (Supplier_Name, Supplier_Tel, Supplier_Address) VALUES (?, ?, ?)';
+    db.query(sql, [Supplier_Name, Supplier_Tel, Supplier_Address], (err, result) => {
+        if (err) {
+            console.error('❌ Database error:', err); // << ดู error ตรงนี้ให้ละเอียด
+            return res.status(500).json({ message: 'เกิดข้อผิดพลาดของเซิร์ฟเวอร์' });
+        }
+        res.json({ message: 'เพิ่มข้อมูลสำเร็จ', id: result.insertId });
+    });
+});
+
+// API สำหรับแก้ไขข้อมูลคู่ค้า
+app.put('/api/suppliers/:id', (req, res) => { 
+    const { id } = req.params;
+    console.log('PUT request for Supplier with ID:', id);
+
+    // ตรวจสอบว่า Supplier Id มีอยู่ในฐานข้อมูลหรือไม่
+    const checkSql = 'SELECT * FROM Supplier WHERE Supplier_Id = ?';
+    db.query(checkSql, [id], (err, result) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ message: 'Server error' });
+        }
+        if (result.length === 0) {
+            return res.status(404).json({ message: 'Supplier not found' });
+        }
+
+        // ถ้าพบข้อมูล, ทำการอัปเดต
+        const { Supplier_Name, Supplier_Tel, Supplier_Address } = req.body;
+        const updateSql = 'UPDATE Supplier SET Supplier_Name=?, Supplier_Tel=?, Supplier_Address=? WHERE Supplier_Id=?';
+        const values = [Supplier_Name, Supplier_Tel, Supplier_Address, id];
+
+        db.query(updateSql, values, (err, result) => {
+            if (err) {
+                console.error('Database error:', err);
+                return res.status(500).json({ message: 'Server error' });
+            }
+
+            console.log('Supplier updated:', result);
+            res.json({ message: 'Supplier updated successfully' });
+        });
+    });
+});
+
+// API สำหรับลบข้อมูลคู่ค้า
+app.delete('/api/suppliers/:id', (req, res) => {
+  const supplierId = req.params.id;
+  const sql = `
+    UPDATE Supplier 
+    SET Is_Deleted = 1 
+    WHERE Supplier_Id = ?
+  `;
+
+  db.query(sql, [supplierId], (err, result) => {
+    if (err) {
+      console.error('เกิดข้อผิดพลาดในการลบ:', err);
+      return res.status(500).json({ message: 'ลบไม่สำเร็จ' });
+    }
+
+    // ถ้าไม่มีข้อมูลนี้เลย (ไม่มีแถวที่ถูกอัปเดต)
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'ไม่พบข้อมูลที่จะลบ' });
+    }
+
+    res.json({ message: 'ลบแบบ Soft Delete สำเร็จ' });
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
