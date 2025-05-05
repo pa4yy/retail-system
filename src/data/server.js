@@ -174,51 +174,36 @@ app.post("/api/products", upload.single("Product_Image"), (req, res) => {
   } = req.body;
   let newImage = req.file ? `/uploads/${req.file.filename}` : "";
 
+  const sql = `
+    INSERT INTO Product (
+      Product_Name, Product_Detail, Product_Amount,
+      Product_Price, Product_Minimum, PType_Id, Product_Image
+    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+  `;
   db.query(
-    "SELECT Product_Id FROM Product ORDER BY Product_Id DESC LIMIT 1",
-    (err, results) => {
+    sql,
+    [
+      Product_Name,
+      Product_Detail,
+      Product_Amount,
+      Product_Price,
+      Product_Minimum,
+      PType_Id,
+      newImage,
+    ],
+    (err, result) => {
       if (err) return res.status(500).json({ message: "DB error" });
 
-      let newId = "PD001";
-      if (results.length > 0) {
-        const lastId = results[0].Product_Id;
-        const num = parseInt(lastId.replace("PD", "")) + 1;
-        newId = "PD" + num.toString().padStart(3, "0");
-      }
-
-      const sql = `
-          INSERT INTO Product (
-            Product_Id, Product_Name, Product_Detail, Product_Amount,
-            Product_Price, Product_Minimum, PType_Id, Product_Image
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `;
-      db.query(
-        sql,
-        [
-          newId,
-          Product_Name,
-          Product_Detail,
-          Product_Amount,
-          Product_Price,
-          Product_Minimum,
-          PType_Id,
-          newImage,
-        ],
-        (err, result) => {
-          if (err) return res.status(500).json({ message: "DB error" });
-
-          res.json({
-            Product_Id: newId,
-            Product_Name,
-            Product_Detail,
-            Product_Amount,
-            Product_Price,
-            Product_Minimum,
-            PType_Id,
-            Product_Image: newImage,
-          });
-        }
-      );
+      res.json({
+        Product_Id: result.insertId, // ใช้ id ที่ auto increment
+        Product_Name,
+        Product_Detail,
+        Product_Amount,
+        Product_Price,
+        Product_Minimum,
+        PType_Id,
+        Product_Image: newImage,
+      });
     }
   );
 });
@@ -327,31 +312,12 @@ app.get("/api/product_types", (req, res) => {
 // API สำหรับเพิ่มข้อมูลประเภทสินค้า
 app.post("/api/product_types", (req, res) => {
   const { PType_Name } = req.body;
-
   db.query(
-    "SELECT PType_Id FROM Product_Type ORDER BY PType_Id DESC LIMIT 1",
-    (err, results) => {
+    "INSERT INTO Product_Type (PType_Name) VALUES (?)",
+    [PType_Name],
+    (err, result) => {
       if (err) return res.status(500).json({ message: "DB error" });
-
-      let newId = "PT001";
-      if (results.length > 0) {
-        const lastId = results[0].PType_Id;
-        const num = parseInt(lastId.replace("PT", "")) + 1;
-        newId = "PT" + num.toString().padStart(3, "0");
-      }
-
-      db.query(
-        "INSERT INTO Product_Type (PType_Id, PType_Name) VALUES (?, ?)",
-        [newId, PType_Name],
-        (err, result) => {
-          if (err) {
-            console.error("Insert error:", err);
-            return res.status(500).json({ message: "DB error" });
-          }
-
-          res.json({ PType_Id: newId, PType_Name });
-        }
-      );
+      res.json({ PType_Id: result.insertId, PType_Name });
     }
   );
 });
