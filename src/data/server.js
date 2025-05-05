@@ -401,9 +401,9 @@ app.delete("/api/product_types/:id", (req, res) => {
 // API สำหรับดึงข้อมูลคู่ค้า
 app.get('/api/suppliers', (req, res) => {
   const sql = `
-    SELECT Supplier_Id, Supplier_Name, Supplier_Tel, Supplier_Address 
+    SELECT Supplier_Id, Supplier_Name, Supplier_Tel, Supplier_Address , is_Active
     FROM Supplier 
-    WHERE Is_Deleted = 0
+    
   `;
   db.query(sql, (err, results) => {
     if (err) return res.status(500).json({ message: 'ดึงข้อมูลล้มเหลว' });
