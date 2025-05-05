@@ -1,18 +1,39 @@
-.container {
-  padding: 2rem;
-  background: #ffffff;
-  min-height: 100vh;
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
+
+.container {
+  height: 100%;
+  padding: 32px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.tableBox table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.tableBox td, .tableBox th {
+  padding: 8px;
+}
+
+
 .tableBox {
-  max-width: 1200px;
+  width: 100%;
+  height: 50%;
   margin: 0 auto;
   background: #e6dfdf;
   border-radius: 0.75rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  padding: 2rem;
+  
 }
 .tableRow {
-  border-bottom: 20px solid #f3f4f6;
+  border-bottom: 5px solid #f3f4f6;
   background: #fff;
   text-align: center;
 }
@@ -32,15 +53,19 @@
 
 .thName {
   width: 180px;
+  height: 50px;
 }
 .thAddress {
   width: 500px;
+  height: 50px;
 }
 .thPhone {
   width: 200px;
+  height: 50px;
 }
 .thEdit, .thDelete {
   width: 150px;
+  height: 50px;
   text-align: center;
 }
 
@@ -67,11 +92,13 @@
 .containerbtn {
   display: flex;
   flex-direction: column;
+  margin-right: 3%;
+  margin-top: 1%;
 }
 
 .headerrowbtn {
   display: flex;
-  justify-content: flex-end; /* ดันปุ่มไปขวาสุด */
+  justify-content: flex-end; 
   margin-bottom: 8px;
 }
 
@@ -229,3 +256,5 @@
   background: #a93226;
 }
 /*  */
+
+

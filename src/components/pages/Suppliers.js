@@ -1,19 +1,124 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MainLayout from '../layout/MainLayout';
 import { useLocation } from 'react-router-dom';
 import styles from '../ui/Suppliers.module.css';
 import { FaTrash } from 'react-icons/fa';
+// import axios from 'axios';
 
-function Suppliers({ user }) {
+function Suppliers(props) {
+  const location = useLocation();
+  const user = props.user || location.state?.user || JSON.parse(localStorage.getItem('user'));
+
+  const [suppliers, setSuppliers] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newPhone, setNewPhone] = useState('');
+  const [newAddress, setNewAddress] = useState('');
+  const [editSupplierId, setEditSupplierId] = useState(null);
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
   const [editAddress, setEditAddress] = useState('');
-
-
+  const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteIndex, setDeleteIndex] = useState(null);
+  const openEditModal = (supplier) => {
+    setEditSupplierId(supplier.Supplier_Id);
+    setEditName(supplier.Supplier_Name);
+    setEditPhone(supplier.Supplier_Tel);
+    setEditAddress(supplier.Supplier_Address);
+    setShowEditModal(true);
+  };
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/suppliers')
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return res.json();
+      })
+      .then(data => {
+        setSuppliers(data);
+      })
+      .catch(err => {
+        console.error('Fetch error:', err);
+      });
+  }, []);
+
+  const handleAddSupplier = (e) => {
+    e.preventDefault();
+    console.log('📤 handleAddSupplier called');
+    console.log('ส่งข้อมูล:', { newName, newPhone, newAddress });
+
+    const newSupplier = {
+      Supplier_Name: newName,
+      Supplier_Tel: newPhone,
+      Supplier_Address: newAddress
+    };
+
+    fetch('http://localhost:5000/api/suppliers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newSupplier)
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return res.json();
+      })
+      .then(data => {
+        setSuppliers([...suppliers, { ...newSupplier, Supplier_Id: data.id }]);
+        setShowModal(false);
+        setNewName('');
+        setNewPhone('');
+        setNewAddress('');
+      })
+      .catch(err => {
+        console.error('Error adding supplier:', err);
+      });
+  };
+
+  const handleEditSupplier = (e) => {
+    e.preventDefault();
+
+    const updatedSupplier = {
+      Supplier_Name: editName,
+      Supplier_Tel: editPhone,
+      Supplier_Address: editAddress
+    };
+
+    fetch(`http://localhost:5000/api/suppliers/${editSupplierId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedSupplier)
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return res.json();
+      })
+      .then(data => {
+        // อัพเดท state ใน frontend
+        const updatedSuppliers = suppliers.map(s =>
+          s.Supplier_Id === editSupplierId
+            ? { ...s, ...updatedSupplier }
+            : s
+        );
+        setSuppliers(updatedSuppliers);
+
+        // Reset
+        setShowEditModal(false);
+        setEditSupplierId(null);
+        setEditName('');
+        setEditPhone('');
+        setEditAddress('');
+      })
+      .catch(err => {
+        console.error('Error updating supplier:', err);
+      });
+  };
 
   const handleDelete = (index) => {
     setDeleteIndex(index);
@@ -25,76 +130,90 @@ function Suppliers({ user }) {
     setShowDeleteModal(false);
     setDeleteIndex(null);
   };
-  // ดัมมี่ลบข้อมูล
-  const [suppliers, setSuppliers] = useState([
-    {
-      name: "LnwZa007",
-      address: "500 Star Conculor Garena Rov",
-      phone: "081-234-5678"
-    }
-    // เพิ่มข้อมูลอื่นๆ ได้ที่นี่
-  ]);
-  // ดัมมี่ลบข้อมูล
+
 
   return (
     <MainLayout user={user} title="Supplier">
       <div className={styles.container}>
-        <h1 className="text-2xl font-bold text-gray-800">ข้อมูลคู่ค้า</h1>
-        <div className={styles.tableBox}>
-          <div className="flex justify-between items-center mb-6">
-
-            {/* ปุ่มฟ้า */}
-            <div className={styles.containerbtn}>
-              <div className={styles.headerrowbtn}>
-                <button className={styles.custombtn} onClick={() => setShowModal(true)}> เพิ่มข้อมูล </button>
-              </div>
-            </div>
-            {/*  */}
-
+        {/* ปุ่มฟ้า */}
+        <div className={styles.containerbtn}>
+          <h1 className="text-2xl font-bold text-gray-800">ข้อมูลคู่ค้า</h1>
+          <div className={styles.headerrowbtn}>
+            <button className={styles.custombtn} onClick={() => setShowModal(true)}> เพิ่มข้อมูล </button>
           </div>
+        </div>
+
+        <div className={styles.tableBox}>
+
           {/* ตารางข้อมูลคู่ค้า */}
-          <table className="w-full border-collapse">
+          <table className={styles.table}>
+
             <thead>
               <tr className="bg-gray-100">
-                <th className={`${styles.thName} py-3 px-4 border-b text-left`}>ชื่อคู่ค้า</th>
-                <th className={`${styles.thAddress} py-3 px-4 border-b text-left`}>ที่อยู่คู่ค้า</th>
-                <th className={`${styles.thPhone} py-3 px-4 border-b text-left`}>เบอร์โทรคู่ค้า</th>
-                <th className={`${styles.thEdit} py-3 px-4 border-b text-center`}>แก้ไขข้อมูล</th>
-                <th className={`${styles.thDelete} py-3 px-4 border-b text-center`}>ลบข้อมูล</th>
+                <th className={`${styles.thName}`}>ชื่อคู่ค้า</th>
+                <th className={`${styles.thAddress}`}>ที่อยู่คู่ค้า</th>
+                <th className={`${styles.thPhone}`}>เบอร์โทรคู่ค้า</th>
+                <th className={`${styles.thEdit}`}>แก้ไขข้อมูล</th>
+                <th className={`${styles.thDelete}`}>ลบข้อมูล</th>
               </tr>
             </thead>
             <tbody>
-              {/* ตัวอย่างข้อมูล */}
-              <tr className={styles.tableRow}>
-                <td className="py-3 px-4 border-b">LnwZa007</td>
-                <td className="py-3 px-4 border-b">500 Star Conculor Garena Rov</td>
-                <td className="py-3 px-4 border-b">081-234-5678</td>
-                <td className="py-3 px-4 border-b text-center">
-                  <button className={styles.editTextBtn} onClick={() => setShowEditModal(true)}>แก้ไข</button>
-                </td>
-                <td className="py-3 px-4 border-b text-center">
-                  <button className={styles.deleteIconBtn} onClick={handleDelete} title="ลบ">
-                    <FaTrash color="#FF443A" size={24} />
-                  </button>
-                </td>
-              </tr>
-              {/* เพิ่ม row ตามข้อมูลจริง */}
+              {suppliers.length === 0 ? (
+                <tr><td colSpan="5" className="text-center py-3">ไม่มีข้อมูล</td></tr>
+              ) : (
+                suppliers.map((supplier, index) => (
+                  <tr key={index} className={styles.tableRow}>
+                    <td className="py-3 px-4 border-b">{supplier.Supplier_Name}</td>
+                    <td className="py-3 px-4 border-b">{supplier.Supplier_Address}</td>
+                    <td className="py-3 px-4 border-b">{supplier.Supplier_Tel}</td>
+                    <td className="py-3 px-4 border-b text-center">
+                      <button className={styles.editTextBtn} onClick={() => openEditModal(supplier)}>แก้ไข</button>
+                    </td>
+                    <td className="py-3 px-4 border-b text-center">
+                      <button className={styles.deleteIconBtn} onClick={() => handleDelete(index)} title="ลบ">
+                        <FaTrash color="#FF443A" size={24} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
+
           </table>
 
+
+
+          {/*------------------------------------------------- Modal All ------------------------------------------------- */}
+
+          {/* เพิ่มข้อมูล */}
           {showModal && (
             <div className={styles.modalOverlay}>
               <div className={styles.modalContent}>
                 <h2>เพิ่มข้อมูลคู่ค้า</h2>
-                <form>
+                <form onSubmit={handleAddSupplier}>
                   <label>ชื่อคู่ค้า</label>
-                  <input type="text" />
+                  <input type="text" value={newName} onChange={e => setNewName(e.target.value)} required />
+
+                  {/* ล็อกการกรอกเบอร์ไม่เกิน 10 ตัว */}
                   <label>เบอร์โทรคู่ค้า</label>
-                  <input type="text" />
+                  <input
+                    type="text"
+                    value={newPhone}
+                    onChange={e => {
+                      const onlyNums = e.target.value.replace(/\D/g, '');
+                      if (onlyNums.length <= 10) {
+                        setNewPhone(onlyNums);
+                      }
+                    }}
+                    placeholder="กรอกเบอร์ไม่เกิน 10 ตัว"
+                  />
+
+                  {/*  */}
+
                   <label>ที่อยู่คู่ค้า</label>
-                  <textarea rows={4}></textarea>
+                  <textarea rows={4} value={newAddress} onChange={e => setNewAddress(e.target.value)} required />
                   <div className={styles.modalActions}>
-                    <button type="submit" className={styles.addBtn}>เพิ่ม</button>
+                    <button type="submit" className="bg-blue-500 text-white p-2 rounded">เพิ่มข้อมูล</button>
                     <button type="button" className={styles.cancelBtn} onClick={() => setShowModal(false)}>ยกเลิก</button>
                   </div>
                 </form>
@@ -107,21 +226,32 @@ function Suppliers({ user }) {
             <div className={styles.modalOverlay}>
               <div className={styles.modalContent}>
                 <h2>แก้ไขข้อมูลคู่ค้า</h2>
-                <form>
-                  <label>ชื่อลูกค้า</label>
-                  <input type="text" value={editName} onChange={e => setEditName(e.target.value)} />
+                <form onSubmit={handleEditSupplier}>
+                  <label>ชื่อคู่ค้า</label>
+                  <input type="text" value={editName} onChange={e => setEditName(e.target.value)} required />
                   <label>เบอร์โทรคู่ค้า</label>
-                  <input type="text" value={editPhone} onChange={e => setEditPhone(e.target.value)} />
+                  <input
+                    type="text"
+                    value={editPhone}
+                    onChange={e => {
+                      const onlyNums = e.target.value.replace(/\D/g, '');
+                      if (onlyNums.length <= 10) {
+                        setEditPhone(onlyNums);
+                      }
+                    }}
+                    placeholder="กรอกเบอร์ไม่เกิน 10 ตัว"
+                  />
                   <label>ที่อยู่คู่ค้า</label>
-                  <textarea rows={4} value={editAddress} onChange={e => setEditAddress(e.target.value)} />
+                  <textarea rows={4} value={editAddress} onChange={e => setEditAddress(e.target.value)} required />
                   <div className={styles.modalActions}>
-                    <button type="submit" className={styles.addBtn}>แก้ไข</button>
+                    <button type="submit" className={styles.addBtn}>บันทึกการแก้ไข</button>
                     <button type="button" className={styles.cancelBtn} onClick={() => setShowEditModal(false)}>ยกเลิก</button>
                   </div>
                 </form>
               </div>
             </div>
           )}
+
 
           {/* ลบข้อมูล */}
           {showDeleteModal && (
@@ -141,10 +271,10 @@ function Suppliers({ user }) {
               </div>
             </div>
           )}
-
+          {/*------------------------------------------------- Modal All ------------------------------------------------- */}
         </div>
       </div>
-      <div>Supplier</div>
+
     </MainLayout>
   );
 }
