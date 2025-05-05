@@ -170,8 +170,8 @@ function Suppliers(props) {
                 <th className={`${styles.thName}`}>ชื่อคู่ค้า</th>
                 <th className={`${styles.thAddress}`}>ที่อยู่คู่ค้า</th>
                 <th className={`${styles.thPhone}`}>เบอร์โทรคู่ค้า</th>
+                <th className={`${styles.thEdit}`}>สถานะ</th>
                 <th className={`${styles.thEdit}`}>แก้ไขข้อมูล</th>
-                <th className={`${styles.thDelete}`}>ลบข้อมูล</th>
               </tr>
             </thead>
             <tbody>
@@ -183,13 +183,9 @@ function Suppliers(props) {
                     <td className="py-3 px-4 border-b">{supplier.Supplier_Name}</td>
                     <td className="py-3 px-4 border-b">{supplier.Supplier_Address}</td>
                     <td className="py-3 px-4 border-b">{supplier.Supplier_Tel}</td>
+                    <td className="py-3 px-4 border-b">{supplier.is_Active ? "สั่งซื้อด้วย" : "ไม่สั่งซื้อด้วย"}</td>
                     <td className="py-3 px-4 border-b text-center">
                       <button className={styles.editTextBtn} onClick={() => openEditModal(supplier)}>แก้ไข</button>
-                    </td>
-                    <td className="py-3 px-4 border-b text-center">
-                      <button className={styles.deleteIconBtn} onClick={() => handleDelete(index)} title="ลบ">
-                        <FaTrash color="#FF443A" size={24} />
-                      </button>
                     </td>
                   </tr>
                 ))
