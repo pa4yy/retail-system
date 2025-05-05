@@ -6,7 +6,7 @@ import StockReport from './components/pages/StockReport';
 import PurchaseReport from './components/pages/PurchaseReport';
 import SalesHistory from './components/pages/SalesHistory';
 import SalePage from './components/pages/SalePage';
-import ProductsPage from './components/pages/ProductsPage';
+import ProductsPage from './components/pages/Product/ProductsPage';
 import PurchasePage from './components/pages/PurchasePage';
 import Employees from './components/pages/Employees';
 import Suppliers from './components/pages/Suppliers';
