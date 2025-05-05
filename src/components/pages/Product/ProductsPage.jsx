@@ -55,9 +55,6 @@ function ProductsPage({ user }) {
   const closeDeleteModal = () => {
     setDeleteModalOpen(false);
   };
-  const closeAddModal = () => {
-    setAddModalOpen(false);
-  };
 
   const openAddModal = () => {
     setEditedProduct({
@@ -250,7 +247,7 @@ function ProductsPage({ user }) {
                     แก้ไข
                   </button>
 
-                  <button
+                  {/* <button
                     onClick={() => {
                       setSelectedProduct(p);
                       setDeleteModalOpen(true);
@@ -264,7 +261,7 @@ function ProductsPage({ user }) {
                     }}
                   >
                     ลบ
-                  </button>
+                  </button> */}
                 </td>
               </tr>
             ))}
