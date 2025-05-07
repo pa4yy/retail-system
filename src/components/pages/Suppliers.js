@@ -20,8 +20,6 @@ function Suppliers(props) {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editIsActive, setEditIsActive] = useState(true);
 
-  // const [showDeleteModal, setShowDeleteModal] = useState(false);
-  // const [deleteIndex, setDeleteIndex] = useState(null);
   const openEditModal = (supplier) => {
     setEditSupplierId(supplier.Supplier_Id);
     setEditName(supplier.Supplier_Name);
@@ -124,33 +122,6 @@ function Suppliers(props) {
       });
   };
 
-  // const handleDelete = (index) => {
-  //   setDeleteIndex(index);
-  //   setShowDeleteModal(true);
-  // };
-
-
-  // const confirmDelete = () => {
-  //   const supplierId = suppliers[deleteIndex].Supplier_Id;
-
-  //   fetch(`http://localhost:5000/api/suppliers/${supplierId}`, {
-  //     method: 'DELETE'
-  //   })
-  //     .then(res => {
-  //       if (!res.ok) throw new Error('ลบไม่สำเร็จ');
-  //       return res.json();
-  //     })
-  //     .then(data => {
-  //       // ลบออกจาก state
-  //       setSuppliers(prev => prev.filter((_, i) => i !== deleteIndex));
-  //       setShowDeleteModal(false);
-  //       setDeleteIndex(null);
-  //     })
-  //     .catch(err => {
-  //       console.error('เกิดข้อผิดพลาดในการลบ:', err);
-  //       alert('ไม่สามารถลบรายการนี้ได้');
-  //     });
-  // };
 
 
   return (
@@ -182,17 +153,28 @@ function Suppliers(props) {
               {suppliers.length === 0 ? (
                 <tr><td colSpan="5" className="text-center py-3">ไม่มีข้อมูล</td></tr>
               ) : (
-                suppliers.map((supplier, index) => (
-                  <tr key={index} className={styles.tableRow}>
-                    <td className="py-3 px-4 border-b">{supplier.Supplier_Name}</td>
-                    <td className="py-3 px-4 border-b">{supplier.Supplier_Address}</td>
-                    <td className="py-3 px-4 border-b">{supplier.Supplier_Tel}</td>
-                    <td className="py-3 px-4 border-b">{supplier.is_Active ? "สั่งซื้อด้วย" : "ไม่สั่งซื้อด้วย"}</td>
-                    <td className="py-3 px-4 border-b text-center">
-                      <button className={styles.editTextBtn} onClick={() => openEditModal(supplier)}>แก้ไข</button>
-                    </td>
-                  </tr>
-                ))
+                (() => {
+                  const active = [];
+                  const inactive = [];
+                  suppliers.forEach((supplier) => {
+                    if (supplier.is_Active) {
+                      active.push(supplier);
+                    } else {
+                      inactive.push(supplier);
+                    }
+                  });
+                  return [...active, ...inactive].map((supplier, index) => (
+                    <tr key={supplier.Supplier_Id} className={styles.tableRow}>
+                      <td className="py-3 px-4 border-b">{supplier.Supplier_Name}</td>
+                      <td className="py-3 px-4 border-b">{supplier.Supplier_Address}</td>
+                      <td className="py-3 px-4 border-b">{supplier.Supplier_Tel}</td>
+                      <td className="py-3 px-4 border-b">{supplier.is_Active ? "สั่งซื้อด้วย" : "ไม่สั่งซื้อด้วย"}</td>
+                      <td className="py-3 px-4 border-b text-center">
+                        <button className={styles.editTextBtn} onClick={() => openEditModal(supplier)}>แก้ไข</button>
+                      </td>
+                    </tr>
+                  ));
+                })()
               )}
             </tbody>
 
@@ -273,27 +255,6 @@ function Suppliers(props) {
               </div>
             </div>
           )}
-
-
-          {/* ลบข้อมูล
-          {showDeleteModal && (
-            <div className={styles.modalOverlay}>
-              <div className={styles.deleteModalContent}>
-                <div className={styles.deleteModalHeader}>
-                  <span style={{ fontSize: "2rem", color: "#222" }}>⚠️</span>
-                  <span className={styles.deleteModalTitle}>ลบข้อมูล</span>
-                </div>
-                <div className={styles.deleteModalBody}>
-                  <p>คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?</p>
-                </div>
-                <div className={styles.deleteModalActions}>
-                  <button className={styles.confirmBtn} onClick={confirmDelete}>ตกลง</button>
-                  <button className={styles.cancelBtn} onClick={() => setShowDeleteModal(false)}>ยกเลิก</button>
-                </div>
-              </div>
-            </div>
-          )} */}
-          {/*------------------------------------------------- Modal All ------------------------------------------------- */}
         </div>
       </div>
 
