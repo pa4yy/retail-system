@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import MainLayout from '../layout/MainLayout';
 import { useLocation } from 'react-router-dom';
 import styles from '../ui/Suppliers.module.css';
-import { FaTrash } from 'react-icons/fa';
 // import axios from 'axios';
 
 function Suppliers(props) {
@@ -19,13 +18,16 @@ function Suppliers(props) {
   const [editPhone, setEditPhone] = useState('');
   const [editAddress, setEditAddress] = useState('');
   const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteIndex, setDeleteIndex] = useState(null);
+  const [editIsActive, setEditIsActive] = useState(true);
+
+  // const [showDeleteModal, setShowDeleteModal] = useState(false);
+  // const [deleteIndex, setDeleteIndex] = useState(null);
   const openEditModal = (supplier) => {
     setEditSupplierId(supplier.Supplier_Id);
     setEditName(supplier.Supplier_Name);
     setEditPhone(supplier.Supplier_Tel);
     setEditAddress(supplier.Supplier_Address);
+    setEditIsActive(supplier.is_Active);
     setShowEditModal(true);
   };
 
@@ -86,7 +88,8 @@ function Suppliers(props) {
     const updatedSupplier = {
       Supplier_Name: editName,
       Supplier_Tel: editPhone,
-      Supplier_Address: editAddress
+      Supplier_Address: editAddress,
+      is_Active: editIsActive
     };
 
     fetch(`http://localhost:5000/api/suppliers/${editSupplierId}`, {
@@ -121,33 +124,33 @@ function Suppliers(props) {
       });
   };
 
-  const handleDelete = (index) => {
-    setDeleteIndex(index);
-    setShowDeleteModal(true);
-  };
+  // const handleDelete = (index) => {
+  //   setDeleteIndex(index);
+  //   setShowDeleteModal(true);
+  // };
 
 
-  const confirmDelete = () => {
-    const supplierId = suppliers[deleteIndex].Supplier_Id;
-  
-    fetch(`http://localhost:5000/api/suppliers/${supplierId}`, {
-      method: 'DELETE'
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('ลบไม่สำเร็จ');
-        return res.json();
-      })
-      .then(data => {
-        // ลบออกจาก state
-        setSuppliers(prev => prev.filter((_, i) => i !== deleteIndex));
-        setShowDeleteModal(false);
-        setDeleteIndex(null);
-      })
-      .catch(err => {
-        console.error('เกิดข้อผิดพลาดในการลบ:', err);
-        alert('ไม่สามารถลบรายการนี้ได้');
-      });
-  };
+  // const confirmDelete = () => {
+  //   const supplierId = suppliers[deleteIndex].Supplier_Id;
+
+  //   fetch(`http://localhost:5000/api/suppliers/${supplierId}`, {
+  //     method: 'DELETE'
+  //   })
+  //     .then(res => {
+  //       if (!res.ok) throw new Error('ลบไม่สำเร็จ');
+  //       return res.json();
+  //     })
+  //     .then(data => {
+  //       // ลบออกจาก state
+  //       setSuppliers(prev => prev.filter((_, i) => i !== deleteIndex));
+  //       setShowDeleteModal(false);
+  //       setDeleteIndex(null);
+  //     })
+  //     .catch(err => {
+  //       console.error('เกิดข้อผิดพลาดในการลบ:', err);
+  //       alert('ไม่สามารถลบรายการนี้ได้');
+  //     });
+  // };
 
 
   return (
@@ -257,6 +260,11 @@ function Suppliers(props) {
                   />
                   <label>ที่อยู่คู่ค้า</label>
                   <textarea rows={4} value={editAddress} onChange={e => setEditAddress(e.target.value)} required />
+                  <label>สถานะ</label>
+                  <select value={editIsActive ? "true" : "false"} onChange={e => setEditIsActive(e.target.value === "true")}>
+                    <option value="true">สั่งซื้อด้วย</option>
+                    <option value="false">ไม่สั่งซื้อด้วย</option>
+                  </select>
                   <div className={styles.modalActions}>
                     <button type="submit" className={styles.addBtn}>บันทึกการแก้ไข</button>
                     <button type="button" className={styles.cancelBtn} onClick={() => setShowEditModal(false)}>ยกเลิก</button>
@@ -267,7 +275,7 @@ function Suppliers(props) {
           )}
 
 
-          {/* ลบข้อมูล */}
+          {/* ลบข้อมูล
           {showDeleteModal && (
             <div className={styles.modalOverlay}>
               <div className={styles.deleteModalContent}>
@@ -284,7 +292,7 @@ function Suppliers(props) {
                 </div>
               </div>
             </div>
-          )}
+          )} */}
           {/*------------------------------------------------- Modal All ------------------------------------------------- */}
         </div>
       </div>
