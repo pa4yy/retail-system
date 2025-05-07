@@ -117,8 +117,10 @@ function Employees(props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState('add'); // 'add' or 'edit'
+  const [modalType, setModalType] = useState('add');
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [showWorking, setShowWorking] = useState(true);
+  const [showFarewell, setShowFarewell] = useState(true);
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -139,16 +141,21 @@ function Employees(props) {
     fetchEmployees();
   }, []);
 
-  const filteredEmployees = employees.filter(emp =>
-    (String(emp.Emp_Id) || '').includes(search) ||
-    (emp.Emp_user || '').toLowerCase().includes(search.toLowerCase()) ||
-    (emp.Fname || '').toLowerCase().includes(search.toLowerCase()) ||
-    (emp.Lname || '').toLowerCase().includes(search.toLowerCase()) ||
-    (emp.Emp_Tel || '').includes(search) ||
-    (emp.Emp_Address || '').toLowerCase().includes(search.toLowerCase()) ||
-    (emp.Role || '').toLowerCase().includes(search.toLowerCase()) ||
-    (emp.Emp_Status || '').toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredEmployees = employees.filter(emp => {
+    const matchesSearch = (String(emp.Emp_Id) || '').includes(search) ||
+      (emp.Emp_user || '').toLowerCase().includes(search.toLowerCase()) ||
+      (emp.Fname || '').toLowerCase().includes(search.toLowerCase()) ||
+      (emp.Lname || '').toLowerCase().includes(search.toLowerCase()) ||
+      (emp.Emp_Tel || '').includes(search) ||
+      (emp.Emp_Address || '').toLowerCase().includes(search.toLowerCase()) ||
+      (emp.Role || '').toLowerCase().includes(search.toLowerCase()) ||
+      (emp.Emp_Status || '').toLowerCase().includes(search.toLowerCase());
+
+    const matchesStatus = (emp.Emp_Status === 'W' && showWorking) || 
+                         (emp.Emp_Status === 'F' && showFarewell);
+
+    return matchesSearch && matchesStatus;
+  });
 
   const handleEdit = (emp) => {
     setModalType('edit');
@@ -222,6 +229,24 @@ function Employees(props) {
           />
           <button className="employees-btn search-btn">ค้นหา</button>
           <button className="employees-btn add-btn" onClick={handleAdd}>เพิ่มข้อมูล</button>
+          <div className="status-filters">
+            <label>
+              <input
+                type="checkbox"
+                checked={showWorking}
+                onChange={e => setShowWorking(e.target.checked)}
+              />
+              Working
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={showFarewell}
+                onChange={e => setShowFarewell(e.target.checked)}
+              />
+              Farewell
+            </label>
+          </div>
         </div>
         <div className="employees-table-wrapper">
           <table className="employees-table">
