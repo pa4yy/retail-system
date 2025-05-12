@@ -11,7 +11,6 @@ function ProductsPage({ user }) {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
-  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [editedProduct, setEditedProduct] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState("");
@@ -24,36 +23,37 @@ function ProductsPage({ user }) {
       type?.PType_Name?.toLowerCase().includes(search.toLowerCase())
     );
   });
+  
+  const fetchData = async () => {
+    //ดึงข้อมูลสินค้า
+    await axios
+    .get("http://localhost:5000/api/products")
+    .then((response) => {
+      console.log("data form backend", response.data);
+      setProducts(response.data);
+    })
+    .catch((error) =>
+      console.error("เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า:", error)
+    );
+
+  //ดึงข้อมูลประเภทสินค้า
+   await axios
+    .get("http://localhost:5000/api/product_types")
+    .then((response) => {
+      console.log("data form backend", response.data);
+      setProductTypes(response.data);
+    })
+    .catch((error) =>
+      console.error("เกิดข้อผิดพลาดในการดึงข้อมูลประเภทสินค้า:", error)
+    );
+  };
 
   useEffect(() => {
-    //ดึงข้อมูลสินค้า
-    axios
-      .get("http://localhost:5000/api/products")
-      .then((response) => {
-        console.log("data form backend", response.data);
-        setProducts(response.data);
-      })
-      .catch((error) =>
-        console.error("เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า:", error)
-      );
-
-    //ดึงข้อมูลประเภทสินค้า
-    axios
-      .get("http://localhost:5000/api/product_types")
-      .then((response) => {
-        console.log("data form backend", response.data);
-        setProductTypes(response.data);
-      })
-      .catch((error) =>
-        console.error("เกิดข้อผิดพลาดในการดึงข้อมูลประเภทสินค้า:", error)
-      );
+    fetchData();
   }, []);
 
   const closeEditModal = () => {
     setEditModalOpen(false);
-  };
-  const closeDeleteModal = () => {
-    setDeleteModalOpen(false);
   };
 
   const openAddModal = () => {
@@ -82,12 +82,12 @@ function ProductsPage({ user }) {
     }
 
     try {
-      const res = await axios.put(
+      await axios.put(
         `http://localhost:5000/api/products/${editedProduct.Product_Id}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
-      const updated = res.data;
+
       setProducts((prev) =>
         prev.map((p) =>
           p.Product_Id === editedProduct.Product_Id
@@ -99,6 +99,7 @@ function ProductsPage({ user }) {
       setEditModalOpen(false);
       setSuccessMessage("แก้ไขข้อมูลสินค้าเรียบร้อยแล้ว");
       setShowSuccessModal(true);
+      await fetchData();
     } catch (err) {
       console.error("เกิดข้อผิดพลาดในการอัปเดตสินค้า: ", err);
     }
@@ -124,30 +125,31 @@ function ProductsPage({ user }) {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
+
       setProducts((prev) => [...prev, res.data]);
       setAddModalOpen(false);
       setSuccessMessage("เพิ่มข้อมูลสินค้าเรียบร้อยแล้ว");
       setShowSuccessModal(true);
+      await fetchData();
     } catch (err) {
       console.error("Error adding product:", err);
     }
   };
-
-  const handleDelete = async () => {
-    try {
-      await axios.delete(
-        `http://localhost:5000/api/products/${selectedProduct.Product_Id}`
-      );
-      setProducts((prev) =>
-        prev.filter((p) => p.Product_Id !== selectedProduct.Product_Id)
-      );
-      setDeleteModalOpen(false);
-      setSuccessMessage("ลบข้อมูลสินค้าเรียบร้อยแล้ว");
-      setShowSuccessModal(true);
-    } catch (err) {
-      console.error("Error deleting product:", err);
-    }
-  };
+  //   try {
+  //     await axios.delete(
+  //       `http://localhost:5000/api/products/${selectedProduct.Product_Id}`
+  //     );
+  //     setProducts((prev) =>
+  //       prev.filter((p) => p.Product_Id !== selectedProduct.Product_Id)
+  //     );
+  //     setDeleteModalOpen(false);
+  //     setSuccessMessage("ลบข้อมูลสินค้าเรียบร้อยแล้ว");
+  //     setShowSuccessModal(true);
+  //     fetchData();
+  //   } catch (err) {
+  //     console.error("Error deleting product:", err);
+  //   }
+  // };
 
   return (
     <MainLayout user={user} title="ข้อมูลสินค้า">
@@ -212,22 +214,16 @@ function ProductsPage({ user }) {
                 style={{ background: idx % 2 === 0 ? "#f4faff" : "#fff" }}
               >
                 <td style={{ padding: 8, textAlign: "center" }}>{idx + 1}</td>
-                <td style={{ padding: 8, textAlign: "left" }}>
-                  {p.Product_Name}
-                </td>
+                <td style={{ padding: 8, textAlign: "left" }}>{p.Product_Name}</td>
                 <td style={{ padding: 8, textAlign: "left" }}>
                   {
                     productTypes.find((t) => t.PType_Id === p.PType_Id)
                       ?.PType_Name
                   }
                 </td>
-                <td style={{ padding: 8, textAlign: "right" }}>
-                  {parseFloat(p.Product_Price).toFixed(2)}
-                </td>
+                <td style={{ padding: 8, textAlign: "right" }}>{parseFloat(p.Product_Price).toFixed(2)}</td>
                 <td style={{ padding: 8, textAlign: "right" }}>0</td>
-                <td style={{ padding: 8, textAlign: "right" }}>
-                  {p.Product_Amount}
-                </td>
+                <td style={{ padding: 8, textAlign: "right" }}>{p.Product_Amount}</td>
                 <td style={{ padding: 8, textAlign: "center" }}>
                   <button
                     onClick={() => {
@@ -247,21 +243,6 @@ function ProductsPage({ user }) {
                     แก้ไข
                   </button>
 
-                  {/* <button
-                    onClick={() => {
-                      setSelectedProduct(p);
-                      setDeleteModalOpen(true);
-                    }}
-                    style={{
-                      background: "#E53935",
-                      color: "#fff",
-                      border: "none",
-                      padding: "6px 12px",
-                      borderRadius: 4,
-                    }}
-                  >
-                    ลบ
-                  </button> */}
                 </td>
               </tr>
             ))}
@@ -296,7 +277,7 @@ function ProductsPage({ user }) {
           </button>
         </div>
 
-        {/* Modal สำหรับเพิ่ม/แก้ไขสินค้า/ลบสินค้า */}
+        {/* Modal สำหรับเพิ่ม/แก้ไขสินค้า */}
         {isAddModalOpen && (
           <div style={modalOverlayStyle}>
             <ProductModal
@@ -323,59 +304,6 @@ function ProductsPage({ user }) {
               onSubmit={handleEditSubmit}
               productTypes={productTypes}
             />
-          </div>
-        )}
-
-        {isDeleteModalOpen && (
-          <div style={modalOverlayStyle}>
-            <div
-              style={{
-                ...modalContentStyle,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                padding: "40px 20px",
-              }}
-            >
-              <p
-                style={{
-                  fontSize: "18px",
-                  marginBottom: "24px",
-                  textAlign: "center",
-                }}
-              >
-                คุณต้องการลบสินค้านี้ใช่หรือไม่?
-              </p>
-              <div
-                style={{ display: "flex", justifyContent: "center", gap: 16 }}
-              >
-                <button
-                  onClick={handleDelete}
-                  style={{
-                    background: "#E53935",
-                    color: "#fff",
-                    padding: "8px 20px",
-                    border: "none",
-                    borderRadius: 4,
-                  }}
-                >
-                  ลบ
-                </button>
-                <button
-                  onClick={closeDeleteModal}
-                  style={{
-                    background: "#ccc",
-                    color: "#333",
-                    padding: "8px 20px",
-                    border: "none",
-                    borderRadius: 4,
-                  }}
-                >
-                  ยกเลิก
-                </button>
-              </div>
-            </div>
           </div>
         )}
 
@@ -453,24 +381,6 @@ const modalOverlayStyle = {
   justifyContent: "center",
   alignItems: "center",
   zIndex: 1000,
-};
-
-const modalContentStyle = {
-  backgroundColor: "white",
-  padding: "20px",
-  borderRadius: "8px",
-  width: "400px",
-  boxShadow: "0 5px 15px rgba(0, 0, 0, 0.3)",
-};
-
-const closeButtonStyle = {
-  position: "absolute",
-  top: "10px",
-  right: "10px",
-  background: "none",
-  border: "none",
-  fontSize: "20px",
-  cursor: "pointer",
 };
 
 export default ProductsPage;
