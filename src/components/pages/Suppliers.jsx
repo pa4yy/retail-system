@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import MainLayout from '../layout/MainLayout';
-import { useLocation } from 'react-router-dom';
+import { useAuth } from '../../data/useAuth';
 import axios from 'axios';
 import ConfirmModal from '../ui/ConfirmModal';
 import StatusModal from '../ui/StatusModal';
 
-function Suppliers(props) {
-  const location = useLocation();
-  const user = props.user || location.state?.user || JSON.parse(localStorage.getItem('user'));
-
+function Suppliers() {
+  const { user } = useAuth();
   const [suppliers, setSuppliers] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [newName, setNewName] = useState('');
