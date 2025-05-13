@@ -2,15 +2,21 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel }) {
   if (!isOpen) return null;
 
   return (
-    <div style={overlayStyle}>
-      <div style={modalStyle}>
-        <h3>{title}</h3>
-        <p>{message}</p>
-        <div style={{ marginTop: 20 }}>
-          <button onClick={onConfirm} style={confirmBtn}>
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+      <div className="bg-white p-6 rounded-xl min-w-[300px] text-center">
+        <h3 className="text-lg font-semibold mb-2">{title}</h3>
+        <p className="text-gray-600 mb-5">{message}</p>
+        <div className="flex justify-center gap-3">
+          <button 
+            onClick={onConfirm} 
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition-colors"
+          >
             ยืนยัน
           </button>
-          <button onClick={onCancel} style={cancelBtn}>
+          <button 
+            onClick={onCancel} 
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition-colors"
+          >
             ยกเลิก
           </button>
         </div>
@@ -18,43 +24,5 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel }) {
     </div>
   );
 }
-
-const overlayStyle = {
-  position: "fixed",
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  backgroundColor: "rgba(0, 0, 0, 0.4)",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  zIndex: 2000,
-};
-
-const modalStyle = {
-  backgroundColor: "white",
-  padding: 24,
-  borderRadius: 12,
-  minWidth: 300,
-  textAlign: "center",
-};
-
-const confirmBtn = {
-  marginRight: 10,
-  backgroundColor: "#28a745",
-  color: "white",
-  padding: "6px 12px",
-  border: "none",
-  borderRadius: 4,
-};
-
-const cancelBtn = {
-  backgroundColor: "#dc3545",
-  color: "white",
-  padding: "6px 12px",
-  border: "none",
-  borderRadius: 4,
-};
 
 export default ConfirmModal;

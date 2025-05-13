@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import './Sidebar.css';
 
 function Sidebar({ user }) {
   const navigate = useNavigate();
@@ -67,52 +66,63 @@ function Sidebar({ user }) {
   };
 
   return (
-    <div className="sidebar">
+    <div className="w-[200px] bg-gray-900 text-white min-h-screen flex flex-col">
       <div
-        className="sidebar-title"
-        style={{ cursor: 'pointer' }}
+        className="text-2xl p-5 font-bold cursor-pointer"
         onClick={() => handleNavigate('/sale')}
       >
         Shop Ease
       </div>
-      <div className="sidebar-menu-group">
+      
+      <div className="flex-1">
         {menuGroups.map((group) => (
-          <div key={group.group} className="sidebar-group">
-            <div className="sidebar-group-title">{group.group}</div>
-            <ul className="sidebar-group-list">
+          <div key={group.group} className="mb-2">
+            <div className="text-lg font-bold px-5 py-3">{group.group}</div>
+            <ul>
               {group.items.map((item) => (
                 <li
                   key={item.path}
-                  className={location.pathname === item.path ? 'active' : ''}
+                  className={`px-8 py-2 cursor-pointer text-base hover:bg-gray-700 ${
+                    location.pathname === item.path ? 'bg-blue-600' : ''
+                  }`}
                   onClick={() => handleNavigate(item.path)}
                 >
                   <span>{item.label}</span>
-                  {item.badge && <span className="badge">{item.badge}</span>}
+                  {item.badge && (
+                    <span className="ml-2 bg-red-600 text-white px-2 py-0.5 rounded-full text-xs">
+                      {item.badge}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>
           </div>
         ))}
-        {/* เมนูหลักที่ไม่อยู่ในกลุ่ม */}
+
         {mainLinks.map(link => (
           <div
             key={link.path}
-            className={`sidebar-group-title main-link${location.pathname === link.path ? ' active' : ''}`}
+            className={`px-5 py-3 text-lg font-bold cursor-pointer hover:bg-gray-700 ${
+              location.pathname === link.path ? 'bg-blue-600' : ''
+            }`}
             onClick={() => handleNavigate(link.path)}
-            style={{ cursor: 'pointer' }}
           >
             {link.label}
           </div>
         ))}
       </div>
-      <div className="user-section">
-        <div className="user-info">
-          <div className="user-name">{user?.name || 'User'}</div>
-          <div className="user-role">
+
+      <div className="mt-auto bg-gray-800 p-5">
+        <div className="mb-4 pb-4 border-b border-gray-700">
+          <div className="text-white text-sm mb-1">{user?.name || 'User'}</div>
+          <div className="text-blue-400 text-xs">
             {user?.role === 'manager' ? 'ผู้จัดการ' : 'พนักงาน'}
           </div>
         </div>
-        <button className="logout-button" onClick={handleLogout}>
+        <button
+          className="w-full text-left text-sm hover:text-red-500 transition-colors"
+          onClick={handleLogout}
+        >
           ออกจากระบบ
         </button>
       </div>

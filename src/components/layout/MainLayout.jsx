@@ -3,24 +3,11 @@ import Sidebar from './Sidebar';
 
 export default function MainLayout({ user, children, title }) {
   return (
-    <div style={style.layoutcontainer}>
+    <div className="flex min-h-screen">
       <Sidebar user={user} />
-      <div style={style.maincontent}>
+      <div className="flex-1 p-5 bg-gray-100">
         {children}
       </div>
     </div>
   );
 }
-
-const style = {
-  layoutcontainer: {
-    display: "flex",
-    minHeight: '100vh',
-  },
-  
-  maincontent: {
-    flex: 1,
-    padding: '20px',
-    backgroundColor: '#f5f5f5',
-  }
-};
