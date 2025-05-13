@@ -34,7 +34,7 @@ app.post("/api/login", (req, res) => {
   }
 
   const sql =
-    'SELECT Emp_user, Role, Fname, Lname FROM Employee WHERE Emp_user = ? AND Password = ? AND Emp_Status = "W"';
+    'SELECT * FROM Employee WHERE Emp_user = ? AND Password = ? AND Emp_Status = "W"';
   db.query(sql, [username, password], (err, results) => {
     if (err) {
       console.error("Database error:", err);
@@ -48,9 +48,15 @@ app.post("/api/login", (req, res) => {
 
     const user = results[0];
     res.json({
-      username: user.Emp_user,
-      role: user.Role === "M" ? "manager" : "employee",
-      name: user.Fname + " " + user.Lname,
+      Emp_Id: user.Emp_Id,
+      Emp_user: user.Emp_user,
+      Password: user.Password,
+      Role: user.Role === "M" ? "Manager" : "Employee",
+      Fname: user.Fname,
+      Lname: user.Lname,
+      Emp_Tel: user.Emp_Tel,
+      Emp_Address: user.Emp_Address,
+      Emp_Status: user.Emp_Status === "W" ? "Working" : "Farewell"
     });
   });
 });

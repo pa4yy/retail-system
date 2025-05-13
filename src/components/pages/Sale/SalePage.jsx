@@ -7,7 +7,6 @@ import StatusModal from '../../ui/StatusModal';
 import axios from 'axios';
 
 function formatDateTime(date) {
-  // date: JS Date object
   const pad = n => n < 10 ? '0' + n : n;
   return (
     date.getFullYear() + '-' +
@@ -120,7 +119,7 @@ function SalePage({ user }) {
         </div>
         <div className="bg-gray-200 rounded-lg p-4 mb-6">
           <div className="overflow-x-auto">
-            <div style={{ maxHeight: 600, minHeight: 600, overflowY: "auto" }}>
+            <div style={{ maxHeight: 580, minHeight: 580, overflowY: "auto" }}>
               <table className="min-w-[800px] w-full table-fixed">
                 <colgroup>
                   <col style={{ width: "60px" }} />

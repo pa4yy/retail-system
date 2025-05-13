@@ -4,14 +4,12 @@ import ProductSelectModal from './PurchaseAddModal';
 import ConfirmProductModal from './ConfrimPurchaseModal'
 import axios from "axios";
 
-function PurchasePage({ user }) {
+function PurchasePage({user}) {
   const [products, setProducts] = useState([]);
-  // const [productId, setProductId] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [supplierList, setSupplierList] = useState([]);
   const [selectedSupplierId, setSelectedSupplierId] = useState('');
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-
 
   const handleSelectProducts = (selectedProducts) => {
     const newProducts = selectedProducts.map(p => ({
@@ -45,14 +43,6 @@ function PurchasePage({ user }) {
       });
   }, []);
 
-  // useEffect(() => {
-  //   console.log("USER:", user);
-  // }, []);
-
- 
-
-
-
   const totalQuantity = products.reduce((sum, p) => sum + Number(p.quantity), 0);
   const totalCost = products.reduce((sum, p) => sum + (Number(p.price) * Number(p.quantity)), 0);
 
@@ -84,7 +74,7 @@ function PurchasePage({ user }) {
           </button>
         </div>
 
-        <div className="overflow-y-auto max-h-[600px] h-[600px] rounded-md bg-[#d9d9d9] p-3">
+        <div className="overflow-y-auto max-h-[580px] h-[580px] rounded-md bg-[#d9d9d9] p-3">
           <table className="w-full border-separate border-spacing-y-2">
             <thead className="bg-[#d9d9d9] h-[50px] sticky top-0 z-10">
               <tr>
@@ -181,7 +171,6 @@ function PurchasePage({ user }) {
         onClose={() => setIsConfirmOpen(false)}
         onSelectProducts={handleSelectProducts}
         products={products}
-        user={user} 
       />
 
 

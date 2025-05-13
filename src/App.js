@@ -27,15 +27,15 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/sales-report" element={<SalesReport />} />
-        <Route path="/stock-report" element={<StockReport />} />
-        <Route path="/purchase-report" element={<PurchaseReport />} />
-        <Route path="/sales-history" element={<SalesHistory />} />
+        <Route path="/sales-report" element={<ProtectedRoute><SalesReport /></ProtectedRoute>} />
+        <Route path="/stock-report" element={<ProtectedRoute><StockReport /></ProtectedRoute>} />
+        <Route path="/purchase-report" element={<ProtectedRoute><PurchaseReport /></ProtectedRoute>} />
+        <Route path="/sales-history" element={<ProtectedRoute><SalesHistory /></ProtectedRoute>} />
         <Route path="/sale" element={<ProtectedRoute><SalePage /></ProtectedRoute>} />
         <Route path="/products" element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} />
         <Route path="/purchase" element={<ProtectedRoute><PurchasePage /></ProtectedRoute>} />
-        <Route path="/employees" element={<Employees />} />
-        <Route path="/suppliers" element={<Suppliers />} />
+        <Route path="/employees" element={<ProtectedRoute><Employees /></ProtectedRoute>} />
+        <Route path="/suppliers" element={<ProtectedRoute><Suppliers /></ProtectedRoute>} />
         <Route path="/" element={<Navigate to="/sale" replace />} />
       </Routes>
     </Router>

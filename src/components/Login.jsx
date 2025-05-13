@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../data/useAuth';
 
 function Login() {
   const navigate = useNavigate();
+  const { setUser } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -17,7 +19,8 @@ function Login() {
       });
       
       if (response.data) {
-        localStorage.setItem('user', JSON.stringify(response.data));
+        console.log('Login response:', response.data);
+        setUser(response.data);
         navigate('/sale', { state: { user: response.data } });
       }
     } catch (error) {
