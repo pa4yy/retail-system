@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
-import ConfirmModal from "./ConfirmModal";
-import StatusModal from "./StatusModal";
+import ConfirmModal from "../../ui/ConfirmModal";
+import StatusModal from "../../ui/StatusModal";
 
 function ProductModal({
   isOpen,

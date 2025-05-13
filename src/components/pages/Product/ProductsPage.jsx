@@ -23,29 +23,29 @@ function ProductsPage({ user }) {
       type?.PType_Name?.toLowerCase().includes(search.toLowerCase())
     );
   });
-  
+
   const fetchData = async () => {
     //ดึงข้อมูลสินค้า
     await axios
-    .get("http://localhost:5000/api/products")
-    .then((response) => {
-      console.log("data form backend", response.data);
-      setProducts(response.data);
-    })
-    .catch((error) =>
-      console.error("เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า:", error)
-    );
+      .get("http://localhost:5000/api/products")
+      .then((response) => {
+        console.log("data form backend", response.data);
+        setProducts(response.data);
+      })
+      .catch((error) =>
+        console.error("เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า:", error)
+      );
 
-  //ดึงข้อมูลประเภทสินค้า
-   await axios
-    .get("http://localhost:5000/api/product_types")
-    .then((response) => {
-      console.log("data form backend", response.data);
-      setProductTypes(response.data);
-    })
-    .catch((error) =>
-      console.error("เกิดข้อผิดพลาดในการดึงข้อมูลประเภทสินค้า:", error)
-    );
+    //ดึงข้อมูลประเภทสินค้า
+    await axios
+      .get("http://localhost:5000/api/product_types")
+      .then((response) => {
+        console.log("data form backend", response.data);
+        setProductTypes(response.data);
+      })
+      .catch((error) =>
+        console.error("เกิดข้อผิดพลาดในการดึงข้อมูลประเภทสินค้า:", error)
+      );
   };
 
   useEffect(() => {
@@ -152,7 +152,7 @@ function ProductsPage({ user }) {
   // };
 
   return (
-    <MainLayout user={user} title="ข้อมูลสินค้า">
+    <MainLayout user={user}>
       <div style={{ background: "#fff", padding: 24, borderRadius: 8 }}>
         <div
           style={{
@@ -170,84 +170,81 @@ function ProductsPage({ user }) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{
-                padding: 6,
+                padding: 7,
                 borderRadius: 4,
                 border: "1px solid #ccc",
-                marginRight: 8,
+                marginRight: 2,
               }}
             />
-            <button
-              style={{
-                padding: "6px 16px",
-                background: "#0074D9",
-                color: "#fff",
-                border: "none",
-                borderRadius: 4,
-              }}
-            >
-              ค้นหา
-            </button>
           </div>
         </div>
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            marginBottom: 16,
-          }}
-        >
-          <thead>
-            <tr style={{ background: "#0074D9", color: "#fff" }}>
-              <th style={{ padding: 8 }}>ลำดับ</th>
-              <th style={{ padding: 8 }}>ชื่อสินค้า</th>
-              <th style={{ padding: 8 }}>ประเภท</th>
-              <th style={{ padding: 8 }}>ราคาขาย(บาท)</th>
-              <th style={{ padding: 8 }}>ราคาซื้อ(บาท)</th>
-              <th style={{ padding: 8 }}>จำนวนที่เหลือ</th>
-              <th style={{ padding: 8 }}>การจัดการ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredProducts.map((p, idx) => (
-              <tr
-                key={p.Product_Id}
-                style={{ background: idx % 2 === 0 ? "#f4faff" : "#fff" }}
-              >
-                <td style={{ padding: 8, textAlign: "center" }}>{idx + 1}</td>
-                <td style={{ padding: 8, textAlign: "left" }}>{p.Product_Name}</td>
-                <td style={{ padding: 8, textAlign: "left" }}>
-                  {
-                    productTypes.find((t) => t.PType_Id === p.PType_Id)
-                      ?.PType_Name
-                  }
-                </td>
-                <td style={{ padding: 8, textAlign: "right" }}>{parseFloat(p.Product_Price).toFixed(2)}</td>
-                <td style={{ padding: 8, textAlign: "right" }}>0</td>
-                <td style={{ padding: 8, textAlign: "right" }}>{p.Product_Amount}</td>
-                <td style={{ padding: 8, textAlign: "center" }}>
-                  <button
-                    onClick={() => {
-                      setSelectedProduct(p);
-                      setEditedProduct(p);
-                      setEditModalOpen(true);
-                    }}
-                    style={{
-                      marginRight: 8,
-                      background: "#00A6A6",
-                      color: "#fff",
-                      border: "none",
-                      padding: "6px 12px",
-                      borderRadius: 4,
-                    }}
-                  >
-                    แก้ไข
-                  </button>
 
-                </td>
+        <div style={{ height: 700, overflow: "auto"}}>
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              marginBottom: 16,
+            }}
+          >
+            <thead>
+              <tr style={{ background: "#0074D9", color: "#fff" }}>
+                <th style={{ padding: 8 }}>ลำดับ</th>
+                <th style={{ padding: 8 }}>ชื่อสินค้า</th>
+                <th style={{ padding: 8 }}>ประเภท</th>
+                <th style={{ padding: 8 }}>ราคาขาย(บาท)</th>
+                <th style={{ padding: 8 }}>ราคาซื้อ(บาท)</th>
+                <th style={{ padding: 8 }}>จำนวนที่เหลือ</th>
+                <th style={{ padding: 8 }}>การจัดการ</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredProducts.map((p, idx) => (
+                <tr
+                  key={p.Product_Id}
+                  style={{ background: idx % 2 === 0 ? "#f4faff" : "#fff" }}
+                >
+                  <td style={{ padding: 8, textAlign: "center" }}>{idx + 1}</td>
+                  <td style={{ padding: 8, textAlign: "left" }}>
+                    {p.Product_Name}
+                  </td>
+                  <td style={{ padding: 8, textAlign: "left" }}>
+                    {
+                      productTypes.find((t) => t.PType_Id === p.PType_Id)
+                        ?.PType_Name
+                    }
+                  </td>
+                  <td style={{ padding: 8, textAlign: "right" }}>
+                    {parseFloat(p.Product_Price).toFixed(2)}
+                  </td>
+                  <td style={{ padding: 8, textAlign: "right" }}>0</td>
+                  <td style={{ padding: 8, textAlign: "right" }}>
+                    {p.Product_Amount}
+                  </td>
+                  <td style={{ padding: 8, textAlign: "center" }}>
+                    <button
+                      onClick={() => {
+                        setSelectedProduct(p);
+                        setEditedProduct(p);
+                        setEditModalOpen(true);
+                      }}
+                      style={{
+                        marginRight: 8,
+                        background: "#00A6A6",
+                        color: "#fff",
+                        border: "none",
+                        padding: "6px 12px",
+                        borderRadius: 4,
+                      }}
+                    >
+                      แก้ไข
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
           <button

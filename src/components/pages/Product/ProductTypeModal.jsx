@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
-import ConfirmModal from "./ConfirmModal";
-import StatusModal from "./StatusModal";
+import ConfirmModal from "../../ui/ConfirmModal";
+import StatusModal from "../../ui/StatusModal";
 
 function ProductTypeModal({ isOpen, onClose, productTypes, setProductTypes }) {
   const [typeName, setTypeName] = useState("");
