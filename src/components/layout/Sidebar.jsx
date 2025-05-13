@@ -1,9 +1,11 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../data/AuthContext';
 
-function Sidebar({ user }) {
+function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   // เมนูสำหรับ Manager
   const managerMenuGroups = [
@@ -53,16 +55,11 @@ function Sidebar({ user }) {
   ];
 
   // เลือกเมนูตาม role
-  const menuGroups = user?.role === 'manager' ? managerMenuGroups : employeeMenuGroups;
-  const mainLinks = user?.role === 'manager' ? managerMainLinks : employeeMainLinks;
+  const menuGroups = user?.Role === 'Manager' ? managerMenuGroups : employeeMenuGroups;
+  const mainLinks = user?.Role === 'Manager' ? managerMainLinks : employeeMainLinks;
 
   const handleNavigate = (path) => {
     navigate(path);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    navigate('/login');
   };
 
   return (
@@ -114,14 +111,16 @@ function Sidebar({ user }) {
 
       <div className="mt-auto bg-gray-800 p-5">
         <div className="mb-4 pb-4 border-b border-gray-700">
-          <div className="text-white text-sm mb-1">{user?.name || 'User'}</div>
+          <div className="text-white text-sm mb-1">
+            {user ? `${user.Fname} ${user.Lname}` : 'User'}
+          </div>
           <div className="text-blue-400 text-xs">
-            {user?.role === 'manager' ? 'ผู้จัดการ' : 'พนักงาน'}
+            {user?.Role === 'Manager' ? 'ผู้จัดการ' : 'พนักงาน'}
           </div>
         </div>
         <button
           className="w-full text-left text-sm hover:text-red-500 transition-colors"
-          onClick={handleLogout}
+          onClick={logout}
         >
           ออกจากระบบ
         </button>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../data/useAuth';
+import { useAuth } from '../data/AuthContext';
 
 function Login() {
   const navigate = useNavigate();
@@ -13,19 +13,22 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post('http://localhost:5000/api/login', formData, {
-        headers: { 'Content-Type': 'application/json' }
+    try{
+      const response = await fetch('http://localhost:5000/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       });
-      
-      if (response.data) {
-        console.log('Login response:', response.data);
-        setUser(response.data);
-        navigate('/sale', { state: { user: response.data } });
+      const data = await response.json();
+      if(response.ok){
+        localStorage.setItem('user', JSON.stringify(data));
+        navigate('/sale', { state: { user: data } });
+      }else{
+        alert(data.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
       }
-    } catch (error) {
-      console.error('เกิดข้อผิดพลาดในการเข้าสู่ระบบ:', error);
-      alert(error.response?.data?.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
+    }catch(error){
+      console.error('Login error:', error);
+      alert('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
     }
   };
 

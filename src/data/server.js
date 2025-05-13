@@ -51,7 +51,7 @@ app.post("/api/login", (req, res) => {
       Emp_Id: user.Emp_Id,
       Emp_user: user.Emp_user,
       Password: user.Password,
-      Role: user.Role === "M" ? "Manager" : "Employee",
+      Role: user.Role === "M" ? "manager" : "employee",
       Fname: user.Fname,
       Lname: user.Lname,
       Emp_Tel: user.Emp_Tel,
