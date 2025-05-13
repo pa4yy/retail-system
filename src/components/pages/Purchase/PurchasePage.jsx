@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import MainLayout from '../../layout/MainLayout';
 import ProductSelectModal from './PurchaseAddModal';
-import './Purchase.css';
-
+import ConfirmProductModal from './ConfrimPurchaseModal'
+import axios from "axios";
 
 function PurchasePage({ user }) {
-
   const [products, setProducts] = useState([]);
-  const [productId, setProductId] = useState(1); // สำหรับกำหนด id สินค้าแต่ละตัว
+  const [productId, setProductId] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [supplierList, setSupplierList] = useState([]);
+  const [selectedSupplierId, setSelectedSupplierId] = useState('');
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+
+
 
   const handleSelectProducts = (selectedProducts) => {
     const newProducts = selectedProducts.map(p => ({
@@ -32,73 +36,142 @@ function PurchasePage({ user }) {
     ));
   };
 
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/suppliers')
+      .then(response => {
+        setSupplierList(response.data);
+      })
+      .catch(err => {
+        console.error('Error fetching suppliers:', err);
+      });
+  }, []);
+
+  const [allProductList, setAllProductList] = useState([]);
+
+  useEffect(() => {
+    if (isConfirmOpen) {
+      Promise.all([
+        axios.get('http://localhost:5000/api/products'),
+        axios.get('http://localhost:5000/api/product_types'),
+      ]).then(([res1, res2]) => {
+        const products = res1.data;
+        const types = res2.data;
+        const combined = products.map(product => {
+          const type = types.find(t => t.PType_Id === product.PType_Id);
+          return {
+            ...product,
+            PType_Name: type ? type.PType_Name : 'ไม่ทราบประเภท'
+          };
+        });
+        setAllProductList(combined);
+      });
+    }
+  }, [isConfirmOpen]);
+
+
+
   const totalQuantity = products.reduce((sum, p) => sum + Number(p.quantity), 0);
   const totalCost = products.reduce((sum, p) => sum + (Number(p.price) * Number(p.quantity)), 0);
 
   return (
     <MainLayout user={user} title="สั่งซื้อสินค้า">
-      <div className="purchase-container">
-        <h2>สั่งซื้อสินค้า</h2>
+      <div className="h-full min-h-0 overflow-hidden p-8 bg-white box-border flex flex-col">
 
-        <div className="top-bar">
-          <label>บริษัทผู้ขาย</label>
-          <select>
-            <option value="LnwZa007">LnwZa007</option>
+        <h2 className="text-xl font-semibold mb-5">สั่งซื้อสินค้า</h2>
+
+        <div className="flex items-center justify-end gap-2 mb-5">
+          <label className="font-medium">เลือกบริษัทคู่ค้า</label>
+          <select
+            value={selectedSupplierId}
+            onChange={(e) => setSelectedSupplierId(e.target.value)}
+            className="border px-2 py-1 rounded"
+          >
+            <option value="">-- กรุณาเลือกคู่ค้า --</option>
+            {supplierList.map(supplier => (
+              <option key={supplier.Supplier_Id} value={supplier.Supplier_Id}>
+                {supplier.Supplier_Name}
+              </option>
+            ))}
           </select>
-          <button className="add-btn" onClick={() => setIsModalOpen(true)}>เพิ่มสินค้า</button>
+          <button
+            className="bg-[#0073ac] text-white px-4 py-1.5 rounded hover:bg-[#005f8f]"
+            onClick={() => setIsModalOpen(true)}
+          >
+            เพิ่มสินค้า
+          </button>
         </div>
 
-        <table>
-          <thead>
-            <tr>
-              <th>รูปภาพสินค้า</th>
-              <th>ชื่อสินค้า</th>
-              <th>จำนวนสินค้า</th>
-              <th>ราคาสั่งซื้อ</th>
-              <th>ลบสินค้า</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map(product => (
-              <tr key={product.id}>
-                <td>
-                  {product.image && <img src={product.image} alt={product.name} style={{ width: '50px', height: '50px' }} />}
-                </td>
-                <td>{product.name}</td>
-                <td>
-                  <input
-                    type="number"
-                    min="1"
-                    value={product.quantity}
-                    onChange={e => handleChange(product.id, 'quantity', e.target.value)}
-                    style={{ width: '60px' }}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    min="0"
-                    value={product.price}
-                    onChange={e => handleChange(product.id, 'price', e.target.value)}
-                    style={{ width: '80px' }}
-                  /> บาท
-                </td>
-                <td>
-                  <button className="delete-btn" onClick={() => handleDelete(product.id)}>ลบ</button>
-                </td>
+        <div className="overflow-y-auto max-h-[600px] h-[600px] rounded-md bg-[#d9d9d9] p-3">
+          <table className="w-full border-separate border-spacing-y-2">
+            <thead className="bg-[#d9d9d9] h-[50px] sticky top-0 z-10">
+              <tr>
+                <th className="py-2 px-4 text-center">รูปภาพสินค้า</th>
+                <th className="py-2 px-4 text-center">ชื่อสินค้า</th>
+                <th className="py-2 px-4 text-center">จำนวนสินค้า</th>
+                <th className="py-2 px-4 text-center">ราคาสั่งซื้อ</th>
+                <th className="py-2 px-4 text-center">ลบสินค้า</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {products.map(product => (
+                <tr key={product.id} className="bg-[#f0f0f0]">
+                  <td className="py-2 px-4 text-center">
+                    {product.image && <img src={product.image} alt={product.name} className="w-[50px] h-[50px]" />}
+                  </td>
+                  <td className="py-2 px-4 text-center">{product.name}</td>
+                  <td className="py-2 px-4 text-center">
+                    <div className="flex items-center justify-center gap-2">
+                      <button
+                        className="px-2 py-1 bg-gray-300 rounded hover:bg-gray-400"
+                        onClick={() =>
+                          handleChange(product.id, 'quantity', Math.max(1, Number(product.quantity) - 1))
+                        }
+                      >
+                        –
+                      </button>
+                      <span className="w-6 text-center">{product.quantity}</span>
+                      <button
+                        className="px-2 py-1 bg-gray-300 rounded hover:bg-gray-400"
+                        onClick={() =>
+                          handleChange(product.id, 'quantity', Number(product.quantity) + 1)
+                        }
+                      >
+                        +
+                      </button>
+                    </div>
+                  </td>
+                  <td className="py-2 px-4 text-center">
+                    <input
+                      type="number"
+                      min="0"
+                      value={product.price}
+                      onChange={e => handleChange(product.id, 'price', e.target.value)}
+                      className="w-[80px] text-center border border-gray-300 rounded"
+                    /> บาท
+                  </td>
+                  <td className="py-2 px-4 text-center">
+                    <button
+                      onClick={() => handleDelete(product.id)}
+                      className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                    >
+                      ลบ
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-        <div className="summary">
+        </div>
+
+        <div className="text-right mt-3">
           <p>สินค้าทั้งหมด {totalQuantity} รายการ</p>
           <p>ราคาต้นทุนรวม {totalCost.toFixed(2)} บาท</p>
         </div>
 
-        <div className="footer-buttons">
-          <button className="confirm-btn">ยืนยัน</button>
-          <button className="cancel-btn">ยกเลิก</button>
+        <div className="flex justify-end gap-3 mt-5">
+          <button className="bg-[#0073ac] text-white px-6 py-2 rounded hover:bg-[#005f8f]" onClick={() => setIsConfirmOpen(true)}>ยืนยัน</button>
+          <button className="bg-[#dc3546] text-white px-6 py-2 rounded hover:bg-[#b02a37]">ยกเลิก</button>
         </div>
       </div>
 
@@ -107,9 +180,20 @@ function PurchasePage({ user }) {
         onClose={() => setIsModalOpen(false)}
         onSelectProducts={handleSelectProducts}
       />
+
+
+      <ConfirmProductModal
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onSelectProducts={handleSelectProducts}
+        products={products} 
+      />
+
+
     </MainLayout>
+
 
   );
 }
 
-export default PurchasePage; 
+export default PurchasePage;
