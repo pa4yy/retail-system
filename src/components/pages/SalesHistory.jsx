@@ -1,11 +1,9 @@
 import React from 'react';
 import MainLayout from '../layout/MainLayout';
-import { useLocation } from 'react-router-dom';
+import { useAuth } from '../../data/useAuth';
 
-function SalesHistory(props) {
-
-  const location = useLocation();
-  const user = props.user || location.state?.user || JSON.parse(localStorage.getItem('user'));
+function SalesHistory() {
+  const { user } = useAuth();
 
   return (
     <MainLayout user={user} title="ประวัติการขาย">
