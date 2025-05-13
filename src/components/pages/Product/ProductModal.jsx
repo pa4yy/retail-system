@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
-import ConfirmModal from "./ConfirmModal";
-import StatusModal from "./StatusModal";
+import ConfirmModal from "../../ui/ConfirmModal";
+import StatusModal from "../../ui/StatusModal";
 
 function ProductModal({
   isOpen,
@@ -121,199 +121,150 @@ function ProductModal({
     onClose();
   };
 
+  if (!isOpen) return null;
+
   return (
-    <div style={modalContentStyle}>
-      <h2 style={{ textAlign: "center", marginBottom: 20 }}>
-        {mode === "edit" ? "แก้ไขข้อมูลสินค้า" : "เพิ่มข้อมูลสินค้า"}
-      </h2>
-      <div style={{ display: "flex", gap: 20 }}>
-        {/* Left form */}
-        <div style={{ flex: 1 }}>
-          <label>ชื่อสินค้า</label>
-          <input
-            type="text"
-            value={editedProduct.Product_Name || ""}
-            onChange={(e) => handleChange("Product_Name", e.target.value)}
-            style={inputStyle}
-          />
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-8 rounded-lg w-full max-w-2xl shadow-lg">
+        <h2 className="text-center text-2xl font-bold mb-6">
+          {mode === "edit" ? "แก้ไขข้อมูลสินค้า" : "เพิ่มข้อมูลสินค้า"}
+        </h2>
+        
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Left form */}
+          <div className="flex-1">
+            <label className="block mb-1">ชื่อสินค้า</label>
+            <input
+              type="text"
+              value={editedProduct.Product_Name || ""}
+              onChange={(e) => handleChange("Product_Name", e.target.value)}
+              className="w-full p-2 mb-3 border border-gray-300 rounded"
+            />
 
-          <label>ประเภทสินค้า</label>
-          <select
-            value={editedProduct.PType_Id || ""}
-            onChange={(e) => handleChange("PType_Id", e.target.value)}
-            style={inputStyle}
-          >
-            <option value="">-- เลือกประเภทสินค้า --</option>
-            {productTypes.map((type) => (
-              <option key={type.PType_Id} value={type.PType_Id}>
-                {type.PType_Name}
-              </option>
-            ))}
-          </select>
+            <label className="block mb-1">ประเภทสินค้า</label>
+            <select
+              value={editedProduct.PType_Id || ""}
+              onChange={(e) => handleChange("PType_Id", e.target.value)}
+              className="w-full p-2 mb-3 border border-gray-300 rounded"
+            >
+              <option value="">-- เลือกประเภทสินค้า --</option>
+              {productTypes.map((type) => (
+                <option key={type.PType_Id} value={type.PType_Id}>
+                  {type.PType_Name}
+                </option>
+              ))}
+            </select>
 
-          <label>จำนวน</label>
-          <input
-            type="number"
-            value={editedProduct.Product_Amount || "0"}
-            onChange={(e) => handleChange("Product_Amount", e.target.value)}
-            style={inputStyle}
-          />
+            <label className="block mb-1">จำนวน</label>
+            <input
+              type="number"
+              value={editedProduct.Product_Amount || "0"}
+              onChange={(e) => handleChange("Product_Amount", e.target.value)}
+              className="w-full p-2 mb-3 border border-gray-300 rounded"
+            />
 
-          <label>ราคา</label>
-          <input
-            type="number"
-            step="0.01"
-            value={editedProduct.Product_Price || "0"}
-            onChange={(e) => handleChange("Product_Price", e.target.value)}
-            style={inputStyle}
-          />
+            <label className="block mb-1">ราคา</label>
+            <input
+              type="number"
+              step="0.01"
+              value={editedProduct.Product_Price || "0"}
+              onChange={(e) => handleChange("Product_Price", e.target.value)}
+              className="w-full p-2 mb-3 border border-gray-300 rounded"
+            />
 
-          <label>จุดสั่งซื้อขั้นต่ำ</label>
-          <input
-            type="number"
-            value={editedProduct.Product_Minimum || "0"}
-            onChange={(e) => handleChange("Product_Minimum", e.target.value)}
-            style={inputStyle}
-          />
-        </div>
-
-        {/* Right image */}
-        <div style={{ width: 300, textAlign: "center" }}>
-          <div
-            style={{
-              width: 300,
-              height: 300,
-              border: "1px solid #ccc",
-              borderRadius: 8,
-              padding: 4,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "#f0f0f0",
-              cursor: "pointer",
-            }}
-            onClick={handleImageClick}
-          >
-            <img
-              src={(() => {
-                const img = editedProduct.Product_Image;
-                if (img?.startsWith("blob:")) {
-                  return img;
-                } else if (img) {
-                  const p = img.startsWith("/uploads/")
-                    ? img
-                    : `/uploads/${img.replace(/^\\+|\\+$/g, "")}`;
-                  return `http://localhost:5000${p}`;
-                } else {
-                  return "/noimage.jpg";
-                }
-              })()}
-              alt="Product"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = "/noimage.jpg";
-              }}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                borderRadius: 8,
-              }}
+            <label className="block mb-1">จุดสั่งซื้อขั้นต่ำ</label>
+            <input
+              type="number"
+              value={editedProduct.Product_Minimum || "0"}
+              onChange={(e) => handleChange("Product_Minimum", e.target.value)}
+              className="w-full p-2 mb-3 border border-gray-300 rounded"
             />
           </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            style={{ display: "none" }}
-          />
-          <small>คลิกเพื่อเลือกรูปภาพ</small>
-        </div>
-      </div>
 
-      <div style={{ marginTop: 20 }}>
-        <label>รายละเอียดสินค้า</label>
-        <textarea
-          value={editedProduct?.Product_Detail || ""}
-          onChange={(e) => handleChange("Product_Detail", e.target.value)}
-          style={{ ...inputStyle, height: 80, backgroundColor: "#eaf5ff" }}
+          {/* Right image */}
+          <div className="w-full md:w-72 flex flex-col items-center">
+            <div
+              className="w-72 h-72 border border-gray-300 rounded-lg bg-gray-100 flex items-center justify-center cursor-pointer mb-2"
+              onClick={handleImageClick}
+            >
+              <img
+                src={(() => {
+                  const img = editedProduct.Product_Image;
+                  if (img?.startsWith("blob:")) {
+                    return img;
+                  } else if (img) {
+                    const p = img.startsWith("/uploads/")
+                      ? img
+                      : `/uploads/${img.replace(/^\\+|\\+$/g, "")}`;
+                    return `http://localhost:5000${p}`;
+                  } else {
+                    return "/noimage.jpg";
+                  }
+                })()}
+                alt="Product"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/noimage.jpg";
+                }}
+                className="w-full h-full object-cover rounded-lg"
+              />
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+            <small className="text-gray-500">คลิกเพื่อเลือกรูปภาพ</small>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <label className="block mb-1">รายละเอียดสินค้า</label>
+          <textarea
+            value={editedProduct?.Product_Detail || ""}
+            onChange={(e) => handleChange("Product_Detail", e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded bg-blue-50"
+            rows={4}
+          />
+        </div>
+
+        <div className="mt-6 flex justify-center gap-4">
+          <button
+            onClick={handleConfirm}
+            className="bg-blue-700 text-white px-6 py-2 rounded hover:bg-blue-800"
+          >
+            {mode === "edit" ? "แก้ไข" : "เพิ่ม"}
+          </button>
+          <button
+            onClick={onClose}
+            className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
+          >
+            ยกเลิก
+          </button>
+        </div>
+
+        <ConfirmModal
+          isOpen={confirmOpen}
+          title="ยืนยันการดำเนินการ"
+          message={
+            mode === "edit"
+              ? "คุณต้องการแก้ไขข้อมูลสินค้านี้ใช่หรือไม่?"
+              : "คุณต้องการเพิ่มสินค้านี้ใช่หรือไม่?"
+          }
+          onConfirm={handleSubmit}
+          onCancel={() => setConfirmOpen(false)}
+        />
+
+        <StatusModal
+          isOpen={statusOpen}
+          message={statusMsg}
+          onClose={() => setStatusOpen(false)}
         />
       </div>
-
-      {/* Buttons */}
-      <div
-        style={{
-          marginTop: 20,
-          display: "flex",
-          justifyContent: "center",
-          gap: 20,
-        }}
-      >
-        <button
-          onClick={handleConfirm}
-          style={{
-            backgroundColor: "#0074D9",
-            color: "white",
-            padding: "10px 20px",
-            border: "none",
-            borderRadius: 4,
-          }}
-        >
-          {mode === "edit" ? "แก้ไข" : "เพิ่ม"}
-        </button>
-        <button
-          onClick={onClose}
-          style={{
-            backgroundColor: "#E53935",
-            color: "white",
-            padding: "10px 20px",
-            border: "none",
-            borderRadius: 4,
-          }}
-        >
-          ยกเลิก
-        </button>
-      </div>
-
-      <ConfirmModal
-        isOpen={confirmOpen}
-        title="ยืนยันการดำเนินการ"
-        message={
-          mode === "edit"
-            ? "คุณต้องการแก้ไขข้อมูลสินค้านี้ใช่หรือไม่?"
-            : "คุณต้องการเพิ่มสินค้านี้ใช่หรือไม่?"
-        }
-        onConfirm={handleSubmit}
-        onCancel={() => setConfirmOpen(false)}
-      />
-
-      <StatusModal
-        isOpen={statusOpen}
-        message={statusMsg}
-        onClose={() => setStatusOpen(false)}
-      />
     </div>
   );
 }
-
-const modalContentStyle = {
-  backgroundColor: "white",
-  padding: 24,
-  borderRadius: 8,
-  width: "800px",
-  maxWidth: "95%",
-  border: "1px solid #333",
-  boxShadow: "0 5px 15px rgba(0,0,0,0.3)",
-};
-
-const inputStyle = {
-  width: "100%",
-  padding: "8px",
-  marginBottom: "10px",
-  borderRadius: "4px",
-  border: "1px solid #ccc",
-  fontSize: "14px",
-};
 
 export default ProductModal;

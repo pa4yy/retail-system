@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
-import ConfirmModal from "./ConfirmModal";
-import StatusModal from "./StatusModal";
+import ConfirmModal from "../../ui/ConfirmModal";
+import StatusModal from "../../ui/StatusModal";
 
 function ProductTypeModal({ isOpen, onClose, productTypes, setProductTypes }) {
   const [typeName, setTypeName] = useState("");
@@ -151,250 +151,134 @@ function ProductTypeModal({ isOpen, onClose, productTypes, setProductTypes }) {
     );
   };
 
-  const validateName = (name) => {
-    if (!name.trim()) {
-      setError("กรุณากรอกชื่อประเภทสินค้า");
-      return false;
-    }
-    return true;
-  };
+  if (!isOpen) return null;
 
-  return isOpen ? (
-    <div style={modalOverlayStyle}>
-      <div style={modalContentStyle}>
-        <h2 style={{ marginBottom: 16 }}>ประเภทสินค้า</h2>
-        {error && <div style={errorStyle}>{error}</div>}
-        <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-[1100]">
+      <div className="bg-white p-6 rounded-lg w-full max-w-2xl shadow-lg">
+        <h2 className="text-xl font-bold mb-4">ประเภทสินค้า</h2>
+        
+        {error && <div className="text-red-500 mb-4">{error}</div>}
+        
+        <div className="flex gap-2 mb-4">
           <input
             placeholder="กรอกชื่อประเภทสินค้าที่ต้องการเพิ่ม"
             value={typeName}
             onChange={(e) => setTypeName(e.target.value)}
-            style={{
-              ...inputStyle(typeName.trim() === "" && error),
-              width: "250px",
-            }}
+            className={`flex-1 p-2 border rounded ${
+              typeName.trim() === "" && error ? "border-red-500" : "border-gray-300"
+            }`}
           />
-          <button style={addButton} onClick={handleAdd}>
+          <button
+            onClick={handleAdd}
+            className="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
+          >
             เพิ่ม
           </button>
         </div>
 
-        <table style={tableStyle}>
-          <thead>
-            <tr>
-              <th style={thStyle}>รหัส</th>
-              <th style={thStyle}>ชื่อประเภท</th>
-              <th style={thStyle}>การจัดการ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {productTypes.map((t, index) => (
-              <tr key={t.PType_Id} style={rowStyle(index)}>
-                <td style={{ ...tdStyle, textAlign: "center" }}>
-                  {t.PType_Id}
-                </td>
-                <td style={{ ...tdStyle, width: "250px" }}>
-                  {editId === t.PType_Id ? (
-                    <input
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                      style={{
-                        ...inputStyle(editName.trim() === "" && error),
-                        width: "100%",
-                      }}
-                    />
-                  ) : (
-                    t.PType_Name
-                  )}
-                </td>
-                <td style={{ ...tdStyle, textAlign: "center" }}>
-                  {editId === t.PType_Id ? (
-                    <>
-                      <button
-                        style={saveButton}
-                        onClick={() => {
-                          if (editName === t.PType_Name) {
-                            handleEdit(t.PType_Id);
-                          } else {
-                            confirmAction(
-                              "ยืนยันการบันทึก",
-                              `คุณต้องการเปลี่ยนชื่อประเภทสินค้า "${t.PType_Name}" เป็น "${editName}" หรือไม่?`,
-                              () => handleEdit(t.PType_Id)
-                            );
-                          }
-                        }}
-                      >
-                        บันทึก
-                      </button>
-
-                      <button
-                        style={cancelButton}
-                        onClick={() => {
-                          setEditId(null);
-                          setEditName("");
-                          setError("");
-                        }}
-                      >
-                        ยกเลิก
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        style={editButton}
-                        onClick={() => {
-                          setEditId(t.PType_Id);
-                          setEditName(t.PType_Name);
-                        }}
-                      >
-                        แก้ไข
-                      </button>
-                      <button
-                        style={deleteButton}
-                        onClick={() => handleDelete(t.PType_Id)}
-                      >
-                        ลบ
-                      </button>
-                    </>
-                  )}
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-blue-700 text-white">
+                <th className="p-2">รหัส</th>
+                <th className="p-2">ชื่อประเภท</th>
+                <th className="p-2">การจัดการ</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {productTypes.map((t, index) => (
+                <tr
+                  key={t.PType_Id}
+                  className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
+                >
+                  <td className="p-2 text-center">{t.PType_Id}</td>
+                  <td className="p-2">
+                    {editId === t.PType_Id ? (
+                      <input
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className={`w-full p-2 border rounded ${
+                          editName.trim() === "" && error
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        }`}
+                      />
+                    ) : (
+                      t.PType_Name
+                    )}
+                  </td>
+                  <td className="p-2 text-center">
+                    {editId === t.PType_Id ? (
+                      <div className="flex justify-center gap-2">
+                        <button
+                          onClick={() => handleEdit(t.PType_Id)}
+                          className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                        >
+                          บันทึก
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditId(null);
+                            setEditName("");
+                            setError("");
+                          }}
+                          className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
+                        >
+                          ยกเลิก
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex justify-center gap-2">
+                        <button
+                          onClick={() => {
+                            setEditId(t.PType_Id);
+                            setEditName(t.PType_Name);
+                          }}
+                          className="bg-cyan-600 text-white px-3 py-1 rounded hover:bg-cyan-700"
+                        >
+                          แก้ไข
+                        </button>
+                        <button
+                          onClick={() => handleDelete(t.PType_Id)}
+                          className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                        >
+                          ลบ
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <button onClick={onClose} style={closeButton}>
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={onClose}
+            className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
+          >
             ปิด
           </button>
         </div>
+
+        <ConfirmModal
+          isOpen={confirmModal.open}
+          title={confirmModal.title}
+          message={confirmModal.message}
+          onConfirm={confirmModal.onConfirm}
+          onCancel={() => setConfirmModal({ ...confirmModal, open: false })}
+        />
+
+        <StatusModal
+          isOpen={statusModal.open}
+          message={statusModal.message}
+          onClose={() => setStatusModal({ open: false, message: "" })}
+        />
       </div>
-
-      <ConfirmModal
-        isOpen={confirmModal.open}
-        title={confirmModal.title}
-        message={confirmModal.message}
-        onConfirm={confirmModal.onConfirm}
-        onCancel={() => setConfirmModal({ ...confirmModal, open: false })}
-      />
-
-      <StatusModal
-        isOpen={statusModal.open}
-        message={statusModal.message}
-        onClose={() => setStatusModal({ open: false, message: "" })}
-      />
     </div>
-  ) : null;
+  );
 }
-
-// 🎨 Styles
-const modalOverlayStyle = {
-  position: "fixed",
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  backgroundColor: "rgba(0,0,0,0.3)",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  zIndex: 1100,
-};
-
-const modalContentStyle = {
-  background: "#fff",
-  padding: 24,
-  borderRadius: 12,
-  width: "90%",
-  maxWidth: "700px",
-  boxShadow: "0 0 10px rgba(0,0,0,0.2)",
-  overflowX: "auto",
-  position: "relative",
-};
-
-const tableStyle = {
-  width: "100%",
-  borderCollapse: "collapse",
-  marginTop: 20,
-  tableLayout: "fixed",
-};
-
-const thStyle = {
-  backgroundColor: "#007bff",
-  color: "#fff",
-  padding: "12px 10px",
-};
-
-const tdStyle = {
-  padding: "10px",
-};
-
-const rowStyle = (index) => ({
-  backgroundColor: index % 2 === 0 ? "#f9f9f9" : "#ffffff",
-});
-
-const inputStyle = (hasError) => ({
-  padding: "6px 10px",
-  border: `1px solid ${hasError ? "red" : "#ccc"}`,
-  borderRadius: 6,
-  outline: "none",
-  width: "100%",
-});
-
-const errorStyle = {
-  color: "red",
-  marginTop: 10,
-};
-
-const baseButton = {
-  padding: "6px 12px",
-  marginRight: 6,
-  border: "none",
-  borderRadius: 4,
-  fontWeight: "bold",
-  cursor: "pointer",
-};
-
-const addButton = {
-  ...baseButton,
-  backgroundColor: "#007bff",
-  color: "#fff",
-};
-
-const saveButton = {
-  ...baseButton,
-  backgroundColor: "#2196F3",
-  color: "white",
-};
-
-const cancelButton = {
-  ...baseButton,
-  backgroundColor: "#9E9E9E",
-  color: "white",
-};
-
-const editButton = {
-  ...baseButton,
-  backgroundColor: "#17a2b8",
-  color: "#fff",
-};
-
-const deleteButton = {
-  ...baseButton,
-  backgroundColor: "#dc3545",
-  color: "#fff",
-};
-
-const closeButton = {
-  ...baseButton,
-  backgroundColor: "#555",
-  color: "white",
-  marginTop: 20,
-};
-
-const thTdStyle = {
-  padding: 10,
-  border: "1px solid #ccc",
-};
 
 export default ProductTypeModal;

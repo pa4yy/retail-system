@@ -270,32 +270,6 @@ app.put("/api/products/:id", upload.single("Product_Image"), (req, res) => {
   );
 });
 
-// API สำหรับลบข้อมูลสินค้า
-app.delete("/api/products/:id", (req, res) => {
-  const productId = req.params.id;
-  db.query(
-    "SELECT Product_Image FROM Product WHERE Product_Id = ?",
-    [productId],
-    (err, results) => {
-      if (err) return res.status(500).json({ message: "DB error" });
-      const oldImage = results[0]?.Product_Image;
-      if (oldImage && !oldImage.includes("noimage")) {
-        const oldImagePath = path.join(__dirname, "../../", oldImage);
-        fs.unlink(oldImagePath, (err) => {
-          if (err) console.warn("ลบไฟล์เก่าไม่สำเร็จ:", err.message);
-        });
-      }
-      db.query(
-        "DELETE FROM Product WHERE Product_Id = ?",
-        [productId],
-        (err, result) => {
-          if (err) return res.status(500).json({ message: "DB error" });
-          res.json({ message: "ลบสินค้าเรียบร้อย" });
-        }
-      );
-    }
-  );
-});
 
 // API สำหรับดึงข้อมูลประเภทสินค้า
 app.get("/api/product_types", (req, res) => {
@@ -312,14 +286,32 @@ app.get("/api/product_types", (req, res) => {
 // API สำหรับเพิ่มข้อมูลประเภทสินค้า
 app.post("/api/product_types", (req, res) => {
   const { PType_Name } = req.body;
-  db.query(
-    "INSERT INTO Product_Type (PType_Name) VALUES (?)",
-    [PType_Name],
-    (err, result) => {
-      if (err) return res.status(500).json({ message: "DB error" });
-      res.json({ PType_Id: result.insertId, PType_Name });
+
+  db.query("SELECT COUNT(*) AS count FROM Product_Type", (err, result) => {
+    if(err) return res.status(500).json({ message: "DB error"});
+
+    if(result[0].count === 0) {
+      db.query("ALTER TABLE Product_Type AUTO_INCREMENT = 1;", (err) => {
+        if (err) return res.status(500).json({ message: "DB error while resetting AUTO_INCREMENT" });
+
+        addPType();
+      });
+    } else {
+      addPType();
     }
-  );
+  })
+
+  function addPType(){
+    db.query(
+      "INSERT INTO Product_Type (PType_Name) VALUES (?)",
+      [PType_Name],
+      (err, result) => {
+        if (err) return res.status(500).json({ message: "DB error" });
+        res.json({ PType_Id: result.insertId, PType_Name });
+      }
+    );
+  }
+
 });
 
 // API สำหรับแก้ไขข้อมูลประเภทสินค้า
@@ -335,34 +327,34 @@ app.put("/api/product_types/:id", (req, res) => {
   );
 });
 
-// API สำหรับลบข้อมูลประเภทสินค้า
-// app.delete("/api/product_types/:id", (req, res) => {
-//   const typeId = req.params.id;
+//API สำหรับลบข้อมูลประเภทสินค้า
+app.delete("/api/product_types/:id", (req, res) => {
+  const typeId = req.params.id;
 
-//   db.query(
-//     "SELECT COUNT(*) AS total FROM Product WHERE PType_Id = ?",
-//     [typeId],
-//     (err, results) => {
-//       if (err) return res.status(500).json({ message: "DB error" });
+  db.query(
+    "SELECT COUNT(*) AS total FROM Product WHERE PType_Id = ?",
+    [typeId],
+    (err, results) => {
+      if (err) return res.status(500).json({ message: "DB error" });
 
-//       const count = results[0].total;
-//       if (count > 0) {
-//         return res.status(400).json({
-//           message: "ไม่สามารถลบได้ เนื่องจากมีสินค้าที่ใช้ประเภทนี้อยู่",
-//         });
-//       }
+      const count = results[0].total;
+      if (count > 0) {
+        return res.status(400).json({
+          message: "ไม่สามารถลบได้ เนื่องจากมีสินค้าที่ใช้ประเภทนี้อยู่",
+        });
+      }
 
-//       db.query(
-//         "DELETE FROM Product_Type WHERE PType_Id = ?",
-//         [typeId],
-//         (err, result) => {
-//           if (err) return res.status(500).json({ message: "DB error" });
-//           res.json({ message: "ลบประเภทสินค้าเรียบร้อย" });
-//         }
-//       );
-//     }
-//   );
-// });
+      db.query(
+        "DELETE FROM Product_Type WHERE PType_Id = ?",
+        [typeId],
+        (err, result) => {
+          if (err) return res.status(500).json({ message: "DB error" });
+          res.json({ message: "ลบประเภทสินค้าเรียบร้อย" });
+        }
+      );
+    }
+  );
+});
 
 // API สำหรับดึงข้อมูลคู่ค้า
 app.get('/api/suppliers', (req, res) => {
