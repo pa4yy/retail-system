@@ -55,8 +55,8 @@ function Sidebar() {
   ];
 
   // เลือกเมนูตาม role
-  const menuGroups = user?.Role === 'Manager' ? managerMenuGroups : employeeMenuGroups;
-  const mainLinks = user?.Role === 'Manager' ? managerMainLinks : employeeMainLinks;
+  const menuGroups = user?.Role === 'manager' ? managerMenuGroups : employeeMenuGroups;
+  const mainLinks = user?.Role === 'manager' ? managerMainLinks : employeeMainLinks;
 
   const handleNavigate = (path) => {
     navigate(path);
@@ -115,7 +115,7 @@ function Sidebar() {
             {user ? `${user.Fname} ${user.Lname}` : 'User'}
           </div>
           <div className="text-blue-400 text-xs">
-            {user?.Role === 'Manager' ? 'ผู้จัดการ' : 'พนักงาน'}
+            {user?.Role === 'manager' ? 'ผู้จัดการ' : 'พนักงาน'}
           </div>
         </div>
         <button
