@@ -6,24 +6,23 @@ import axios from "axios";
 
 function PurchasePage({ user }) {
   const [products, setProducts] = useState([]);
-  const [productId, setProductId] = useState(1);
+  // const [productId, setProductId] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [supplierList, setSupplierList] = useState([]);
   const [selectedSupplierId, setSelectedSupplierId] = useState('');
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
 
-
   const handleSelectProducts = (selectedProducts) => {
     const newProducts = selectedProducts.map(p => ({
-      id: productId,
+      id: `${p.Product_Id}-${Date.now()}-${Math.random()}`,
+      productId: p.Product_Id,
       image: p.Product_Image,
       name: p.Product_Name,
       quantity: 1,
       price: p.Product_Price
     }));
-    setProducts([...products, ...newProducts]);
-    setProductId(productId + selectedProducts.length);
+    setProducts(prev => [...prev, ...newProducts]);
   };
 
   const handleDelete = (id) => {
@@ -46,27 +45,11 @@ function PurchasePage({ user }) {
       });
   }, []);
 
-  const [allProductList, setAllProductList] = useState([]);
+  // useEffect(() => {
+  //   console.log("USER:", user);
+  // }, []);
 
-  useEffect(() => {
-    if (isConfirmOpen) {
-      Promise.all([
-        axios.get('http://localhost:5000/api/products'),
-        axios.get('http://localhost:5000/api/product_types'),
-      ]).then(([res1, res2]) => {
-        const products = res1.data;
-        const types = res2.data;
-        const combined = products.map(product => {
-          const type = types.find(t => t.PType_Id === product.PType_Id);
-          return {
-            ...product,
-            PType_Name: type ? type.PType_Name : 'ไม่ทราบประเภท'
-          };
-        });
-        setAllProductList(combined);
-      });
-    }
-  }, [isConfirmOpen]);
+ 
 
 
 
@@ -170,7 +153,18 @@ function PurchasePage({ user }) {
         </div>
 
         <div className="flex justify-end gap-3 mt-5">
-          <button className="bg-[#0073ac] text-white px-6 py-2 rounded hover:bg-[#005f8f]" onClick={() => setIsConfirmOpen(true)}>ยืนยัน</button>
+          <button
+            className="bg-[#0073ac] text-white px-6 py-2 rounded hover:bg-[#005f8f]"
+            onClick={() => {
+              if (!selectedSupplierId) {
+                alert("กรุณาเลือกคู่ค้าก่อน");
+                return;
+              }
+              setIsConfirmOpen(true);
+            }}
+          >
+            ยืนยัน
+          </button>
           <button className="bg-[#dc3546] text-white px-6 py-2 rounded hover:bg-[#b02a37]">ยกเลิก</button>
         </div>
       </div>
@@ -186,7 +180,8 @@ function PurchasePage({ user }) {
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
         onSelectProducts={handleSelectProducts}
-        products={products} 
+        products={products}
+        user={user} 
       />
 
 

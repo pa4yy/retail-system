@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
-function ConfirmProductModal({ isOpen, onClose, products = [] }) {
+function ConfirmProductModal({ isOpen, onClose, products = [], user }) {
     if (!isOpen) return null;
   
     const totalItems = products.length;
-    const totalPrice = products.reduce((sum, item) => sum + (Number(item.Product_Price) || 0), 0);
-    console.log("Products:", products);
+    const totalPrice = products.reduce((sum, item) => sum + (Number(item.price) * Number(item.quantity)), 0);
+    
+    // console.log("Products:", products);
+    // console.log("User in modal:", user);
+
 
   
     return (
@@ -14,7 +17,8 @@ function ConfirmProductModal({ isOpen, onClose, products = [] }) {
   
           <div className="mb-4 text-center text-xl font-bold">รายละเอียดสินค้า</div>
   
-          <div className="mb-2">รหัสพนักงานที่สั่งซื้อ : 00001</div>
+          <div className="mb-2">รหัสพนักงานที่สั่งซื้อ : {user?.username || '-'}</div>
+          
   
           {products.length === 0 ? (
             <div className="text-center text-gray-500 my-10">ไม่มีข้อมูลสินค้า</div>
@@ -31,11 +35,11 @@ function ConfirmProductModal({ isOpen, onClose, products = [] }) {
                 </thead>
                 <tbody>
                   {products.map((p, index) => (
-                    <tr key={p.Product_Id} className={index % 2 === 0 ? 'bg-white' : 'bg-[#f0f8ff]'}>
-                      <td className="py-2 px-3">{p.Product_Id}</td>
-                      <td className="py-2 px-3">{p.Product_Name}</td>
-                      <td className="py-2 px-3 text-right">{p.Product_Amount}</td>
-                      <td className="py-2 px-3 text-right">{Number(p.Product_Price).toLocaleString()} บาท</td>
+                    <tr key={`${p.id}-${index}`} className={index % 2 === 0 ? 'bg-white' : 'bg-[#f0f8ff]'}>
+                      <td className="py-2 px-3">{p.productId}</td>
+                      <td className="py-2 px-3">{p.name}</td>
+                      <td className="py-2 px-3 text-right">{p.quantity}</td>
+                      <td className="py-2 px-3 text-right">{Number(p.price).toLocaleString()} บาท</td>
                     </tr>
                   ))}
                 </tbody>
