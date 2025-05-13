@@ -151,8 +151,14 @@ app.put("/api/employees/:id", (req, res) => {
 
 // API สำหรับดึงข้อมูลสินค้า
 app.get("/api/products", (req, res) => {
-  const sql = `SELECT Product_Id, Product_Name, Product_Detail, Product_Amount, Product_Price,Product_Minimum,
-           PType_Id, Product_Image FROM Product`;
+  const sql = `
+    SELECT 
+      p.Product_Id, p.Product_Name, p.Product_Detail, p.Product_Amount, p.Product_Price, p.Product_Minimum,
+      p.PType_Id, p.Product_Image,
+      t.PType_Name
+    FROM Product p
+    LEFT JOIN Product_Type t ON p.PType_Id = t.PType_Id
+  `;
   db.query(sql, (err, results) => {
     if (err) {
       console.error("Database error:", err);
@@ -417,29 +423,40 @@ app.put('/api/suppliers/:id', (req, res) => {
   });
 });
 
-// API สำหรับลบข้อมูลคู่ค้า
-// app.delete('/api/suppliers/:id', (req, res) => {
-//   const supplierId = req.params.id;
-//   const sql = `
-//     UPDATE Supplier 
-//     SET Is_Deleted = 1 
-//     WHERE Supplier_Id = ?
-//   `;
+// API บันทึกข้อมูลการขาย
+app.post("/api/sale", (req, res) => {
+  console.log("POST /api/sale called");
+  console.log("req.body:", req.body);
 
-//   db.query(sql, [supplierId], (err, result) => {
-//     if (err) {
-//       console.error('เกิดข้อผิดพลาดในการลบ:', err);
-//       return res.status(500).json({ message: 'ลบไม่สำเร็จ' });
-//     }
+  const { Sale_Date, Emp_Id, Total_Sale_Price, Payment_methods, Products } = req.body;
+  console.log(req.body);
 
-//     // ถ้าไม่มีข้อมูลนี้เลย (ไม่มีแถวที่ถูกอัปเดต)
-//     if (result.affectedRows === 0) {
-//       return res.status(404).json({ message: 'ไม่พบข้อมูลที่จะลบ' });
-//     }
+  if (!Products || !Array.isArray(Products) || Products.length === 0) {
+    return res.status(400).json({ message: "ไม่มีรายการสินค้า" });
+  }
 
-//     res.json({ message: 'ลบแบบ Soft Delete สำเร็จ' });
-//   });
-// });
+  const sql = "INSERT INTO Sales (Sale_Date, Emp_Id, Total_Sale_Price, Payment_medthods) VALUES (?, ?, ?, ?)";
+  db.query(sql, [Sale_Date, Emp_Id, Total_Sale_Price, Payment_methods], (err, result) => {
+    if (err) {
+      console.error("Sale insert error:", err);
+      return res.status(500).json({ message: "DB error" });
+    }
+    const saleId = result.insertId;
+    const values = Products.map(p => [
+      saleId,
+      Number(p.Product_Id),
+      Number(p.Sale_Amount)
+    ]);
+    const detailSql = "INSERT INTO Sales_Detail (Sale_Id, Product_Id, Sale_Amount) VALUES ?";
+    db.query(detailSql, [values], (err2) => {
+      if (err2) {
+        console.error("SaleDetail insert error:", err2);
+        return res.status(500).json({ message: "DB error" });
+      }
+      res.json({ message: "บันทึกการขายสำเร็จ" });
+    });
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
