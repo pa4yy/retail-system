@@ -380,6 +380,8 @@ app.get('/api/suppliers', (req, res) => {
   });
 });
 
+
+
 // API สำหรับเพิ่มข้อมูลคู่ค้า
 app.post('/api/suppliers', (req, res) => {
   console.log('📥 Data received:', req.body); // << เพิ่มตรงนี้
@@ -463,6 +465,96 @@ app.post("/api/sale", (req, res) => {
     });
   });
 });
+
+// API บันทึกข้อมูลสั่งซื้อ
+app.post("/api/purchase", (req, res) => {
+  console.log("POST /api/purchase called");
+  console.log("req.body:", req.body);
+
+  const {
+    Purchase_Id,
+    Purchase_Date,
+    Purchase_Status = '1',
+    Total_Purchase_Price,
+    Supplier_Id,
+    Emp_Id,
+    Products
+  } = req.body;
+
+
+  if (!Products || !Array.isArray(Products) || Products.length === 0) {
+    return res.status(400).json({ message: "ไม่มีรายการสินค้า" });
+  }
+
+  const sql = "INSERT INTO Purchase (Purchase_Id, Purchase_Date, Purchase_Status, Total_Purchase_Price, Supplier_Id, Emp_Id) VALUES (?, ?, ?, ?, ?, ?)";
+  db.query(sql, [Purchase_Id, Purchase_Date, Purchase_Status, Total_Purchase_Price, Supplier_Id, Emp_Id], (err, result) => {
+    if (err) {
+      console.error("Purchase insert error:", err);
+      return res.status(500).json({ message: "DB error" });
+    }
+
+    const purchaseId = result.insertId;
+  
+
+    const values = Products.map(p => {
+      const amount = Number(p.Product_Amount);
+      const price = Number(p.Purchase_Price);
+      
+      if (isNaN(amount) || isNaN(price)) {
+        console.error(`Invalid product data: ${JSON.stringify(p)}`);
+        return null; // Or handle it in another way
+      }
+      
+      return [
+        purchaseId,
+        Number(p.Product_Id),
+        amount,
+        price
+      ];
+    }).filter(Boolean); 
+
+    const detailSql = "INSERT INTO Purchase_Detail (Purchase_Id, Product_Id, Purchase_Amout, Purchase_Price) VALUES ?";
+    db.query(detailSql, [values], (err2) => {
+      if (err2) {
+        console.error("PurchaseDetail insert error:", err2);
+        return res.status(500).json({ message: "DB error" });
+      }
+      res.json({ message: "บันทึกการขายสำเร็จ" });
+    });
+  });
+});
+
+// API สำหรับดึงข้อมูลสั่งซื้อ
+app.get('/api/purchases', (req, res) => {
+  const sql = `
+    SELECT 
+      p.Purchase_Id,
+      p.Purchase_Date,
+      CASE 
+        WHEN p.Purchase_Status = 'P' THEN 'Purchased'
+        WHEN p.Purchase_Status = 'R' THEN 'Received'
+        ELSE p.Purchase_Status
+      END AS Purchase_Status,
+      p.Total_Purchase_Price,
+      p.Emp_Id,
+      s.Supplier_Name
+    FROM Purchase p
+    JOIN Supplier s ON p.Supplier_Id = s.Supplier_Id
+  `;
+  
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Database Error:", err);
+      return res.status(500).json({ message: 'ดึงข้อมูลล้มเหลว' });
+    }
+    res.json(results);
+  });
+});
+
+
+
+
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

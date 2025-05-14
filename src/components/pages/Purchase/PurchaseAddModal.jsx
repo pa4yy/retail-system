@@ -70,7 +70,7 @@ function ProductSelectModal({ isOpen, onClose, onSelectProducts }) {
           <button className="bg-[#0073ac] text-white px-4 py-2 rounded hover:brightness-110">ค้นหา</button>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-y-auto" style={{ maxHeight: 320, minHeight: 320 }}>
           <table className="min-w-full border border-gray-300">
             <thead className="bg-[#0073ac] text-white">
               <tr>
@@ -82,25 +82,30 @@ function ProductSelectModal({ isOpen, onClose, onSelectProducts }) {
               </tr>
             </thead>
             <tbody>
-              {filteredProducts.map((p, index) => (
-                <tr
-                  key={p.Product_Id}
-                  className={`${index % 2 === 0 ? 'bg-white' : 'bg-[#e4f2fd]'} hover:bg-gray-100`}
-                >
-                  <td className="p-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(p.Product_Id)}
-                      onChange={() => handleCheckboxChange(p.Product_Id)}
-                    />
-                  </td>
-                  <td className="p-2">{index + 1}</td>
-                  <td className="p-2">{p.Product_Name}</td>
-                  <td className="p-2">{p.PType_Name}</td>
-                  <td className="p-2">{p.Product_Amount}</td>
-                </tr>
-              ))}
+              {filteredProducts.map((p, index) => {
+                const isChecked = selectedIds.includes(p.Product_Id); // <-- ตรวจสอบว่าเลือกอยู่ไหม
+                return (
+                  <tr
+                    key={p.Product_Id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-[#e4f2fd]'}
+                      hover:bg-gray-100 cursor-pointer ${isChecked ? 'bg-blue-100' : ''}`}
+                    onClick={() => handleCheckboxChange(p.Product_Id)} // <-- คลิกที่แถวเพื่อเลือก
+                  >
+                    <td className="p-2" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => handleCheckboxChange(p.Product_Id)} // <-- เช็ค/ยกเลิกเช็ค
+                      />
+                    </td>
+                    <td className="p-2">{index + 1}</td>
+                    <td className="p-2">{p.Product_Name}</td>
+                    <td className="p-2">{p.PType_Name}</td>
+                    <td className="p-2">{p.Product_Amount}</td>
+                  </tr>
+                );
+              })}
             </tbody>
+
           </table>
         </div>
 

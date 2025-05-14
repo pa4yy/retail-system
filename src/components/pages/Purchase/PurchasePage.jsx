@@ -2,14 +2,20 @@ import React, { useState, useEffect } from "react";
 import MainLayout from '../../layout/MainLayout';
 import ProductSelectModal from './PurchaseAddModal';
 import ConfirmProductModal from './ConfrimPurchaseModal'
+import StatusModal from '../../ui/StatusModal';
 import axios from "axios";
 
-function PurchasePage({user}) {
+function PurchasePage({ user }) {
   const [products, setProducts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [supplierList, setSupplierList] = useState([]);
   const [selectedSupplierId, setSelectedSupplierId] = useState('');
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+
+  const [statusModal, setStatusModal] = useState({
+    isOpen: false,
+    message: '',
+  });
 
   const handleSelectProducts = (selectedProducts) => {
     const newProducts = selectedProducts.map(p => ({
@@ -18,7 +24,7 @@ function PurchasePage({user}) {
       image: p.Product_Image,
       name: p.Product_Name,
       quantity: 1,
-      price: p.Product_Price
+      price: 0
     }));
     setProducts(prev => [...prev, ...newProducts]);
   };
@@ -43,6 +49,8 @@ function PurchasePage({user}) {
       });
   }, []);
 
+
+
   const totalQuantity = products.reduce((sum, p) => sum + Number(p.quantity), 0);
   const totalCost = products.reduce((sum, p) => sum + (Number(p.price) * Number(p.quantity)), 0);
 
@@ -60,11 +68,13 @@ function PurchasePage({user}) {
             className="border px-2 py-1 rounded"
           >
             <option value="">-- กรุณาเลือกคู่ค้า --</option>
-            {supplierList.map(supplier => (
-              <option key={supplier.Supplier_Id} value={supplier.Supplier_Id}>
-                {supplier.Supplier_Name}
-              </option>
-            ))}
+            {supplierList
+              .filter(supplier => supplier.is_Active === 1)
+              .map(supplier => (
+                <option key={supplier.Supplier_Id} value={supplier.Supplier_Id}>
+                  {supplier.Supplier_Name}
+                </option>
+              ))}
           </select>
           <button
             className="bg-[#0073ac] text-white px-4 py-1.5 rounded hover:bg-[#005f8f]"
@@ -93,26 +103,16 @@ function PurchasePage({user}) {
                   </td>
                   <td className="py-2 px-4 text-center">{product.name}</td>
                   <td className="py-2 px-4 text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <button
-                        className="px-2 py-1 bg-gray-300 rounded hover:bg-gray-400"
-                        onClick={() =>
-                          handleChange(product.id, 'quantity', Math.max(1, Number(product.quantity) - 1))
-                        }
-                      >
-                        –
-                      </button>
-                      <span className="w-6 text-center">{product.quantity}</span>
-                      <button
-                        className="px-2 py-1 bg-gray-300 rounded hover:bg-gray-400"
-                        onClick={() =>
-                          handleChange(product.id, 'quantity', Number(product.quantity) + 1)
-                        }
-                      >
-                        +
-                      </button>
-                    </div>
+                    <input
+                      type="number"
+                      min="0"
+                      value={product.quantity}
+                      onChange={(e) => handleChange(product.id, 'quantity', e.target.value)}
+                      className="w-[60px] text-center border border-gray-300 rounded"
+                    />
+
                   </td>
+
                   <td className="py-2 px-4 text-center">
                     <input
                       type="number"
@@ -147,15 +147,33 @@ function PurchasePage({user}) {
             className="bg-[#0073ac] text-white px-6 py-2 rounded hover:bg-[#005f8f]"
             onClick={() => {
               if (!selectedSupplierId) {
-                alert("กรุณาเลือกคู่ค้าก่อน");
+                setStatusModal({ isOpen: true, message: 'กรุณาเลือกคู่ค้าก่อน' });
                 return;
               }
+              if (products.length === 0) {
+                setStatusModal({ isOpen: true, message: 'กรุณาเพิ่มสินค้าอย่างน้อย 1 รายการก่อนยืนยัน' });
+                return;
+              }
+              const isValid = products.every(p => Number(p.quantity) > 0 && Number(p.price) > 0);
+              if (!isValid) {
+                setStatusModal({ isOpen: true, message: 'กรุณากรอกจำนวนและราคาสินค้าอย่างน้อย 1 ทุกรายการ' });
+                return;
+              }
+
               setIsConfirmOpen(true);
             }}
           >
             ยืนยัน
           </button>
-          <button className="bg-[#dc3546] text-white px-6 py-2 rounded hover:bg-[#b02a37]">ยกเลิก</button>
+          <button
+            className="bg-[#dc3546] text-white px-6 py-2 rounded hover:bg-[#b02a37]"
+            onClick={() => {
+              setProducts([]); // เคลียร์สินค้า
+              setSelectedSupplierId(''); // เคลียร์คู่ค้า (ถ้าต้องการล้างตรงนี้ด้วย)
+            }}
+          >
+            ลบรายการทั้งหมด
+          </button>
         </div>
       </div>
 
@@ -171,8 +189,15 @@ function PurchasePage({user}) {
         onClose={() => setIsConfirmOpen(false)}
         onSelectProducts={handleSelectProducts}
         products={products}
+        user={user}
+        selectedSupplierId={selectedSupplierId}
       />
 
+      <StatusModal
+        isOpen={statusModal.isOpen}
+        message={statusModal.message}
+        onClose={() => setStatusModal({ isOpen: false, message: '' })}
+      />
 
     </MainLayout>
 
