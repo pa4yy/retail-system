@@ -5,6 +5,7 @@ function ProductSelectModal({ isOpen, onClose, onAdd }) {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState([]);
+  
 
   useEffect(() => {
     if (isOpen) {
@@ -27,7 +28,8 @@ function ProductSelectModal({ isOpen, onClose, onAdd }) {
   };
 
   const handleAdd = () => {
-    const selectedProducts = products.filter(p => selected.includes(p.Product_Id));
+    const uniqueSelected = Array.from(new Set(selected));
+    const selectedProducts = uniqueSelected.map(id => products.find(p => p.Product_Id === id));
     onAdd(selectedProducts);
     onClose();
   };

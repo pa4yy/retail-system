@@ -36,7 +36,7 @@ function SalePage({ user }) {
       products.forEach(newP => {
         const found = updated.find(p => p.Product_Id === newP.Product_Id);
         if (found) {
-          found.quantity = (found.quantity || 1) + 1;
+          found.quantity = (found.quantity || 1) + 0.5;
         } else {
           updated.push({ ...newP, quantity: 1 });
         }
@@ -44,6 +44,7 @@ function SalePage({ user }) {
       return updated;
     });
   };
+
 
   const handleRemoveProduct = (id) => {
     setSelectedProducts(prev => prev.filter(p => p.Product_Id !== id));
