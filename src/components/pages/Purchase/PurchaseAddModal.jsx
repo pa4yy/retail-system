@@ -42,6 +42,7 @@ function ProductSelectModal({ isOpen, onClose, onSelectProducts }) {
   const handleAdd = () => {
     const selectedProducts = products.filter(p => selectedIds.includes(p.Product_Id));
     onSelectProducts(selectedProducts);
+    setSelectedIds([])
     onClose();
   };
 

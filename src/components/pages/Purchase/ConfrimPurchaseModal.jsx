@@ -3,7 +3,7 @@ import ConfirmModal from '../../ui/ConfirmModal';
 import axios from 'axios';
 
 
-function ConfirmProductModal({ isOpen, onClose, products = [], user, selectedSupplierId }) {
+function ConfirmProductModal({ isOpen, onClose, products = [], user, selectedSupplierId , onResult }) {
 
 
   const totalItems = products.length;
@@ -44,6 +44,8 @@ function ConfirmProductModal({ isOpen, onClose, products = [], user, selectedSup
       setModalMessage('ระบบได้ทำการบันทึกการสั่งซื้อแล้ว');
       setTimeout(() => {
         setModalOpen(false);
+        onClose();
+        onResult?.('success');
       }, 1500);
 
     } catch (error) {

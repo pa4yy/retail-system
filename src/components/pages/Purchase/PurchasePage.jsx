@@ -18,16 +18,36 @@ function PurchasePage({ user }) {
   });
 
   const handleSelectProducts = (selectedProducts) => {
-    const newProducts = selectedProducts.map(p => ({
-      id: `${p.Product_Id}-${Date.now()}-${Math.random()}`,
-      productId: p.Product_Id,
-      image: p.Product_Image,
-      name: p.Product_Name,
-      quantity: 1,
-      price: 0
-    }));
-    setProducts(prev => [...prev, ...newProducts]);
+    setProducts(prev => {
+      // สร้าง map จากสินค้าปัจจุบัน โดยใช้ productId เป็น key
+      const productMap = new Map();
+  
+      prev.forEach(item => {
+        productMap.set(item.productId, { ...item });
+      });
+  
+      selectedProducts.forEach(p => {
+        if (productMap.has(p.Product_Id)) {
+          // ถ้ามีอยู่แล้วเพิ่ม quantity
+          productMap.get(p.Product_Id).quantity += 1;
+        } else {
+          // ถ้าไม่มี เพิ่มเข้ามาใหม่
+          productMap.set(p.Product_Id, {
+            id: `${p.Product_Id}-${Date.now()}-${Math.random()}`,
+            productId: p.Product_Id,
+            image: p.Product_Image,
+            name: p.Product_Name,
+            quantity: 1,
+            price: 0,
+          });
+        }
+      });
+  
+      // แปลงกลับเป็น array
+      return Array.from(productMap.values());
+    });
   };
+  
 
   const handleDelete = (id) => {
     setProducts(products.filter(product => product.id !== id));
