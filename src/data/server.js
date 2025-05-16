@@ -461,7 +461,29 @@ app.post("/api/sale", (req, res) => {
         console.error("SaleDetail insert error:", err2);
         return res.status(500).json({ message: "DB error" });
       }
-      res.json({ message: "บันทึกการขายสำเร็จ" });
+
+      // อัพเดทจำนวนสินค้าหลังจากบันทึกการขาย
+      const updatePromises = Products.map(p => {
+        return new Promise((resolve, reject) => {
+          const updateSql = "UPDATE Product SET Product_Amount = Product_Amount - ? WHERE Product_Id = ?";
+          db.query(updateSql, [Number(p.Sale_Amount), Number(p.Product_Id)], (err3) => {
+            if (err3) {
+              reject(err3);
+            } else {
+              resolve();
+            }
+          });
+        });
+      });
+
+      Promise.all(updatePromises)
+        .then(() => {
+          res.json({ message: "บันทึกการขายสำเร็จ" });
+        })
+        .catch(err3 => {
+          console.error("Product update error:", err3);
+          return res.status(500).json({ message: "DB error" });
+        });
     });
   });
 });
