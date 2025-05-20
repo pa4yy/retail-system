@@ -66,9 +66,8 @@ function PurchaseReport({ user }) {
           </div>
         </div>
 
-
         {/* Table */}
-        <div style={{ maxHeight: 720, minHeight: 720, overflowY: "auto" }}>
+        <div style={{ maxHeight: 720, minHeight: 720, overflowY: "auto"}}>
           <table className="min-w-[800px] w-full table-fixed">
           <colgroup>
                   <col style={{ width: "60px" }} />

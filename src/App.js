@@ -5,7 +5,7 @@ import Login from './components/Login';
 import SalesReport from './components/pages/SalesReport';
 import StockReport from './components/pages/StockReport';
 import PurchaseReport from './components/pages/PurchaseReport';
-import SalesHistory from './components/pages/SalesHistory';
+import SalesHistory from './components/pages/SalesHistory/SalesHistory';
 import SalePage from './components/pages/Sale/SalePage';
 import ProductsPage from './components/pages/Product/ProductsPage';
 import PurchasePage from './components/pages/Purchase/PurchasePage';

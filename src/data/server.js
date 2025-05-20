@@ -574,11 +574,44 @@ app.get('/api/purchases', (req, res) => {
 });
 
 
+// API สำหรับดึงข้อมูลการขาย พร้อมรายละเอียดสินค้า
+app.get('/api/sales', (req, res) => {
+  const sqlSales = `SELECT * FROM Sales`;
 
+  db.query(sqlSales, (err, sales) => {
+    if (err) {
+      console.error("Database Error:", err);
+      return res.status(500).json({ message: 'ดึงข้อมูลล้มเหลว' });
+    }
+    // ดึงรายละเอียดสินค้าแต่ละ Sale
+    const saleIds = sales.map(s => s.Sale_Id);
+    if (saleIds.length === 0) return res.json([]);
 
-
+    const sqlDetail = `
+      SELECT d.Sale_Id, d.Product_Id, d.Sale_Amount, p.Product_Name
+      FROM Sales_Detail d
+      LEFT JOIN Product p ON d.Product_Id = p.Product_Id
+      WHERE d.Sale_Id IN (?)
+    `;
+    
+    db.query(sqlDetail, [saleIds], (err2, details) => {
+      if (err2) {
+        console.error("Database Error:", err2);
+        return res.status(500).json({ message: 'ดึงข้อมูลล้มเหลว' });
+      }
+      // รวมรายละเอียดเข้าแต่ละ sale
+      const saleMap = {};
+      sales.forEach(s => { saleMap[s.Sale_Id] = { ...s, Sale_Detail: [] }; });
+      details.forEach(d => {
+        if (saleMap[d.Sale_Id]) {
+          saleMap[d.Sale_Id].Sale_Detail.push(d);
+        }
+      });
+      res.json(Object.values(saleMap));
+    });
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
