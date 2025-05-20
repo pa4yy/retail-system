@@ -175,8 +175,8 @@ function ProductsPage({ user }) {
                   <th className="py-3 px-4 text-left font-semibold">ประเภท</th>
                   <th className="py-3 px-4 text-right font-semibold">ราคาขาย(บาท)</th>
                   <th className="py-3 px-4 text-right font-semibold">ราคาซื้อ(บาท)</th>
-                  <th className="py-3 px-4 text-right font-semibold">จำนวนที่เหลือ</th>
-                  <th className="py-3 px-4 text-center font-semibold last:rounded-tr-lg">การจัดการ</th>
+                  <th className="py-3 px-4 text-right font-semibold">จำนวนที่เหลือ (ชิ้น)</th>
+                  <th className="py-3 px-4 text-center font-semibold last:rounded-tr-lg">แก้ไขข้อมูลสินค้า</th>
                 </tr>
               </thead>
               <tbody>

@@ -38,7 +38,8 @@ function ProductSelectModal({ isOpen, onClose, onAdd }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-4 w-full max-w-xl" style={{ maxHeight: 520 }}>
+      <div className="bg-white rounded-lg p-4 w-full max-w-3xl" style={{ maxHeight: 720 }}>
+        <h1 className="text-2xl font-bold mb-4">เพิ่มสินค้าเข้าตระกร้า</h1>
         <div className="flex items-center mb-4 gap-2">
           <input
             className="border rounded px-3 py-1 flex-1"
@@ -48,7 +49,7 @@ function ProductSelectModal({ isOpen, onClose, onAdd }) {
           />
           <button className="bg-blue-700 text-white px-4 py-2 rounded">ค้นหา</button>
         </div>
-        <div className="overflow-y-auto" style={{ maxHeight: 320, minHeight: 320 }}>
+        <div className="overflow-y-auto" style={{ maxHeight: 520, minHeight: 520 }}>
           <table className="w-full border-collapse">
             <thead>
               <tr className="sticky top-0 bg-blue-700 text-white z-10">
@@ -57,6 +58,7 @@ function ProductSelectModal({ isOpen, onClose, onAdd }) {
                 <th className="p-2">ชื่อสินค้า</th>
                 <th className="p-2">ประเภท</th>
                 <th className="p-2">ราคาสินค้า</th>
+                <th className="p-2">จำนวนสินค้า</th>
               </tr>
             </thead>
             <tbody>
@@ -86,6 +88,7 @@ function ProductSelectModal({ isOpen, onClose, onAdd }) {
                         <td className="p-2">{p.Product_Name}</td>
                         <td className="p-2">{p.PType_Name || "-"}</td>
                         <td className="p-2 text-right">{parseFloat(p.Product_Price).toLocaleString()} บาท</td>
+                        <td className="p-2 text-right">{p.Product_Amount || "0"} ชิ้น</td>
                       </tr>
                     );
                   })}

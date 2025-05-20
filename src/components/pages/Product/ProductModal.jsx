@@ -155,7 +155,7 @@ function ProductModal({
               ))}
             </select>
 
-            <label className="block mb-1">จำนวน</label>
+            <label className="block mb-1">จำนวน (ชิ้น)</label>
             <input
               type="number"
               value={editedProduct.Product_Amount || "0"}
@@ -163,7 +163,7 @@ function ProductModal({
               className="w-full p-2 mb-3 border border-gray-300 rounded"
             />
 
-            <label className="block mb-1">ราคา</label>
+            <label className="block mb-1">ราคาขาย (บาท)</label>
             <input
               type="number"
               step="0.01"
@@ -172,7 +172,7 @@ function ProductModal({
               className="w-full p-2 mb-3 border border-gray-300 rounded"
             />
 
-            <label className="block mb-1">จุดสั่งซื้อขั้นต่ำ</label>
+            <label className="block mb-1">จุดสั่งซื้อขั้นต่ำ (ชิ้น)</label>
             <input
               type="number"
               value={editedProduct.Product_Minimum || "0"}

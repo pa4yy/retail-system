@@ -1,19 +1,24 @@
-import React, { useState } from 'react';
-import MainLayout from '../../layout/MainLayout';
-import ProductSelectModal from './ProductSelectModal.jsx';
-import PaymentModal from './PaymentModal.jsx';
-import ReceiptModal from './ReceiptModal.jsx';
-import StatusModal from '../../ui/StatusModal';
-import axios from 'axios';
+import React, { useState } from "react";
+import MainLayout from "../../layout/MainLayout";
+import ProductSelectModal from "./ProductSelectModal.jsx";
+import PaymentModal from "./PaymentModal.jsx";
+import ReceiptModal from "./ReceiptModal.jsx";
+import StatusModal from "../../ui/StatusModal";
+import axios from "axios";
 
 function formatDateTime(date) {
-  const pad = n => n < 10 ? '0' + n : n;
+  const pad = (n) => (n < 10 ? "0" + n : n);
   return (
-    date.getFullYear() + '-' +
-    pad(date.getMonth() + 1) + '-' +
-    pad(date.getDate()) + ' ' +
-    pad(date.getHours()) + ':' +
-    pad(date.getMinutes()) + ':' +
+    date.getFullYear() +
+    "-" +
+    pad(date.getMonth() + 1) +
+    "-" +
+    pad(date.getDate()) +
+    " " +
+    pad(date.getHours()) +
+    ":" +
+    pad(date.getMinutes()) +
+    ":" +
     pad(date.getSeconds())
   );
 }
@@ -27,14 +32,14 @@ function SalePage({ user }) {
   const [lastSale, setLastSale] = useState(null);
   const [statusModal, setStatusModal] = useState({
     open: false,
-    message: ''
+    message: "",
   });
 
   const handleAddProducts = (products) => {
-    setSelectedProducts(prev => {
+    setSelectedProducts((prev) => {
       const updated = [...prev];
-      products.forEach(newP => {
-        const found = updated.find(p => p.Product_Id === newP.Product_Id);
+      products.forEach((newP) => {
+        const found = updated.find((p) => p.Product_Id === newP.Product_Id);
         if (found) {
           found.quantity = (found.quantity || 1) + 0.5;
         } else {
@@ -45,16 +50,28 @@ function SalePage({ user }) {
     });
   };
 
-
   const handleRemoveProduct = (id) => {
-    setSelectedProducts(prev => prev.filter(p => p.Product_Id !== id));
+    setSelectedProducts((prev) => prev.filter((p) => p.Product_Id !== id));
   };
 
   const handleChangeQty = (id, qty) => {
-    setSelectedProducts(prev =>
-      prev.map(p =>
-        p.Product_Id === id ? { ...p, quantity: Math.max(1, Number(qty)) } : p
-      )
+    setSelectedProducts((prev) =>
+      prev.map((p) => {
+        if (p.Product_Id === id) {  
+          const inputQty = Number(qty);
+          const maxQty = p.Product_Amount || 1;
+          if (inputQty > maxQty) {
+            setStatusModal({
+              open: true,
+              message: `จำนวนสินค้า ${p.Product_Name} ตอนนี้ มีจำนวน ${maxQty} ชิ้น`,
+            });
+            return p;
+          }
+          return { ...p, quantity: Math.max(1, Math.min(inputQty, maxQty)) };
+        } else {
+          return p;
+        }
+      })
     );
   };
 
@@ -75,10 +92,10 @@ function SalePage({ user }) {
         Emp_Id: user?.Emp_Id || 1,
         Total_Sale_Price: saleData.total,
         Payment_methods: paymentType,
-        Products: selectedProducts.map(p => ({
+        Products: selectedProducts.map((p) => ({
           Product_Id: p.Product_Id,
-          Sale_Amount: p.quantity
-        }))
+          Sale_Amount: p.quantity,
+        })),
       });
 
       if (response.status === 200) {
@@ -88,20 +105,20 @@ function SalePage({ user }) {
           total: saleData.total,
           cash: saleData.cash,
           change: saleData.change,
-          date: saleData.date
+          date: saleData.date,
         });
         if (saleData.printReceipt) setShowReceipt(true);
         setSelectedProducts([]);
         setStatusModal({
           open: true,
-          message: 'บันทึกข้อมูลการขายเรียบร้อยแล้ว'
+          message: "บันทึกข้อมูลการขายเรียบร้อยแล้ว",
         });
       }
     } catch (error) {
       console.error("เกิดข้อผิดพลาดในการบันทึกข้อมูลการขาย:", error);
       setStatusModal({
         open: true,
-        message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูลการขาย'
+        message: "เกิดข้อผิดพลาดในการบันทึกข้อมูลการขาย",
       });
     }
   };
@@ -144,38 +161,56 @@ function SalePage({ user }) {
                   {selectedProducts.length === 0 ? (
                     <tr>
                       <td colSpan={6}>
-                        <div className="h-56 flex items-center justify-center text-gray-400">ยังไม่มีสินค้า</div>
+                        <div className="h-56 flex items-center justify-center text-gray-400">
+                          ยังไม่มีสินค้า
+                        </div>
                       </td>
                     </tr>
                   ) : (
                     selectedProducts.map((p, idx) => (
                       <tr
                         key={p.Product_Id}
-                        className={`border-b border-gray-200 ${idx % 2 === 0 ? "bg-white" : "bg-blue-50"} hover:bg-blue-100 transition-colors`}
+                        className={`border-b border-gray-200 ${
+                          idx % 2 === 0 ? "bg-white" : "bg-blue-50"
+                        } hover:bg-blue-100 transition-colors`}
                       >
-                        <td className="align-middle text-center font-semibold">{idx + 1}</td>
+                        <td className="align-middle text-center font-semibold">
+                          {idx + 1}
+                        </td>
                         <td className="py-2 text-center align-middle">
                           <img
                             src={
                               p.Product_Image
-                                ? (p.Product_Image.startsWith("/uploads/")
-                                    ? `http://localhost:5000${p.Product_Image}`
-                                    : p.Product_Image)
+                                ? p.Product_Image.startsWith("/uploads/")
+                                  ? `http://localhost:5000${p.Product_Image}`
+                                  : p.Product_Image
                                 : "/noimage.jpg"
                             }
                             alt={p.Product_Name}
                             className="w-28 h-28 object-cover rounded mx-auto"
-                            onError={e => { e.target.onerror = null; e.target.src = "/noimage.jpg"; }}
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "/noimage.jpg";
+                            }}
                             style={{ maxWidth: 120, maxHeight: 120 }}
                           />
                         </td>
-                        <td className="text-left align-middle px-2">{p.Product_Name}</td>
-                        <td className="text-right align-middle px-2">{parseFloat(p.Product_Price).toLocaleString()} บาท</td>
+                        <td className="text-left align-middle px-2">
+                          {p.Product_Name}
+                        </td>
+                        <td className="text-right align-middle px-2">
+                          {parseFloat(p.Product_Price).toLocaleString()} บาท
+                        </td>
                         <td className="text-right align-middle px-2">
                           <div className="flex items-center justify-end gap-2">
                             <button
                               className="bg-gray-300 text-gray-700 px-2 py-1 rounded hover:bg-gray-400"
-                              onClick={() => handleChangeQty(p.Product_Id, (p.quantity || 1) - 1)}
+                              onClick={() =>
+                                handleChangeQty(
+                                  p.Product_Id,
+                                  (p.quantity || 1) - 1
+                                )
+                              }
                               disabled={p.quantity <= 1}
                               type="button"
                             >
@@ -185,13 +220,20 @@ function SalePage({ user }) {
                               type="number"
                               min={1}
                               value={p.quantity || 1}
-                              onChange={e => handleChangeQty(p.Product_Id, e.target.value)}
+                              onChange={(e) =>
+                                handleChangeQty(p.Product_Id, e.target.value)
+                              }
                               className="w-16 border rounded text-center"
                               style={{ appearance: "textfield" }}
                             />
                             <button
                               className="bg-gray-300 text-gray-700 px-2 py-1 rounded hover:bg-gray-400"
-                              onClick={() => handleChangeQty(p.Product_Id, (p.quantity || 1) + 1)}
+                              onClick={() =>
+                                handleChangeQty(
+                                  p.Product_Id,
+                                  (p.quantity || 1) + 1
+                                )
+                              }
                               type="button"
                             >
                               +
@@ -217,9 +259,15 @@ function SalePage({ user }) {
         <div className="flex justify-between items-end">
           <div></div>
           <div className="text-right mb-2">
-            <p>สินค้าทั้งหมด <strong>{selectedProducts.length}</strong> รายการ</p>
-            <p>จำนวนสินค้าทั้งหมด <strong>{sumQuantity}</strong> ชิ้น</p>
-            <p>ราคารวมทั้งหมด <strong>{total.toLocaleString()} บาท</strong></p>
+            <p>
+              สินค้าทั้งหมด <strong>{selectedProducts.length}</strong> รายการ
+            </p>
+            <p>
+              จำนวนสินค้าทั้งหมด <strong>{sumQuantity}</strong> ชิ้น
+            </p>
+            <p>
+              ราคารวมทั้งหมด <strong>{total.toLocaleString()} บาท</strong>
+            </p>
           </div>
         </div>
         <div className="flex justify-end space-x-2">
@@ -254,7 +302,7 @@ function SalePage({ user }) {
               total,
               cash,
               change,
-              printReceipt
+              printReceipt,
             });
           }}
         />
@@ -266,7 +314,7 @@ function SalePage({ user }) {
         <StatusModal
           isOpen={statusModal.open}
           message={statusModal.message}
-          onClose={() => setStatusModal({ open: false, message: '' })}
+          onClose={() => setStatusModal({ open: false, message: "" })}
         />
       </div>
     </MainLayout>
