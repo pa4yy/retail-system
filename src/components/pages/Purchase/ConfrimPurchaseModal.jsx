@@ -3,7 +3,7 @@ import ConfirmModal from '../../ui/ConfirmModal';
 import axios from 'axios';
 
 
-function ConfirmProductModal({ isOpen, onClose, products = [], user, selectedSupplierId , onResult }) {
+function ConfirmProductModal({ isOpen, onClose, products = [], user, selectedSupplierId, onResult }) {
 
 
   const totalItems = products.length;
@@ -11,6 +11,8 @@ function ConfirmProductModal({ isOpen, onClose, products = [], user, selectedSup
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [modalTitle, setModalTitle] = useState('');
+
+
 
   if (!isOpen) return null;
 
@@ -45,6 +47,7 @@ function ConfirmProductModal({ isOpen, onClose, products = [], user, selectedSup
       setTimeout(() => {
         setModalOpen(false);
         onClose();
+        console.log('Calling onResult with success');
         onResult?.('success');
       }, 1500);
 
@@ -54,6 +57,8 @@ function ConfirmProductModal({ isOpen, onClose, products = [], user, selectedSup
       setModalMessage('เกิดข้อผิดพลาดในการทำรายการ กรุณาลองใหม่อีกครั้ง');
     }
   };
+
+
 
 
 
@@ -118,6 +123,8 @@ function ConfirmProductModal({ isOpen, onClose, products = [], user, selectedSup
               onConfirm={() => setModalOpen(false)}
               onCancel={() => setModalOpen(false)}
             />
+
+            
           </>
         )}
       </div>
