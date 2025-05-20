@@ -63,7 +63,7 @@ function SalePage({ user }) {
           if (inputQty > maxQty) {
             setStatusModal({
               open: true,
-              message: `จำนวนสินค้า ${p.Product_Name} ตอนนี้ มีจำนวน ${maxQty} ชิ้น`,
+              message: `สินค้า ${p.Product_Name} ตอนนี้ มีจำนวนอยู่ในคลัง ${maxQty} ชิ้น`,
             });
             return p;
           }
