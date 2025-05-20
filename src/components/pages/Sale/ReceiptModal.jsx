@@ -1,6 +1,6 @@
 import React from "react";
 
-function ReceiptModal({ isOpen, onClose, saleData }) {
+function ReceiptModal({ isOpen, onClose ,saleData}) {
   if (!isOpen) return null;
 
   const { products, total, cash, change, date } = saleData;

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import MainLayout from '../../layout/MainLayout';
 import ProductSelectModal from './PurchaseAddModal';
 import ConfirmProductModal from './ConfrimPurchaseModal'
+import ReceiptPurchaseModal from './ReceiptPurchaseModal'
 import StatusModal from '../../ui/StatusModal';
 import axios from "axios";
 
@@ -11,6 +12,10 @@ function PurchasePage({ user }) {
   const [supplierList, setSupplierList] = useState([]);
   const [selectedSupplierId, setSelectedSupplierId] = useState('');
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false);
+
+
+
 
   const [statusModal, setStatusModal] = useState({
     isOpen: false,
@@ -21,11 +26,11 @@ function PurchasePage({ user }) {
     setProducts(prev => {
       // สร้าง map จากสินค้าปัจจุบัน โดยใช้ productId เป็น key
       const productMap = new Map();
-  
+
       prev.forEach(item => {
         productMap.set(item.productId, { ...item });
       });
-  
+
       selectedProducts.forEach(p => {
         if (productMap.has(p.Product_Id)) {
           // ถ้ามีอยู่แล้วเพิ่ม quantity
@@ -39,24 +44,43 @@ function PurchasePage({ user }) {
             name: p.Product_Name,
             quantity: 1,
             price: 0,
+            sellPrice: p.Product_Price,
           });
         }
       });
-  
+
       // แปลงกลับเป็น array
       return Array.from(productMap.values());
     });
   };
-  
+
 
   const handleDelete = (id) => {
     setProducts(products.filter(product => product.id !== id));
   };
 
   const handleChange = (id, key, value) => {
-    setProducts(products.map(product =>
-      product.id === id ? { ...product, [key]: value } : product
-    ));
+    setProducts(products.map(product => {
+      if (product.id === id) {
+        if (key === 'price') {
+          if (Number(value) > Number(product.sellPrice)) {
+            setStatusModal({
+              isOpen: true,
+              message: `ราคาสั่งซื้อมากกว่าราคาขาย (${product.sellPrice} บาท) ของสินค้า "${product.name}"`,
+            });
+          }
+        }
+        return { ...product, [key]: value };
+      }
+      return product;
+    }));
+  };
+
+  const handlePurchaseResult = (status) => {
+    if (status === 'success') {
+      setIsConfirmOpen(false);
+      setShowReceipt(true);
+    }
   };
 
   useEffect(() => {
@@ -73,8 +97,9 @@ function PurchasePage({ user }) {
 
   const totalQuantity = products.reduce((sum, p) => sum + Number(p.quantity), 0);
   const totalCost = products.reduce((sum, p) => sum + (Number(p.price) * Number(p.quantity)), 0);
-
+  console.log('showReceipt:', showReceipt);
   return (
+    
     <MainLayout user={user} title="สั่งซื้อสินค้า">
       <div className="h-full min-h-0 overflow-hidden p-8 bg-white box-border flex flex-col">
 
@@ -204,6 +229,7 @@ function PurchasePage({ user }) {
       />
 
 
+
       <ConfirmProductModal
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
@@ -211,6 +237,23 @@ function PurchasePage({ user }) {
         products={products}
         user={user}
         selectedSupplierId={selectedSupplierId}
+        onResult={(result) => {
+          console.log('onResult called with:', result); 
+          setIsConfirmOpen(false);
+          if (result === 'success') {
+            setShowReceipt(true);
+          }
+        }}
+
+      />
+      <ReceiptPurchaseModal
+        isOpen={showReceipt}
+        onClose={() => {
+          setShowReceipt(false);      // ปิด modal ใบเสร็จ
+          setProducts([]);            // ล้างรายการสินค้า
+          setSelectedSupplierId('');  // ล้างบริษัทคู่ค้า
+        }}
+        onResult={handlePurchaseResult} 
       />
 
       <StatusModal
@@ -218,8 +261,9 @@ function PurchasePage({ user }) {
         message={statusModal.message}
         onClose={() => setStatusModal({ isOpen: false, message: '' })}
       />
-
+  
     </MainLayout>
+    
 
 
   );

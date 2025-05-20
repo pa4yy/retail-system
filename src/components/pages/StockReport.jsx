@@ -90,10 +90,11 @@ function StockReport(props) {
         <div style={{
           borderRadius: 4,
           overflow: 'hidden',
-          background: '#f7f7f7'
+          background: '#f7f7f7',
+          maxHeight: 580, minHeight: 580, overflowY: "auto" 
         }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 18 }}>
-            <thead style={{ background: '#009fe3', color: '#fff' }}>
+            <thead className='sticky top-0' style={{ background: '#009fe3', color: '#fff' }}>
               <tr>
                 <th style={{ padding: 8, width: 50 }}></th>
                 <th style={{ padding: 8, width: 60 }}>ลำดับ</th>
