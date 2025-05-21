@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../data/AuthContext';
 
 function Login() {
   const navigate = useNavigate();
-  const { setUser } = useAuth();
+  const { setUser, user } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
   });
+
+  if (user) {
+    return <Navigate to="/sale" replace />;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,8 +24,12 @@ function Login() {
       const data = response.data;
       setUser(data);
       localStorage.setItem('user', JSON.stringify(data));
+      console.log('Login data:', data);
+
+      await axios.post('http://localhost:5000/api/logs/login', { Emp_Id: data.Emp_Id });
       navigate('/sale', { state: { user: data } });
     } catch (error) {
+      console.error(error);
       const msg = error.response?.data?.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ';
       alert(msg);
     }

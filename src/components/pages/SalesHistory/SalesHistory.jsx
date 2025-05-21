@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import MainLayout from '../../layout/MainLayout';
-import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import SaleDetailModal from './SaleDetailModal';
+import { useAuth } from '../../../data/AuthContext';
 
-function SalesHistory(props) {
+function SalesHistory() {
+  const { user } = useAuth();
   const [sales, setSales] = useState([]);
-  const location = useLocation();
-  const user = props.user || location.state?.user || JSON.parse(localStorage.getItem('user'));
   const [selectedSale, setSelectedSale] = useState(null);
   const [showDetail, setShowDetail] = useState(false);
   const [salesDetail, setSalesDetail] = useState([]);
@@ -70,7 +69,13 @@ function SalesHistory(props) {
       const dateMatch =
         (!startDate || saleDate >= startDate) &&
         (!endDate || saleDate <= endDate);
-      const searchMatch = sale.Sale_Id?.toString().includes(search);
+
+      const empName = getEmpName(sale.Emp_Id).toLowerCase();
+      const searchLower = search.toLowerCase();
+      const searchMatch =
+        sale.Sale_Id?.toString().includes(search) ||
+        empName.includes(searchLower);
+
       return dateMatch && searchMatch;
     });
   }
@@ -108,14 +113,11 @@ function SalesHistory(props) {
           <div className="flex items-center gap-2 mt-4 sm:mt-0">
             <input
               type="text"
-              className="border px-3 py-2 rounded w-[220px]"
-              placeholder="ค้นหาหมายเลขการขาย"
+              className="border px-3 py-2 rounded w-[320px]"
+              placeholder="ค้นหาหมายเลขการขาย / พนักงานขาย"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-              ค้นหา
-            </button>
           </div>
         </div>
         {/* Table */}
@@ -175,7 +177,10 @@ function SalesHistory(props) {
                       <button
                         className="text-blue-600 hover:underline"
                         onClick={() => {
-                          setSelectedSale(p);
+                          setSelectedSale({
+                            ...p,
+                            Seller_Name: getEmpName(p.Emp_Id)
+                          });
                           setSalesDetail(p.Sale_Detail || []);
                           setShowDetail(true);
                         }}

@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import MainLayout from '../layout/MainLayout';
-import { useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../../data/AuthContext';
 
-function StockReport(props) {
-  const location = useLocation();
-  const user = props.user || location.state?.user || JSON.parse(localStorage.getItem('user'));
+function StockReport() {
+  const { user } = useAuth();
 
   const [products, setProducts] = useState([]);
   const [showCritical, setShowCritical] = useState(false);

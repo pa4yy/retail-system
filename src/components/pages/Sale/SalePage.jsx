@@ -5,6 +5,7 @@ import PaymentModal from "./PaymentModal.jsx";
 import ReceiptModal from "./ReceiptModal.jsx";
 import StatusModal from "../../ui/StatusModal";
 import axios from "axios";
+import { useAuth } from '../../../data/AuthContext';
 
 function formatDateTime(date) {
   const pad = (n) => (n < 10 ? "0" + n : n);
@@ -23,7 +24,8 @@ function formatDateTime(date) {
   );
 }
 
-function SalePage({ user }) {
+function SalePage() {
+  const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [showPayment, setShowPayment] = useState(false);
@@ -95,6 +97,7 @@ function SalePage({ user }) {
         Products: selectedProducts.map((p) => ({
           Product_Id: p.Product_Id,
           Sale_Amount: p.quantity,
+          Sale_Price: p.Product_Price,
         })),
       });
 
