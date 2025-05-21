@@ -5,8 +5,10 @@ import ConfirmProductModal from './ConfrimPurchaseModal'
 import ReceiptPurchaseModal from './ReceiptPurchaseModal'
 import StatusModal from '../../ui/StatusModal';
 import axios from "axios";
+import { useAuth } from '../../../data/AuthContext';
 
-function PurchasePage({ user }) {
+function PurchasePage() {
+  const { user } = useAuth();
   const [products, setProducts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [supplierList, setSupplierList] = useState([]);

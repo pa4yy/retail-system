@@ -3,8 +3,10 @@ import axios from "axios";
 import MainLayout from "../../layout/MainLayout";
 import ProductModal from "./ProductModal";
 import ProductTypeModal from "./ProductTypeModal";
+import { useAuth } from '../../../data/AuthContext';
 
-function ProductsPage({ user }) {
+function ProductsPage() {
+  const { user } = useAuth();
   const [products, setProducts] = useState([]);
   const [productTypes, setProductTypes] = useState([]);
   const [search, setSearch] = useState("");

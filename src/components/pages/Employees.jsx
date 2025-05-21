@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import MainLayout from '../layout/MainLayout';
-import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import ConfirmModal from '../ui/ConfirmModal';
 import StatusModal from '../ui/StatusModal';
+import { useAuth } from '../../data/AuthContext';
 
 function EmployeeModal({ show, type, employee, onClose, onSave }) {
   const [form, setForm] = useState({
@@ -170,9 +170,8 @@ function EmployeeModal({ show, type, employee, onClose, onSave }) {
   );
 }
 
-function Employees(props) {
-  const location = useLocation();
-  const user = props.user || location.state?.user || JSON.parse(localStorage.getItem('user'));
+function Employees() {
+  const { user } = useAuth();
   const [search, setSearch] = useState('');
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);

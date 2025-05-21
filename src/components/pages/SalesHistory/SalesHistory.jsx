@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import MainLayout from '../../layout/MainLayout';
-import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import SaleDetailModal from './SaleDetailModal';
+import { useAuth } from '../../../data/AuthContext';
 
-function SalesHistory(props) {
+function SalesHistory() {
+  const { user } = useAuth();
   const [sales, setSales] = useState([]);
-  const location = useLocation();
-  const user = props.user || location.state?.user || JSON.parse(localStorage.getItem('user'));
   const [selectedSale, setSelectedSale] = useState(null);
   const [showDetail, setShowDetail] = useState(false);
   const [salesDetail, setSalesDetail] = useState([]);
