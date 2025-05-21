@@ -61,6 +61,50 @@ app.post("/api/login", (req, res) => {
   });
 });
 
+// API สำหรับบันทึกการเข้าสู่ระบบ
+app.post('/api/logs/login', (req, res) => {
+  const { Emp_Id } = req.body;
+  const Login_Time = new Date(); // เวลาปัจจุบัน
+
+  db.query(
+    'INSERT INTO Login_History (Emp_Id, Login_Time) VALUES (?, ?)',
+    [Emp_Id, Login_Time],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'DB error' });
+      }
+      res.json({ success: true });
+    }
+  );
+});
+
+// API สำหรับบันทึกการออกจากระบบ
+app.post('/api/logs/logout', (req, res) => {
+  const { Emp_Id } = req.body;
+  const now = new Date();
+  
+  const sql = `
+    UPDATE Login_History
+    SET LogOut_Time = ?
+    WHERE Emp_Id = ? AND LogOut_Time IS NULL
+    AND Login_Time = (
+      SELECT t.Login_Time
+      FROM (
+        SELECT Login_Time
+        FROM Login_History
+        WHERE Emp_Id = ? AND LogOut_Time IS NULL
+        ORDER BY Login_Time DESC
+        LIMIT 1
+      ) t
+    )
+  `;
+  db.query(sql, [now, Emp_Id, Emp_Id], (err, result) => {
+    if (err) return res.status(500).json({ message: "DB error" });
+    res.json({ message: "Logout logged" });
+  });
+});
+
 // API สำหรับดึงข้อมูลพนักงานทั้งหมด
 app.get("/api/employees", (req, res) => {
   const sql =
@@ -453,9 +497,10 @@ app.post("/api/sale", (req, res) => {
     const values = Products.map(p => [
       saleId,
       Number(p.Product_Id),
-      Number(p.Sale_Amount)
+      Number(p.Sale_Amount),
+      Number(p.Sale_Price)
     ]);
-    const detailSql = "INSERT INTO Sales_Detail (Sale_Id, Product_Id, Sale_Amount) VALUES ?";
+    const detailSql = "INSERT INTO Sales_Detail (Sale_Id, Product_Id, Sale_Amount, Sale_Price) VALUES ?";
     db.query(detailSql, [values], (err2) => {
       if (err2) {
         console.error("SaleDetail insert error:", err2);
@@ -588,7 +633,7 @@ app.get('/api/sales', (req, res) => {
     if (saleIds.length === 0) return res.json([]);
 
     const sqlDetail = `
-      SELECT d.Sale_Id, d.Product_Id, d.Sale_Amount, p.Product_Name
+      SELECT d.Sale_Id, d.Product_Id, d.Sale_Amount, d.Sale_Price, p.Product_Name
       FROM Sales_Detail d
       LEFT JOIN Product p ON d.Product_Id = p.Product_Id
       WHERE d.Sale_Id IN (?)

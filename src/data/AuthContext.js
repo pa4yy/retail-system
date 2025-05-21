@@ -1,20 +1,33 @@
-import React, { createContext, useContext } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { createContext, useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const location = useLocation();
+  const navigate = useNavigate();
   const storedUser = localStorage.getItem('user');
-  const user = location.state?.user || (storedUser ? JSON.parse(storedUser) : null);
+  const [user, setUserState] = useState(storedUser ? JSON.parse(storedUser) : null);
 
   const setUser = (userData) => {
-    localStorage.setItem('user', JSON.stringify(userData));
+    setUserState(userData);
+    if (userData) {
+      localStorage.setItem('user', JSON.stringify(userData));
+    } else {
+      localStorage.removeItem('user');
+    }
   };
 
-  const logout = () => {
-    localStorage.removeItem('user');
-    window.location.href = '/login';
+  const logout = async () => {
+    if (user?.Emp_Id) {
+      try {
+        await axios.post('http://localhost:5000/api/logs/logout', { Emp_Id: user.Emp_Id });
+      } catch (e) {
+        console.error('Logout log error', e);
+      }
+    }
+    setUser(null);
+    navigate('/login');
   };
 
   return (
@@ -30,4 +43,4 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}; 
+};

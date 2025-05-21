@@ -11,13 +11,16 @@ function SaleDetailModal({ open, onClose, sale, saleDetail }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div className="bg-white rounded-lg shadow-lg p-8 min-w-[600px]">
+      <div className="bg-white rounded-lg shadow-lg p-8 min-w-[800px]">
         <h2 className="text-xl font-bold mb-4 text-center">รายละเอียดสินค้า</h2>
         <div className="mb-2">
           หมายเลขการขาย: <span className="font-semibold">{sale.Sale_Id}</span>
         </div>
         <div className="mb-2">
           วันที่ขาย: <span>{new Date(sale.Sale_Date).toLocaleString()}</span>
+        </div>
+        <div className="mb-2">
+          ชื่อคนขาย: <span>{sale.Seller_Name || "-"}</span>
         </div>
         <div className="mb-2">
           วิธีชำระเงิน: <span>{paymentMethodText(sale.Payment_medthods)}</span>
@@ -29,7 +32,7 @@ function SaleDetailModal({ open, onClose, sale, saleDetail }) {
               <th className="py-2 border">ชื่อสินค้า</th>
               <th className="py-2 border">จำนวน</th>
               <th className="py-2 border">ราคาขาย</th>
-              <th className="py-2 border">ราคารวม</th>
+              <th className="py-2 border">ราคารวมสินค้า</th>
             </tr>
           </thead>
           <tbody>

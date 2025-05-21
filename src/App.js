@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './data/AuthContext';
 import Login from './components/Login';
 import SalesReport from './components/pages/SalesReport';
@@ -11,18 +11,7 @@ import ProductsPage from './components/pages/Product/ProductsPage';
 import PurchasePage from './components/pages/Purchase/PurchasePage';
 import Employees from './components/pages/Employees';
 import Suppliers from './components/pages/Suppliers';
-
-function ProtectedRoute({ children }) {
-  const location = useLocation();
-  const storedUser = localStorage.getItem('user');
-  const user = location.state?.user || (storedUser ? JSON.parse(storedUser) : null);
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return React.cloneElement(children, { user });
-}
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
