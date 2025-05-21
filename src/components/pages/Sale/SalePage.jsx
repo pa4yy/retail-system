@@ -95,6 +95,7 @@ function SalePage({ user }) {
         Products: selectedProducts.map((p) => ({
           Product_Id: p.Product_Id,
           Sale_Amount: p.quantity,
+          Sale_Price: p.Product_Price,
         })),
       });
 
