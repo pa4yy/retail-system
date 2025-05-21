@@ -48,7 +48,15 @@ function ConfirmProductModal({ isOpen, onClose, products = [], user, selectedSup
         setModalOpen(false);
         onClose();
         console.log('Calling onResult with success');
-        onResult?.('success');
+        onResult?.({
+          status: 'success',
+          products: products,
+          supplier: selectedSupplierId,
+          User: {
+            Employee_Id: user?.Emp_Id,
+            Employee_Name: `${user?.Fname || ''} ${user?.Lname || ''}`.trim()
+          }
+        });
       }, 1500);
 
     } catch (error) {
@@ -90,7 +98,9 @@ function ConfirmProductModal({ isOpen, onClose, products = [], user, selectedSup
                     <td className="py-2 px-3">{p.productId}</td>
                     <td className="py-2 px-3">{p.name}</td>
                     <td className="py-2 px-3 text-right">{Number(p.quantity)}</td>
-                    <td className="py-2 px-3 text-right">{Number(p.price).toLocaleString()} บาท</td>
+                    <td className="py-2 px-3 text-right">
+                      {(Number(p.price) || 0).toFixed(2).toLocaleString()} บาท
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -124,14 +134,11 @@ function ConfirmProductModal({ isOpen, onClose, products = [], user, selectedSup
               onCancel={() => setModalOpen(false)}
             />
 
-            
+
           </>
         )}
       </div>
     </div>
   );
 }
-
-
-
 export default ConfirmProductModal;
