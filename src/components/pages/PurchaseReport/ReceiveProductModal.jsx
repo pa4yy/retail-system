@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-function ReceiveProductModal({ isOpen, onClose, purchaseId , purchase , user }) {
+function ReceiveProductModal({ isOpen, onClose, purchaseId, purchase, user }) {
 
 
 
@@ -91,7 +91,7 @@ function ReceiveProductModal({ isOpen, onClose, purchaseId , purchase , user }) 
       alert("ไม่พบข้อมูลพนักงาน กรุณาเข้าสู่ระบบใหม่");
       return;
     }
-  
+
     if (!purchase || !purchase.Purchase_Id) {
       alert("ไม่พบข้อมูลคำสั่งซื้อ");
       return;
@@ -99,9 +99,9 @@ function ReceiveProductModal({ isOpen, onClose, purchaseId , purchase , user }) 
 
     const payload = {
       Purchase_Id: purchase.Purchase_Id,
-      Emp_Id: user.Emp_Id,
+      Employee_Id: user.Employee_Id || user.Emp_Id,
     };
-  
+
     try {
       console.log('Debug - Sending payload:', payload);
       const res = await axios.post("http://localhost:5000/api/receives", payload);
@@ -147,11 +147,11 @@ function ReceiveProductModal({ isOpen, onClose, purchaseId , purchase , user }) 
               </tr>
             </thead>
             <tbody>
-              {products.map((product, index) => (
+              {products.map((product) => (
                 <tr
-                  key={index}
+                  key={product.Product_Id}
                   style={{
-                    backgroundColor: index % 2 === 0 ? "#E3F2FD" : "#FFFFFF",
+                    backgroundColor: products.indexOf(product) % 2 === 0 ? "#E3F2FD" : "#FFFFFF",
                   }}
                 >
                   <td className="px-2 py-1">{product.Product_Id}</td>
