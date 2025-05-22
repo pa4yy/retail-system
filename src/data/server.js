@@ -581,7 +581,7 @@ app.post("/api/purchase", (req, res) => {
       ];
     }).filter(Boolean);
 
-    const detailSql = "INSERT INTO Purchase_Detail (Purchase_Id, Product_Id, Purchase_Amount, Purchase_Price) VALUES ?";
+    const detailSql = "INSERT INTO Purchase_Detail (Purchase_Id, Product_Id, Purchase_Amout, Purchase_Price) VALUES ?";
     db.query(detailSql, [values], (err2) => {
       if (err2) {
         console.error("PurchaseDetail insert error:", err2);
@@ -776,11 +776,11 @@ app.get("/api/purchase-detail/:purchaseId", (req, res) => {
 
 // API สำหรับรับสินค้า 
 app.post('/api/receives', (req, res) => {
-  const { Purchase_Id, Employee_Id } = req.body;
-  console.log('Received request to /api/receives:', { Purchase_Id, Employee_Id });
+  const { Purchase_Id, Emp_Id } = req.body;
+  console.log('Received request to /api/receives:', { Purchase_Id, Emp_Id });
 
-  if (!Purchase_Id || !Employee_Id) {
-    console.log('Missing required fields:', { Purchase_Id, Employee_Id });
+  if (!Purchase_Id || !Emp_Id) {
+    console.log('Missing required fields:', { Purchase_Id, Emp_Id });
     return res.status(400).json({ message: 'ข้อมูลไม่ครบถ้วน' });
   }
 
@@ -841,9 +841,9 @@ app.post('/api/receives', (req, res) => {
             INSERT INTO Receive (Purchase_Id, Receive_Date, Emp_Id)
             VALUES (?, NOW(), ?)
           `;
-          console.log('Inserting receive record:', insertReceiveSql, [Purchase_Id, Employee_Id]);
+          console.log('Inserting receive record:', insertReceiveSql, [Purchase_Id, Emp_Id]);
 
-          connection.query(insertReceiveSql, [Purchase_Id, Employee_Id], (err, result) => {
+          connection.query(insertReceiveSql, [Purchase_Id, Emp_Id], (err, result) => {
             if (err) {
               console.error('Error inserting receive record:', err);
               return connection.rollback(() => {
@@ -928,9 +928,6 @@ app.post('/api/receives', (req, res) => {
     });
   });
 });
-
-
-
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

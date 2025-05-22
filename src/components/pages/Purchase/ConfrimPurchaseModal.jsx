@@ -66,10 +66,6 @@ function ConfirmProductModal({ isOpen, onClose, products = [], user, selectedSup
     }
   };
 
-
-
-
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
       <div className="bg-white w-[900px] rounded-lg shadow-lg p-6 max-h-[90vh] overflow-y-auto border border-[#0073ac]">
