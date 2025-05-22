@@ -81,6 +81,8 @@ function PurchasePage() {
     if (status === 'success') {
       setIsConfirmOpen(false);
       setShowReceipt(true);
+      // ส่ง event เมื่อสั่งซื้อสินค้าเสร็จสิ้น
+      window.dispatchEvent(new Event('purchase-completed'));
     }
   };
 

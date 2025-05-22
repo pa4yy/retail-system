@@ -116,6 +116,7 @@ function SalePage() {
           open: true,
           message: "บันทึกข้อมูลการขายเรียบร้อยแล้ว",
         });
+        window.dispatchEvent(new Event('sale-completed'));
       }
     } catch (error) {
       console.error("เกิดข้อผิดพลาดในการบันทึกข้อมูลการขาย:", error);

@@ -1,11 +1,64 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../data/AuthContext';
+import axios from 'axios';
 
 function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const [criticalStockCount, setCriticalStockCount] = useState(0);
+
+  // ฟังก์ชันสำหรับดึงข้อมูลจำนวนสินค้าที่ถึงจุดสั่งซื้อ
+  const fetchCriticalStock = async () => {
+    try {
+      // ดึงข้อมูลสินค้าทั้งหมด
+      const productsRes = await axios.get('http://localhost:5000/api/products');
+      const products = productsRes.data;
+      
+      // ดึงข้อมูลสินค้าที่สั่งซื้อแล้ว
+      const pendingRes = await axios.get('http://localhost:5000/api/pending-purchase-products');
+      const pendingIds = pendingRes.data;
+
+      // นับจำนวนสินค้าที่ถึงจุดสั่งซื้อและยังไม่ได้สั่งซื้อ
+      const count = products.filter(p => 
+        p.Product_Amount <= p.Product_Minimum && 
+        !pendingIds.includes(p.Product_Id)
+      ).length;
+
+      setCriticalStockCount(count);
+    } catch (error) {
+      console.error('Error fetching critical stock:', error);
+    }
+  };
+
+  // ดึงข้อมูลครั้งแรกและตั้ง interval
+  useEffect(() => {
+    fetchCriticalStock();
+    const interval = setInterval(fetchCriticalStock, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // เพิ่ม event listener สำหรับการขายและสั่งซื้อสินค้า
+  useEffect(() => {
+    const handleSale = () => {
+      fetchCriticalStock();
+    };
+
+    const handlePurchase = () => {
+      fetchCriticalStock();
+    };
+
+    // เพิ่ม event listener
+    window.addEventListener('sale-completed', handleSale);
+    window.addEventListener('purchase-completed', handlePurchase);
+
+    // ลบ event listener เมื่อ component unmount
+    return () => {
+      window.removeEventListener('sale-completed', handleSale);
+      window.removeEventListener('purchase-completed', handlePurchase);
+    };
+  }, []);
 
   // เมนูสำหรับ Manager
   const managerMenuGroups = [
@@ -13,7 +66,11 @@ function Sidebar() {
       group: 'รายงาน',
       items: [
         { path: '/sales-report', label: 'รายงานการขาย' },
-        { path: '/stock-report', label: 'สินค้าคงเหลือ' },
+        { 
+          path: '/stock-report', 
+          label: 'สินค้าคงเหลือ',
+          badge: criticalStockCount > 0 ? criticalStockCount : null 
+        },
         { path: '/purchase-report', label: 'การสั่งซื้อสินค้า' },
         { path: '/sales-history', label: 'ประวัติการขาย' }
       ]
@@ -77,19 +134,22 @@ function Sidebar() {
             <div className="text-lg font-bold px-5 py-3">{group.group}</div>
             <ul>
               {group.items.map((item) => (
-                <li
-                  key={item.path}
-                  className={`px-8 py-2 cursor-pointer text-base hover:bg-gray-700 ${
-                    location.pathname === item.path ? 'bg-blue-600' : ''
-                  }`}
-                  onClick={() => handleNavigate(item.path)}
-                >
-                  <span>{item.label}</span>
-                  {item.badge && (
-                    <span className="ml-2 bg-red-600 text-white px-2 py-0.5 rounded-full text-xs">
-                      {item.badge}
-                    </span>
-                  )}
+                <li key={item.path}>
+                  <button
+                    onClick={() => navigate(item.path)}
+                    className={`w-full px-4 py-2 text-left hover:bg-gray-700 ${
+                      location.pathname === item.path ? 'bg-gray-700' : ''
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{item.label}</span>
+                      {item.badge && (
+                        <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
+                  </button>
                 </li>
               ))}
             </ul>
