@@ -12,6 +12,8 @@ function PurchaseReport({ user }) {
   const [showModal, setShowModal] = useState(false);
 
 
+
+
   useEffect(() => {
     axios.get("http://localhost:5000/api/purchases")
       .then(res => setPurchases(res.data))
@@ -31,7 +33,10 @@ function PurchaseReport({ user }) {
       alert("ไม่สามารถโหลดรายละเอียดคำสั่งซื้อได้");
     }
   };
+
+ 
   
+
 
 
   const filtered = purchases.filter(p => {
@@ -42,6 +47,7 @@ function PurchaseReport({ user }) {
     const purchaseDate = new Date(p.Purchase_Date);
     const isAfterStart = startDate ? purchaseDate >= new Date(startDate) : true;
     const isBeforeEnd = endDate ? purchaseDate <= new Date(endDate) : true;
+
 
     return matchSearch && isAfterStart && isBeforeEnd;
   });
