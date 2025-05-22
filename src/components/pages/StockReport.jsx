@@ -14,6 +14,7 @@ function StockReport() {
   const [type, setType] = useState('');
   const [types, setTypes] = useState([]);
   const [checked, setChecked] = useState({});
+  const [pendingProductIds, setPendingProductIds] = useState([]);
 
   // ดึงข้อมูลสินค้า
   useEffect(() => {
@@ -29,7 +30,18 @@ function StockReport() {
       setProducts(mapped);
       setTypes([...new Set(mapped.map(p => p.type))]);
     });
+    // ดึงข้อมูลสินค้าที่ pending purchase
+    axios.get('http://localhost:5000/api/pending-purchase-products').then(res => {
+      setPendingProductIds(res.data);
+    });
   }, []);
+
+  // ฟังก์ชันเช็คสถานะสินค้า
+  const getProductStatus = (product) => {
+    if (product.stock > product.min) return 'ยังไม่ถึงจุดสั่งซื้อ';
+    if (pendingProductIds.includes(product.id)) return 'สั่งซื้อแล้ว';
+    return 'ถึงจุดสั่งซื้อ';
+  };
 
   // ฟิลเตอร์และเรียงลำดับ
   const filteredProducts = products
@@ -50,7 +62,6 @@ function StockReport() {
       alert('กรุณาเลือกสินค้าที่ต้องการสั่งซื้อ');
       return;
     }
-    // เพิ่มราคาขายในข้อมูลที่ส่งไป
     const productsWithPrice = selectedProducts.map(p => ({
       ...p,
       sellPrice: p.Product_Price || 0
@@ -119,25 +130,38 @@ function StockReport() {
                 <th style={{ padding: 8 }}>ประเภท</th>
                 <th style={{ padding: 8 }}>จำนวนขั้นต่ำ</th>
                 <th style={{ padding: 8 }}>สินค้าคงเหลือ</th>
+                <th style={{ padding: 8 }}>สถานะ</th>
               </tr>
             </thead>
             <tbody>
-              {filteredProducts.map((p, idx) => (
-                <tr key={p.id} style={{ background: idx % 2 ? '#eaf6fd' : '#fff' }}>
-                  <td style={{ textAlign: 'center' }}>
-                    <input
-                      type="checkbox"
-                      checked={!!checked[p.id]}
-                      onChange={() => handleCheck(p.id)}
-                    />
-                  </td>
-                  <td style={{ textAlign: 'center' }}>{idx + 1}</td>
-                  <td>{p.name}</td>
-                  <td>{p.type}</td>
-                  <td style={{ textAlign: 'center' }}>{p.min}</td>
-                  <td style={{ textAlign: 'center' }}>{p.stock}</td>
-                </tr>
-              ))}
+              {filteredProducts.map((p, idx) => {
+                const status = getProductStatus(p);
+                // ไฮไลต์แถวสีแดงถ้า "ถึงจุดสั่งซื้อ" และยังไม่ได้สั่งซื้อ
+                const highlight = status === 'ถึงจุดสั่งซื้อ';
+                return (
+                  <tr
+                    key={p.id}
+                    style={{
+                      background: highlight ? '#ffcccc' : (idx % 2 ? '#eaf6fd' : '#fff')
+                    }}
+                  >
+                    <td style={{ textAlign: 'center' }}>
+                      <input
+                        type="checkbox"
+                        checked={!!checked[p.id]}
+                        onChange={() => handleCheck(p.id)}
+                        disabled={status === 'สั่งซื้อแล้ว'} // ไม่ให้เลือกถ้าสั่งซื้อแล้ว
+                      />
+                    </td>
+                    <td style={{ textAlign: 'center' }}>{idx + 1}</td>
+                    <td>{p.name}</td>
+                    <td>{p.type}</td>
+                    <td style={{ textAlign: 'center' }}>{p.min}</td>
+                    <td style={{ textAlign: 'center' }}>{p.stock}</td>
+                    <td style={{ textAlign: 'center' }}>{status}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
           <div style={{ height: 180, background: '#e5e5e5' }}></div>

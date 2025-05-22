@@ -657,6 +657,23 @@ app.get('/api/sales', (req, res) => {
   });
 });
 
+// API สำหรับดึง Product_Id ของสินค้าที่สั่งซื้อแล้วยังไม่ได้รับ
+app.get('/api/pending-purchase-products', (req, res) => {
+  const sql = `
+    SELECT d.Product_Id
+    FROM Purchase p
+    JOIN Purchase_Detail d ON p.Purchase_Id = d.Purchase_Id
+    WHERE p.Purchase_Status = 'P'
+  `;
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Database Error:", err);
+      return res.status(500).json({ message: 'ดึงข้อมูลล้มเหลว' });
+    }
+    res.json(results.map(r => r.Product_Id));
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
