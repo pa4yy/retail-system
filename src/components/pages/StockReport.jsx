@@ -23,7 +23,8 @@ function StockReport() {
         name: p.Product_Name,
         type: p.PType_Name,
         min: p.Product_Minimum,
-        stock: p.Product_Amount
+        stock: p.Product_Amount,
+        Product_Price: p.Product_Price
       }));
       setProducts(mapped);
       setTypes([...new Set(mapped.map(p => p.type))]);
@@ -49,7 +50,12 @@ function StockReport() {
       alert('กรุณาเลือกสินค้าที่ต้องการสั่งซื้อ');
       return;
     }
-    navigate('/purchase', { state: { selectedProducts } });
+    // เพิ่มราคาขายในข้อมูลที่ส่งไป
+    const productsWithPrice = selectedProducts.map(p => ({
+      ...p,
+      sellPrice: p.Product_Price || 0
+    }));
+    navigate('/purchase', { state: { selectedProducts: productsWithPrice } });
   };
 
   return (

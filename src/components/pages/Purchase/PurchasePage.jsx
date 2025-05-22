@@ -93,7 +93,7 @@ function PurchasePage() {
         name: p.name,
         quantity: 1,
         price: 0,
-        sellPrice: p.sellPrice,
+        sellPrice: p.sellPrice || 0,
       }));
       setProducts(selectedProducts);
     }
