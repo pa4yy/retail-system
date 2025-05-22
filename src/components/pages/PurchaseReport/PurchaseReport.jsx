@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import MainLayout from "../layout/MainLayout";
+import MainLayout from "../../layout/MainLayout";
+import ReceiveProductModal from './ReceiveProductModal';
 import axios from "axios";
 
 function PurchaseReport({ user }) {
@@ -7,12 +8,31 @@ function PurchaseReport({ user }) {
   const [search, setSearch] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [selectedPurchase, setSelectedPurchase] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
 
   useEffect(() => {
     axios.get("http://localhost:5000/api/purchases")
       .then(res => setPurchases(res.data))
       .catch(err => console.error("Load failed", err));
   }, []);
+
+  const handleViewDetails = async (purchase) => {
+    try {
+      const res = await axios.get(`http://localhost:5000/api/purchase-detail/${purchase.Purchase_Id}`);
+      setSelectedPurchase({
+        ...purchase,
+        Products: res.data,
+      });
+      setShowModal(true);
+    } catch (err) {
+      console.error("Load purchase details failed", err);
+      alert("ไม่สามารถโหลดรายละเอียดคำสั่งซื้อได้");
+    }
+  };
+  
+
 
   const filtered = purchases.filter(p => {
     const matchSearch =
@@ -67,16 +87,16 @@ function PurchaseReport({ user }) {
         </div>
 
         {/* Table */}
-        <div style={{ maxHeight: 720, minHeight: 720, overflowY: "auto"}}>
+        <div style={{ maxHeight: 720, minHeight: 720, overflowY: "auto" }}>
           <table className="min-w-[800px] w-full table-fixed">
-          <colgroup>
-                  <col style={{ width: "60px" }} />
-                  <col style={{ width: "140px" }} />
-                  <col style={{ width: "250px" }} />
-                  <col style={{ width: "120px" }} />
-                  <col style={{ width: "120px" }} />
-                  <col style={{ width: "100px" }} />
-                </colgroup>
+            <colgroup>
+              <col style={{ width: "60px" }} />
+              <col style={{ width: "140px" }} />
+              <col style={{ width: "250px" }} />
+              <col style={{ width: "120px" }} />
+              <col style={{ width: "120px" }} />
+              <col style={{ width: "100px" }} />
+            </colgroup>
             <thead className="bg-blue-800 text-white sticky top-0">
               <tr>
                 <th className="py-3 text-sm">หมายเลขคำสั่งซื้อ</th>
@@ -104,7 +124,12 @@ function PurchaseReport({ user }) {
                     <td className="py-2 text-center">{parseFloat(p.Total_Purchase_Price).toFixed(2)}</td>
                     <td className="py-2 text-center">{p.Purchase_Status}</td>
                     <td className="py-2 text-center">
-                      <button className="text-blue-600 hover:underline">รายละเอียด</button>
+                      <button
+                        className="text-blue-600 hover:underline disabled:opacity-50"
+                        onClick={() => handleViewDetails(p)}
+                      >
+                        รายละเอียด
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -112,8 +137,16 @@ function PurchaseReport({ user }) {
             </tbody>
           </table>
         </div>
+
+        <ReceiveProductModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          purchase={selectedPurchase}
+          user={user}
+        />
       </div>
     </MainLayout>
+
   );
 }
 

@@ -9,6 +9,7 @@ const path = require("path");
 const app = express();
 const PORT = 5000;
 
+
 // สำหรับการอัปโหลดรูปภาพเข้า directory
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -83,7 +84,7 @@ app.post('/api/logs/login', (req, res) => {
 app.post('/api/logs/logout', (req, res) => {
   const { Emp_Id } = req.body;
   const now = new Date();
-  
+
   const sql = `
     UPDATE Login_History
     SET LogOut_Time = ?
@@ -344,9 +345,9 @@ app.post("/api/product_types", (req, res) => {
   const { PType_Name } = req.body;
 
   db.query("SELECT COUNT(*) AS count FROM Product_Type", (err, result) => {
-    if(err) return res.status(500).json({ message: "DB error"});
+    if (err) return res.status(500).json({ message: "DB error" });
 
-    if(result[0].count === 0) {
+    if (result[0].count === 0) {
       db.query("ALTER TABLE Product_Type AUTO_INCREMENT = 1;", (err) => {
         if (err) return res.status(500).json({ message: "DB error while resetting AUTO_INCREMENT" });
 
@@ -357,7 +358,7 @@ app.post("/api/product_types", (req, res) => {
     }
   })
 
-  function addPType(){
+  function addPType() {
     db.query(
       "INSERT INTO Product_Type (PType_Name) VALUES (?)",
       [PType_Name],
@@ -446,7 +447,7 @@ app.put('/api/suppliers/:id', (req, res) => {
   const { id } = req.params;
   console.log('PUT request for Supplier with ID:', id);
 
-  // ตรวจสอบว่า Supplier Id มีอยู่ในฐานข้อมูลหรือไม่
+  // ตรวจสอบว่ Supplier Id มีอยู่ในฐานข้อมูลหรือไม่
   const checkSql = 'SELECT * FROM Supplier WHERE Supplier_Id = ?';
   db.query(checkSql, [id], (err, result) => {
     if (err) {
@@ -561,26 +562,26 @@ app.post("/api/purchase", (req, res) => {
     }
 
     const purchaseId = result.insertId;
-  
+
 
     const values = Products.map(p => {
       const amount = Number(p.Product_Amount);
       const price = Number(p.Purchase_Price);
-      
+
       if (isNaN(amount) || isNaN(price)) {
         console.error(`Invalid product data: ${JSON.stringify(p)}`);
         return null; // Or handle it in another way
       }
-      
+
       return [
         purchaseId,
         Number(p.Product_Id),
         amount,
         price
       ];
-    }).filter(Boolean); 
+    }).filter(Boolean);
 
-    const detailSql = "INSERT INTO Purchase_Detail (Purchase_Id, Product_Id, Purchase_Amout, Purchase_Price) VALUES ?";
+    const detailSql = "INSERT INTO Purchase_Detail (Purchase_Id, Product_Id, Purchase_Amount, Purchase_Price) VALUES ?";
     db.query(detailSql, [values], (err2) => {
       if (err2) {
         console.error("PurchaseDetail insert error:", err2);
@@ -608,7 +609,7 @@ app.get('/api/purchases', (req, res) => {
     FROM Purchase p
     JOIN Supplier s ON p.Supplier_Id = s.Supplier_Id
   `;
-  
+
   db.query(sql, (err, results) => {
     if (err) {
       console.error("Database Error:", err);
@@ -638,7 +639,7 @@ app.get('/api/sales', (req, res) => {
       LEFT JOIN Product p ON d.Product_Id = p.Product_Id
       WHERE d.Sale_Id IN (?)
     `;
-    
+
     db.query(sqlDetail, [saleIds], (err2, details) => {
       if (err2) {
         console.error("Database Error:", err2);
@@ -673,6 +674,263 @@ app.get('/api/pending-purchase-products', (req, res) => {
     res.json(results.map(r => r.Product_Id));
   });
 });
+
+// API สำหรับดึง purchase_detail ของสินค้าที่สั่งซื้อแล้วยังไม่ได้รับ
+app.get("/api/purchase-detail/:purchaseId", (req, res) => {
+  const { purchaseId } = req.params;
+  console.log('Fetching purchase detail for ID:', purchaseId);
+
+  // ตรวจสอบว่ามีข้อมูลในตาราง Purchase หรือไม่
+  const checkPurchaseSql = "SELECT * FROM Purchase WHERE Purchase_Id = ?";
+  db.query(checkPurchaseSql, [purchaseId], (err, purchaseResults) => {
+    if (err) {
+      console.error("Error checking purchase:", err);
+      return res.status(500).json({ message: "ไม่สามารถตรวจสอบข้อมูลการสั่งซื้อได้" });
+    }
+
+    if (purchaseResults.length === 0) {
+      return res.status(404).json({ message: "ไม่พบข้อมูลการสั่งซื้อนี้" });
+    }
+
+    console.log("Found purchase:", purchaseResults[0]);
+
+    // ตรวจสอบข้อมูลในตาราง Purchase_Detail
+    const checkDetailSql = "SELECT * FROM Purchase_Detail WHERE Purchase_Id = ?";
+    db.query(checkDetailSql, [purchaseId], (err, detailResults) => {
+      if (err) {
+        console.error("Error checking purchase details:", err);
+        return res.status(500).json({ message: "ไม่สามารถตรวจสอบรายละเอียดการสั่งซื้อได้" });
+      }
+
+      console.log("Found purchase details:", detailResults);
+
+      if (detailResults.length === 0) {
+        return res.status(404).json({ message: "ไม่พบรายละเอียดการสั่งซื้อนี้" });
+      }
+
+      // ถ้าทุกอย่างถูกต้อง ดึงข้อมูลแบบ join
+      const sql = `
+      SELECT 
+        d.Product_Id,
+        p.Product_Name,
+        p.Product_Detail,
+        p.Product_Image,
+        d.Purchase_Amout AS Quantity,
+        d.Purchase_Price AS Unit_Price,
+        (d.Purchase_Amout * d.Purchase_Price) AS Total_Price,
+        pu.Emp_Id AS Employee_Id,
+        pu.Purchase_Date,
+        s.Supplier_Name
+      FROM Purchase_Detail d
+      LEFT JOIN Product p ON d.Product_Id = p.Product_Id
+      LEFT JOIN Purchase pu ON d.Purchase_Id = pu.Purchase_Id
+      LEFT JOIN Supplier s ON pu.Supplier_Id = s.Supplier_Id
+      WHERE d.Purchase_Id = ?
+      `;
+
+      console.log('Executing final SQL query:', sql);
+      console.log('With parameters:', [purchaseId]);
+
+      db.query(sql, [purchaseId], (err, results) => {
+        if (err) {
+          console.error("Database error details:", err);
+          return res.status(500).json({ 
+            message: "ดึงข้อมูลรายการสินค้าไม่สำเร็จ",
+            error: err.message,
+            sqlMessage: err.sqlMessage
+          });
+        }
+
+        console.log('Query results:', results);
+
+        if (results.length === 0) {
+          return res.status(404).json({ message: "ไม่พบข้อมูลคำสั่งซื้อนี้" });
+        }
+
+        const { Employee_Id, Purchase_Date, Supplier_Name } = results[0];
+
+        const items = results.map(row => ({
+          Product_Id: row.Product_Id,
+          Product_Name: row.Product_Name,
+          Product_Detail: row.Product_Detail,
+          Product_Image: row.Product_Image,
+          Quantity: row.Quantity,
+          Unit_Price: row.Unit_Price,
+          Total_Price: row.Total_Price,
+        }));
+
+        const response = {
+          Purchase_Id: purchaseId,
+          Employee_Id,
+          Purchase_Date,
+          Supplier_Name,
+          Items: items
+        };
+
+        console.log('Sending response:', response);
+        res.json(response);
+      });
+    });
+  });
+});
+
+// API สำหรับรับสินค้า 
+app.post('/api/receives', (req, res) => {
+  const { Purchase_Id, Employee_Id } = req.body;
+  console.log('Received request to /api/receives:', { Purchase_Id, Employee_Id });
+
+  if (!Purchase_Id || !Employee_Id) {
+    console.log('Missing required fields:', { Purchase_Id, Employee_Id });
+    return res.status(400).json({ message: 'ข้อมูลไม่ครบถ้วน' });
+  }
+
+  db.getConnection((err, connection) => {
+    if (err) {
+      console.error('Database connection error:', err);
+      return res.status(500).json({ message: 'เชื่อมต่อ DB ไม่ได้' });
+    }
+
+    const checkSql = `SELECT 1 FROM Receive WHERE Purchase_Id = ? LIMIT 1`;
+    console.log('Checking existing receive record:', checkSql, [Purchase_Id]);
+
+    connection.query(checkSql, [Purchase_Id], (err, result) => {
+      if (err) {
+        console.error('Error checking receive record:', err);
+        connection.release();
+        return res.status(500).json({ message: 'ตรวจสอบการรับสินค้าล้มเหลว' });
+      }
+
+      if (result.length > 0) {
+        console.log('Receive record already exists for Purchase_Id:', Purchase_Id);
+        connection.release();
+        return res.status(400).json({ message: 'คำสั่งซื้อนี้รับสินค้าแล้ว' });
+      }
+
+      // ตรวจสอบข้อมูลการสั่งซื้อ
+      const checkPurchaseSql = `
+        SELECT p.*, pd.Product_Id, pd.Purchase_Amout, pd.Purchase_Price 
+        FROM Purchase p 
+        JOIN Purchase_Detail pd ON p.Purchase_Id = pd.Purchase_Id 
+        WHERE p.Purchase_Id = ?
+      `;
+      console.log('Checking purchase details:', checkPurchaseSql, [Purchase_Id]);
+
+      connection.query(checkPurchaseSql, [Purchase_Id], (err, purchaseResults) => {
+        if (err) {
+          console.error('Error checking purchase details:', err);
+          connection.release();
+          return res.status(500).json({ message: 'ตรวจสอบข้อมูลการสั่งซื้อล้มเหลว' });
+        }
+
+        if (purchaseResults.length === 0) {
+          console.log('No purchase details found for Purchase_Id:', Purchase_Id);
+          connection.release();
+          return res.status(404).json({ message: 'ไม่พบข้อมูลการสั่งซื้อนี้' });
+        }
+
+        console.log('Found purchase details:', purchaseResults);
+
+        connection.beginTransaction(err => {
+          if (err) {
+            console.error('Error starting transaction:', err);
+            connection.release();
+            return res.status(500).json({ message: 'เริ่ม transaction ไม่ได้' });
+          }
+
+          const insertReceiveSql = `
+            INSERT INTO Receive (Purchase_Id, Receive_Date, Emp_Id)
+            VALUES (?, NOW(), ?)
+          `;
+          console.log('Inserting receive record:', insertReceiveSql, [Purchase_Id, Employee_Id]);
+
+          connection.query(insertReceiveSql, [Purchase_Id, Employee_Id], (err, result) => {
+            if (err) {
+              console.error('Error inserting receive record:', err);
+              return connection.rollback(() => {
+                connection.release();
+                res.status(500).json({ message: 'บันทึกการรับสินค้าไม่สำเร็จ' });
+              });
+            }
+
+            const Receive_Id = result.insertId;
+            console.log('Created receive record with ID:', Receive_Id);
+
+            const insertReceiveDetailSql = `
+              INSERT INTO Receive_Detail (Receive_Id, Product_Id, Receive_Amount)
+              SELECT ?, Product_Id, Purchase_Amout FROM Purchase_Detail WHERE Purchase_Id = ?
+            `;
+            console.log('Inserting receive details:', insertReceiveDetailSql, [Receive_Id, Purchase_Id]);
+
+            connection.query(insertReceiveDetailSql, [Receive_Id, Purchase_Id], (err) => {
+              if (err) {
+                console.error('Error inserting receive details:', err);
+                return connection.rollback(() => {
+                  connection.release();
+                  res.status(500).json({ message: 'บันทึกรายละเอียดรับสินค้าไม่สำเร็จ' });
+                });
+              }
+
+              const updateProductStock = (index) => {
+                if (index >= purchaseResults.length) {
+                  const updatePurchaseSql = `
+                    UPDATE Purchase SET Purchase_Status = 'R' WHERE Purchase_Id = ?
+                  `;
+                  console.log('Updating purchase status:', updatePurchaseSql, [Purchase_Id]);
+
+                  connection.query(updatePurchaseSql, [Purchase_Id], (err) => {
+                    if (err) {
+                      console.error('Error updating purchase status:', err);
+                      return connection.rollback(() => {
+                        connection.release();
+                        res.status(500).json({ message: 'อัพเดตสถานะคำสั่งซื้อไม่สำเร็จ' });
+                      });
+                    }
+
+                    connection.commit(err => {
+                      if (err) {
+                        console.error('Error committing transaction:', err);
+                        return connection.rollback(() => {
+                          connection.release();
+                          res.status(500).json({ message: 'commit transaction ไม่สำเร็จ' });
+                        });
+                      }
+                      console.log('Transaction committed successfully');
+                      connection.release();
+                      res.json({ message: 'รับสินค้าและอัพเดตสต็อกเรียบร้อย' });
+                    });
+                  });
+                  return;
+                }
+
+                const { Product_Id, Purchase_Amout } = purchaseResults[index];
+                const updateProductSql = `
+                  UPDATE Product SET Product_Amount = Product_Amount + ? WHERE Product_Id = ?
+                `;
+                console.log('Updating product stock:', updateProductSql, [Purchase_Amout, Product_Id]);
+
+                connection.query(updateProductSql, [Purchase_Amout, Product_Id], (err) => {
+                  if (err) {
+                    console.error('Error updating product stock:', err);
+                    return connection.rollback(() => {
+                      connection.release();
+                      res.status(500).json({ message: 'อัพเดตสต็อกสินค้าไม่สำเร็จ' });
+                    });
+                  }
+                  updateProductStock(index + 1);
+                });
+              };
+
+              updateProductStock(0);
+            });
+          });
+        });
+      });
+    });
+  });
+});
+
+
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

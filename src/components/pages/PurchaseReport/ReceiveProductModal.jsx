@@ -1,0 +1,199 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+function ReceiveProductModal({ isOpen, onClose, purchaseId , purchase , user }) {
+
+
+
+  const [products, setProducts] = useState([]);
+  const [purchaseDetail, setPurchaseDetail] = useState(null);
+
+
+  //  useEffect(() => {
+  //   if (isOpen && purchase?.Purchase_Id) {
+  //     axios
+  //       .get(`http://localhost:5000/api/purchase-detail/${purchase.Purchase_Id}`)
+  //       .then((res) => {
+  //         const data = res.data.map((item) => ({
+  //           Product_Id: item.Product_Id,
+  //           Product_Name: item.Product_Name,
+  //           Product_Detail: item.Product_Detail || '',
+  //           Product_Image: item.Product_Image || '',
+  //           Unit: 'ชิ้น', // เนื่องจากไม่มีใน DB ใช้ default
+  //           Amount: item.Quantity,
+  //           Unit_Cost: parseFloat(item.Unit_Price),
+  //           Total: parseFloat(item.Total_Price),
+  //         }));
+  //         setProducts(data);
+  //       })
+  //       .catch((err) => {
+  //         console.error("Error fetching purchase detail:", err);
+  //       });
+  //   }
+  // }, [isOpen, purchase]);
+
+  useEffect(() => {
+    if (isOpen && purchase?.Purchase_Id) {
+      axios
+        .get(`http://localhost:5000/api/purchase-detail/${purchase.Purchase_Id}`)
+        .then((res) => {
+          // res.data คือ object ที่มี Items เป็น array รายการสินค้า
+          const data = res.data.Items.map((item) => ({
+            Product_Id: item.Product_Id,
+            Product_Name: item.Product_Name,
+            Product_Detail: item.Product_Detail || '',
+            Product_Image: item.Product_Image || '',
+            Unit: 'ชิ้น', // ใช้ default
+            Amount: item.Quantity,
+            Unit_Cost: parseFloat(item.Unit_Price),
+            Total: parseFloat(item.Total_Price),
+          }));
+
+          setProducts(data);
+
+          // ถ้าต้องการดึงข้อมูลคำสั่งซื้อ (เช่น Employee_Id, Purchase_Date, Supplier_Name) เก็บไว้ใน state แยก
+          setPurchaseDetail({
+            Employee_Id: res.data.Employee_Id,
+            Purchase_Date: res.data.Purchase_Date,
+            Supplier_Name: res.data.Supplier_Name,
+          });
+        })
+        .catch((err) => {
+          console.error("Error fetching purchase detail:", err);
+        });
+    }
+  }, [isOpen, purchase]);
+
+
+  console.log("Modal Rendered", { isOpen, purchase });
+
+  if (!isOpen || !purchase) return null;
+
+  // const handleConfirm = async () => {
+  //   try {
+  //     await axios.post("http://localhost:5000/api/receives", {
+  //       Purchase_Id: purchase.Purchase_Id,
+  //       Employee_Id: user.Employee_Id, // หรืออะไรก็ตามที่ระบุคนรับ
+  //     });
+  //     alert("ยืนยันการรับสินค้าเรียบร้อยแล้ว");
+  //     onClose();
+  //   } catch (err) {
+  //     console.error("รับสินค้าไม่สำเร็จ", err);
+  //     alert("เกิดข้อผิดพลาดในการรับสินค้า");
+  //   }
+  // };
+
+  const handleConfirm = async () => {
+    console.log('Debug - User data:', user);
+    console.log('Debug - Purchase data:', purchase);
+
+    if (!user || !user.Emp_Id) {
+      alert("ไม่พบข้อมูลพนักงาน กรุณาเข้าสู่ระบบใหม่");
+      return;
+    }
+  
+    if (!purchase || !purchase.Purchase_Id) {
+      alert("ไม่พบข้อมูลคำสั่งซื้อ");
+      return;
+    }
+
+    const payload = {
+      Purchase_Id: purchase.Purchase_Id,
+      Emp_Id: user.Emp_Id,
+    };
+  
+    try {
+      console.log('Debug - Sending payload:', payload);
+      const res = await axios.post("http://localhost:5000/api/receives", payload);
+      alert("รับสินค้าเรียบร้อยแล้ว");
+      onClose();
+    } catch (error) {
+      console.error("รับสินค้าไม่สำเร็จ", error);
+      alert(error.response?.data?.message || "เกิดข้อผิดพลาดในการรับสินค้า");
+    }
+  };
+  console.log('user:', user);
+
+
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
+      <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-5xl max-h-[90vh] overflow-y-auto p-6 relative">
+        <h2 className="text-2xl font-bold text-center mb-4">รายละเอียดการสั่งซื้อ</h2>
+
+        {/* ข้อมูลคำสั่งซื้อ */}
+        <div className="grid grid-cols-2 gap-4 text-sm mb-6">
+          <div>
+            <p><span className="font-semibold">รหัสคำสั่งซื้อ:</span> {purchase.Purchase_Id}</p>
+            <p><span className="font-semibold">รหัสพนักงานที่สั่งซื้อ:</span> {purchaseDetail?.Employee_Id || "-"}</p>
+            <p><span className="font-semibold">รหัสพนักงานที่รับสินค้า:</span> "-" {/* ถ้ามี ให้แสดง */}</p>
+            <p><span className="font-semibold">วันที่สั่งซื้อ:</span> {purchaseDetail?.Purchase_Date ? new Date(purchaseDetail.Purchase_Date).toLocaleString() : "-"}</p>
+            <p><span className="font-semibold">คู่ค้า:</span> {purchaseDetail?.Supplier_Name || "-"}</p>
+          </div>
+        </div>
+
+
+        {/* ตารางรายการสินค้า */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead style={{ backgroundColor: "#0072AC" }} className="text-white">
+              <tr>
+                <th className="px-2 py-2 text-left">รหัสสินค้า</th>
+                <th className="px-2 py-2 text-left">ชื่อสินค้า</th>
+                <th className="px-2 py-2 text-left">หน่วย</th>
+                <th className="px-2 py-2 text-right">จำนวน</th>
+                <th className="px-2 py-2 text-right">ราคาต่อหน่วย</th>
+                <th className="px-2 py-2 text-right">ราคารวม</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((product, index) => (
+                <tr
+                  key={index}
+                  style={{
+                    backgroundColor: index % 2 === 0 ? "#E3F2FD" : "#FFFFFF",
+                  }}
+                >
+                  <td className="px-2 py-1">{product.Product_Id}</td>
+                  <td className="px-2 py-1">{product.Product_Name}</td>
+                  <td className="px-2 py-1">{product.Unit}</td>
+                  <td className="px-2 py-1 text-right">{product.Amount}</td>
+                  <td className="px-2 py-1 text-right">{product.Unit_Cost.toFixed(2)}</td>
+                  <td className="px-2 py-1 text-right">{product.Total.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-4 flex flex-col items-end">
+          <div className="mb-2 text-right text-sm">
+            <p>จำนวนรายการ: {products.length}</p>
+            <p>
+              ราคารวม:{" "}
+              {products.reduce((sum, p) => sum + parseFloat(p.Total || 0), 0).toFixed(2)}
+            </p>
+          </div>
+
+          {/* ปุ่ม */}
+          <div className="flex gap-2">
+            <button
+              onClick={handleConfirm}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              ยืนยัน
+            </button>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-[#DC3545] text-white rounded hover:bg-red-700"
+            >
+              ปิด
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default ReceiveProductModal;
