@@ -6,9 +6,11 @@ import ReceiptPurchaseModal from './ReceiptPurchaseModal'
 import StatusModal from '../../ui/StatusModal';
 import axios from "axios";
 import { useAuth } from '../../../data/AuthContext';
+import { useLocation } from 'react-router-dom';
 
 function PurchasePage() {
   const { user } = useAuth();
+  const location = useLocation();
   const [products, setProducts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [supplierList, setSupplierList] = useState([]);
@@ -16,10 +18,6 @@ function PurchasePage() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState(null);
-
-
-
-
 
   const [statusModal, setStatusModal] = useState({
     isOpen: false,
@@ -58,7 +56,6 @@ function PurchasePage() {
     });
   };
 
-
   const handleDelete = (id) => {
     setProducts(products.filter(product => product.id !== id));
   };
@@ -88,6 +85,21 @@ function PurchasePage() {
   };
 
   useEffect(() => {
+    // รับข้อมูลสินค้าที่เลือกจากหน้า StockReport
+    if (location.state?.selectedProducts) {
+      const selectedProducts = location.state.selectedProducts.map(p => ({
+        id: `${p.id}-${Date.now()}-${Math.random()}`,
+        productId: p.id,
+        name: p.name,
+        quantity: 1,
+        price: 0,
+        sellPrice: p.sellPrice,
+      }));
+      setProducts(selectedProducts);
+    }
+  }, [location.state]);
+
+  useEffect(() => {
     axios.get('http://localhost:5000/api/suppliers')
       .then(response => {
         setSupplierList(response.data);
@@ -97,13 +109,10 @@ function PurchasePage() {
       });
   }, []);
 
-
-
   const totalQuantity = products.reduce((sum, p) => sum + Number(p.quantity), 0);
   const totalCost = products.reduce((sum, p) => sum + (Number(p.price) * Number(p.quantity)), 0);
   console.log('showReceipt:', showReceipt);
   return (
-    
     <MainLayout user={user} title="สั่งซื้อสินค้า">
       <div className="h-full min-h-0 overflow-hidden p-8 bg-white box-border flex flex-col">
 
@@ -232,8 +241,6 @@ function PurchasePage() {
         onSelectProducts={handleSelectProducts}
       /> 
 
-
-
       <ConfirmProductModal
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
@@ -292,8 +299,6 @@ function PurchasePage() {
   
     </MainLayout>
     
-
-
   );
 }
 

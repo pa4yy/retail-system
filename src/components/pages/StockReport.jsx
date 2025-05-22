@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import MainLayout from '../layout/MainLayout';
 import axios from 'axios';
 import { useAuth } from '../../data/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 function StockReport() {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [products, setProducts] = useState([]);
   const [showCritical, setShowCritical] = useState(false);
@@ -40,6 +42,16 @@ function StockReport() {
     setChecked(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
+  // handle purchase
+  const handlePurchase = () => {
+    const selectedProducts = products.filter(p => checked[p.id]);
+    if (selectedProducts.length === 0) {
+      alert('กรุณาเลือกสินค้าที่ต้องการสั่งซื้อ');
+      return;
+    }
+    navigate('/purchase', { state: { selectedProducts } });
+  };
+
   return (
     <MainLayout user={user} title="สินค้าคงเหลือ">
       <div style={{ padding: 24, background: '#fff', borderRadius: 4, minHeight: '90vh' }}>
@@ -58,7 +70,7 @@ function StockReport() {
               onChange={e => setShowCritical(e.target.checked)}
               style={{ marginRight: 8 }}
             />
-            สินค้าจุดสั่งซื้อ
+            สินค้าที่ถึงจุดสั่งซื้อ
           </label>
           <div style={{ display: 'flex', alignItems: 'center', flex: 1, justifyContent: 'flex-end' }}>
             <input
@@ -125,15 +137,17 @@ function StockReport() {
           <div style={{ height: 180, background: '#e5e5e5' }}></div>
         </div>
         <div style={{ textAlign: 'right', marginTop: 24 }}>
-          <button style={{
-            background: '#009fe3',
-            color: '#fff',
-            fontSize: 22,
-            padding: '10px 40px',
-            border: 'none',
-            borderRadius: 4,
-            cursor: 'pointer'
-          }}>สั่งซื้อสินค้า</button>
+          <button 
+            onClick={handlePurchase}
+            style={{
+              background: '#009fe3',
+              color: '#fff',
+              fontSize: 22,
+              padding: '10px 40px',
+              border: 'none',
+              borderRadius: 4,
+              cursor: 'pointer'
+            }}>สั่งซื้อสินค้า</button>
         </div>
       </div>
     </MainLayout>
