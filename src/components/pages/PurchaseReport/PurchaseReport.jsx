@@ -34,8 +34,10 @@ function PurchaseReport({ user }) {
     }
   };
 
- 
-  
+  const fetchPurchases = async () => {
+    const res = await axios.get("http://localhost:5000/api/purchases");
+    setPurchases(res.data);
+  };
 
 
 
@@ -149,6 +151,7 @@ function PurchaseReport({ user }) {
           onClose={() => setShowModal(false)}
           purchase={selectedPurchase}
           user={user}
+          onReceiveSuccess={fetchPurchases}
         />
       </div>
     </MainLayout>

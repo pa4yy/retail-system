@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-function ReceiveProductModal({ isOpen, onClose, purchase, user }) {
+function ReceiveProductModal({ isOpen, onClose, purchase, user, onReceiveSuccess }) {
 
 
 
@@ -20,7 +20,7 @@ function ReceiveProductModal({ isOpen, onClose, purchase, user }) {
             Product_Name: item.Product_Name,
             Product_Detail: item.Product_Detail || '',
             Product_Image: item.Product_Image || '',
-            Unit: 'ชิ้น', // ใช้ default
+            Unit: 'ชิ้น',
             Amount: item.Quantity,
             Unit_Cost: parseFloat(item.Unit_Price),
             Total: parseFloat(item.Total_Price),
@@ -70,6 +70,7 @@ function ReceiveProductModal({ isOpen, onClose, purchase, user }) {
       console.log('Debug - Sending payload:', payload);
       await axios.post("http://localhost:5000/api/receives", payload);
       alert("รับสินค้าเรียบร้อยแล้ว");
+      if (onReceiveSuccess) onReceiveSuccess();
       onClose();
     } catch (error) {
       console.error("รับสินค้าไม่สำเร็จ", error);
@@ -80,7 +81,7 @@ function ReceiveProductModal({ isOpen, onClose, purchase, user }) {
   console.log('user:', user);
 
 
-
+  console.log("purchase.Purchase_Status:", purchase.Purchase_Status);
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
       <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-5xl max-h-[90vh] overflow-y-auto p-6 relative">
@@ -142,12 +143,14 @@ function ReceiveProductModal({ isOpen, onClose, purchase, user }) {
 
           {/* ปุ่ม */}
           <div className="flex gap-2">
-            <button
-              onClick={handleConfirm}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              ยืนยัน
-            </button>
+            {purchase.Purchase_Status === 'Received' ? null : (
+              <button
+                onClick={handleConfirm}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                ยืนยัน
+              </button>
+            )}
             <button
               onClick={onClose}
               className="px-4 py-2 bg-[#DC3545] text-white rounded hover:bg-red-700"

@@ -581,7 +581,7 @@ app.post("/api/purchase", (req, res) => {
       ];
     }).filter(Boolean);
 
-    const detailSql = "INSERT INTO Purchase_Detail (Purchase_Id, Product_Id, Purchase_Amount, Purchase_Price) VALUES ?";
+    const detailSql = "INSERT INTO Purchase_Detail (Purchase_Id, Product_Id, Purchase_Amout, Purchase_Price) VALUES ?"; //n
     db.query(detailSql, [values], (err2) => {
       if (err2) {
         console.error("PurchaseDetail insert error:", err2);
@@ -608,6 +608,13 @@ app.get('/api/purchases', (req, res) => {
       s.Supplier_Name
     FROM Purchase p
     JOIN Supplier s ON p.Supplier_Id = s.Supplier_Id
+    ORDER BY 
+    CASE p.Purchase_Status 
+    WHEN 'P' THEN 0 
+    WHEN 'R' THEN 1 
+    ELSE 2 
+    END,
+  p.Purchase_Date DESC;
   `;
 
   db.query(sql, (err, results) => {
