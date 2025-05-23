@@ -1,36 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-function ReceiveProductModal({ isOpen, onClose, purchaseId, purchase, user }) {
+function ReceiveProductModal({ isOpen, onClose, purchase, user, onReceiveSuccess }) {
 
 
 
   const [products, setProducts] = useState([]);
   const [purchaseDetail, setPurchaseDetail] = useState(null);
 
-
-  //  useEffect(() => {
-  //   if (isOpen && purchase?.Purchase_Id) {
-  //     axios
-  //       .get(`http://localhost:5000/api/purchase-detail/${purchase.Purchase_Id}`)
-  //       .then((res) => {
-  //         const data = res.data.map((item) => ({
-  //           Product_Id: item.Product_Id,
-  //           Product_Name: item.Product_Name,
-  //           Product_Detail: item.Product_Detail || '',
-  //           Product_Image: item.Product_Image || '',
-  //           Unit: 'ชิ้น', // เนื่องจากไม่มีใน DB ใช้ default
-  //           Amount: item.Quantity,
-  //           Unit_Cost: parseFloat(item.Unit_Price),
-  //           Total: parseFloat(item.Total_Price),
-  //         }));
-  //         setProducts(data);
-  //       })
-  //       .catch((err) => {
-  //         console.error("Error fetching purchase detail:", err);
-  //       });
-  //   }
-  // }, [isOpen, purchase]);
 
   useEffect(() => {
     if (isOpen && purchase?.Purchase_Id) {
@@ -43,7 +20,7 @@ function ReceiveProductModal({ isOpen, onClose, purchaseId, purchase, user }) {
             Product_Name: item.Product_Name,
             Product_Detail: item.Product_Detail || '',
             Product_Image: item.Product_Image || '',
-            Unit: 'ชิ้น', // ใช้ default
+            Unit: 'ชิ้น',
             Amount: item.Quantity,
             Unit_Cost: parseFloat(item.Unit_Price),
             Total: parseFloat(item.Total_Price),
@@ -69,19 +46,6 @@ function ReceiveProductModal({ isOpen, onClose, purchaseId, purchase, user }) {
 
   if (!isOpen || !purchase) return null;
 
-  // const handleConfirm = async () => {
-  //   try {
-  //     await axios.post("http://localhost:5000/api/receives", {
-  //       Purchase_Id: purchase.Purchase_Id,
-  //       Employee_Id: user.Employee_Id, // หรืออะไรก็ตามที่ระบุคนรับ
-  //     });
-  //     alert("ยืนยันการรับสินค้าเรียบร้อยแล้ว");
-  //     onClose();
-  //   } catch (err) {
-  //     console.error("รับสินค้าไม่สำเร็จ", err);
-  //     alert("เกิดข้อผิดพลาดในการรับสินค้า");
-  //   }
-  // };
 
   const handleConfirm = async () => {
     console.log('Debug - User data:', user);
@@ -104,18 +68,20 @@ function ReceiveProductModal({ isOpen, onClose, purchaseId, purchase, user }) {
 
     try {
       console.log('Debug - Sending payload:', payload);
-      const res = await axios.post("http://localhost:5000/api/receives", payload);
+      await axios.post("http://localhost:5000/api/receives", payload);
       alert("รับสินค้าเรียบร้อยแล้ว");
+      if (onReceiveSuccess) onReceiveSuccess();
       onClose();
     } catch (error) {
       console.error("รับสินค้าไม่สำเร็จ", error);
       alert(error.response?.data?.message || "เกิดข้อผิดพลาดในการรับสินค้า");
     }
   };
+
   console.log('user:', user);
 
 
-
+  console.log("purchase.Purchase_Status:", purchase.Purchase_Status);
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
       <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-5xl max-h-[90vh] overflow-y-auto p-6 relative">
@@ -126,7 +92,7 @@ function ReceiveProductModal({ isOpen, onClose, purchaseId, purchase, user }) {
           <div>
             <p><span className="font-semibold">รหัสคำสั่งซื้อ:</span> {purchase.Purchase_Id}</p>
             <p><span className="font-semibold">รหัสพนักงานที่สั่งซื้อ:</span> {purchaseDetail?.Employee_Id || "-"}</p>
-            <p><span className="font-semibold">รหัสพนักงานที่รับสินค้า:</span> "-" {/* ถ้ามี ให้แสดง */}</p>
+            <p><span className="font-semibold">รหัสพนักงานที่รับสินค้า:</span> {purchaseDetail?.Receiver_Id || "-"}</p>
             <p><span className="font-semibold">วันที่สั่งซื้อ:</span> {purchaseDetail?.Purchase_Date ? new Date(purchaseDetail.Purchase_Date).toLocaleString() : "-"}</p>
             <p><span className="font-semibold">คู่ค้า:</span> {purchaseDetail?.Supplier_Name || "-"}</p>
           </div>
@@ -177,12 +143,14 @@ function ReceiveProductModal({ isOpen, onClose, purchaseId, purchase, user }) {
 
           {/* ปุ่ม */}
           <div className="flex gap-2">
-            <button
-              onClick={handleConfirm}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              ยืนยัน
-            </button>
+            {purchase.Purchase_Status === 'Received' ? null : (
+              <button
+                onClick={handleConfirm}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                ยืนยัน
+              </button>
+            )}
             <button
               onClick={onClose}
               className="px-4 py-2 bg-[#DC3545] text-white rounded hover:bg-red-700"
