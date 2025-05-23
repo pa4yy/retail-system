@@ -11,9 +11,6 @@ function PurchaseReport({ user }) {
   const [selectedPurchase, setSelectedPurchase] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-
-
-
   useEffect(() => {
     axios.get("http://localhost:5000/api/purchases")
       .then(res => setPurchases(res.data))
@@ -39,8 +36,6 @@ function PurchaseReport({ user }) {
     setPurchases(res.data);
   };
 
-
-
   const filtered = purchases.filter(p => {
     const matchSearch =
       p.Purchase_Id.toString().includes(search) ||
@@ -49,7 +44,6 @@ function PurchaseReport({ user }) {
     const purchaseDate = new Date(p.Purchase_Date);
     const isAfterStart = startDate ? purchaseDate >= new Date(startDate) : true;
     const isBeforeEnd = endDate ? purchaseDate <= new Date(endDate) : true;
-
 
     return matchSearch && isAfterStart && isBeforeEnd;
   });
@@ -96,7 +90,7 @@ function PurchaseReport({ user }) {
 
         {/* Table */}
         <div className="flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto">
+          <div className="h-[600px] overflow-y-auto">
             <table className="min-w-[800px] w-full table-fixed">
               <colgroup>
                 <col style={{ width: "60px" }} />
@@ -157,7 +151,6 @@ function PurchaseReport({ user }) {
         />
       </div>
     </MainLayout>
-
   );
 }
 
