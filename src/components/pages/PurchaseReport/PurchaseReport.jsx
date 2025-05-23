@@ -11,9 +11,6 @@ function PurchaseReport({ user }) {
   const [selectedPurchase, setSelectedPurchase] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-
-
-
   useEffect(() => {
     axios.get("http://localhost:5000/api/purchases")
       .then(res => setPurchases(res.data))
