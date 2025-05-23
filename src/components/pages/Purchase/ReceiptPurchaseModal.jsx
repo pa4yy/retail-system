@@ -3,7 +3,7 @@ import React from 'react';
 const ReceiptModal = ({ isOpen, onClose, receiptData }) => {
   if (!isOpen) return null;
 
-  const { products, employeeId, employeeName, supplier, totalCost, date } = receiptData;
+  const { products, employeeName, supplier, totalCost, date } = receiptData;
 
   return (
     <div
@@ -24,7 +24,7 @@ const ReceiptModal = ({ isOpen, onClose, receiptData }) => {
         {/* หัวใบเสร็จ */}
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold">Shop Ease</h1>
-          <p><span className="font-semibold">รหัสพนักงานที่สั่งซื้อ:</span> {employeeId || '-'}</p>
+          <p><span className="font-semibold">ชื่อพนักงานที่สั่งซื้อ:</span> {employeeName || '-'}</p>
           <h2 className="text-xl font-semibold mt-4">ใบกำกับภาษี/ใบเสร็จรับเงิน</h2>
         </div>
 

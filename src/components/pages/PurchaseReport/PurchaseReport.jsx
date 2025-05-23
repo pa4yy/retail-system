@@ -56,7 +56,7 @@ function PurchaseReport({ user }) {
 
   return (
     <MainLayout user={user} title="การสั่งซื้อสินค้า">
-      <div className="p-6 bg-white rounded-lg shadow">
+      <div className="h-full p-6 bg-white rounded-lg shadow flex flex-col">
         <h2 className="text-2xl font-bold mb-6">การสั่งซื้อสินค้า</h2>
 
         {/* Filter */}
@@ -95,55 +95,57 @@ function PurchaseReport({ user }) {
         </div>
 
         {/* Table */}
-        <div style={{ maxHeight: 720, minHeight: 720, overflowY: "auto" }}>
-          <table className="min-w-[800px] w-full table-fixed">
-            <colgroup>
-              <col style={{ width: "60px" }} />
-              <col style={{ width: "140px" }} />
-              <col style={{ width: "250px" }} />
-              <col style={{ width: "120px" }} />
-              <col style={{ width: "120px" }} />
-              <col style={{ width: "100px" }} />
-            </colgroup>
-            <thead className="bg-blue-800 text-white sticky top-0">
-              <tr>
-                <th className="py-3 text-sm">หมายเลขคำสั่งซื้อ</th>
-                <th className="py-3 text-sm">วันที่สั่งซื้อ</th>
-                <th className="py-3 text-sm">คู่ค้า</th>
-                <th className="py-3 text-sm">ราคารวม</th>
-                <th className="py-3 text-sm">สถานะ</th>
-                <th className="py-3 text-sm">เพิ่มเติม</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 ? (
+        <div className="flex-1 overflow-hidden">
+          <div className="h-full overflow-y-auto">
+            <table className="min-w-[800px] w-full table-fixed">
+              <colgroup>
+                <col style={{ width: "60px" }} />
+                <col style={{ width: "140px" }} />
+                <col style={{ width: "250px" }} />
+                <col style={{ width: "120px" }} />
+                <col style={{ width: "120px" }} />
+                <col style={{ width: "100px" }} />
+              </colgroup>
+              <thead className="bg-blue-800 text-white sticky top-0">
                 <tr>
-                  <td colSpan="6" className="text-center py-4 text-gray-500">ไม่พบข้อมูล</td>
+                  <th className="py-3 text-sm">หมายเลขคำสั่งซื้อ</th>
+                  <th className="py-3 text-sm">วันที่สั่งซื้อ</th>
+                  <th className="py-3 text-sm">คู่ค้า</th>
+                  <th className="py-3 text-sm">ราคารวม</th>
+                  <th className="py-3 text-sm">สถานะ</th>
+                  <th className="py-3 text-sm">เพิ่มเติม</th>
                 </tr>
-              ) : (
-                filtered.map((p, index) => (
-                  <tr
-                    key={p.Purchase_Id}
-                    className={`${index % 2 === 0 ? "bg-white" : "bg-blue-50"} hover:bg-blue-100 transition`}
-                  >
-                    <td className="py-2 text-center">{p.Purchase_Id}</td>
-                    <td className="py-2 text-center">{new Date(p.Purchase_Date).toLocaleString()}</td>
-                    <td className="py-2 text-center">{p.Supplier_Name}</td>
-                    <td className="py-2 text-center">{parseFloat(p.Total_Purchase_Price).toFixed(2)}</td>
-                    <td className="py-2 text-center">{p.Purchase_Status}</td>
-                    <td className="py-2 text-center">
-                      <button
-                        className="text-blue-600 hover:underline disabled:opacity-50"
-                        onClick={() => handleViewDetails(p)}
-                      >
-                        รายละเอียด
-                      </button>
-                    </td>
+              </thead>
+              <tbody>
+                {filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="text-center py-4 text-gray-500">ไม่พบข้อมูล</td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  filtered.map((p, index) => (
+                    <tr
+                      key={p.Purchase_Id}
+                      className={`${index % 2 === 0 ? "bg-white" : "bg-blue-50"} hover:bg-blue-100 transition`}
+                    >
+                      <td className="py-2 text-center">{p.Purchase_Id}</td>
+                      <td className="py-2 text-center">{new Date(p.Purchase_Date).toLocaleString()}</td>
+                      <td className="py-2 text-center">{p.Supplier_Name}</td>
+                      <td className="py-2 text-center">{parseFloat(p.Total_Purchase_Price).toFixed(2)}</td>
+                      <td className="py-2 text-center">{p.Purchase_Status}</td>
+                      <td className="py-2 text-center">
+                        <button
+                          className="text-blue-600 hover:underline disabled:opacity-50"
+                          onClick={() => handleViewDetails(p)}
+                        >
+                          รายละเอียด
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <ReceiveProductModal

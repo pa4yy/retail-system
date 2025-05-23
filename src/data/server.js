@@ -726,12 +726,18 @@ app.get("/api/purchase-detail/:purchaseId", (req, res) => {
         d.Purchase_Price AS Unit_Price,
         (d.Purchase_Amout * d.Purchase_Price) AS Total_Price,
         pu.Emp_Id AS Employee_Id,
+        CONCAT(e.Fname, ' ', e.Lname) AS Employee_Name,
         pu.Purchase_Date,
-        s.Supplier_Name
+        s.Supplier_Name,
+        r.Emp_Id AS Receiver_Id,
+        CONCAT(er.Fname, ' ', er.Lname) AS Receiver_Name
       FROM Purchase_Detail d
       LEFT JOIN Product p ON d.Product_Id = p.Product_Id
       LEFT JOIN Purchase pu ON d.Purchase_Id = pu.Purchase_Id
       LEFT JOIN Supplier s ON pu.Supplier_Id = s.Supplier_Id
+      LEFT JOIN Employee e ON pu.Emp_Id = e.Emp_Id
+      LEFT JOIN Receive r ON pu.Purchase_Id = r.Purchase_Id
+      LEFT JOIN Employee er ON r.Emp_Id = er.Emp_Id
       WHERE d.Purchase_Id = ?
   `;
 
@@ -754,7 +760,7 @@ app.get("/api/purchase-detail/:purchaseId", (req, res) => {
           return res.status(404).json({ message: "ไม่พบข้อมูลคำสั่งซื้อนี้" });
         }
 
-        const { Employee_Id, Purchase_Date, Supplier_Name } = results[0];
+        const { Employee_Id, Employee_Name, Purchase_Date, Supplier_Name, Receiver_Id, Receiver_Name } = results[0];
 
         const items = results.map(row => ({
           Product_Id: row.Product_Id,
@@ -769,8 +775,11 @@ app.get("/api/purchase-detail/:purchaseId", (req, res) => {
         const response = {
           Purchase_Id: purchaseId,
           Employee_Id,
+          Employee_Name,
           Purchase_Date,
           Supplier_Name,
+          Receiver_Id,
+          Receiver_Name,
           Items: items
         };
 

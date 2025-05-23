@@ -71,16 +71,16 @@ function StockReport() {
 
   return (
     <MainLayout user={user} title="สินค้าคงเหลือ">
-      <div style={{ padding: 24, background: '#fff', borderRadius: 4, minHeight: '90vh' }}>
-        <h1 style={{ fontWeight: 'bold', fontSize: 36, marginBottom: 0 }}>สินค้าคงเหลือ</h1>
-        <div style={{ fontSize: 24, fontWeight: 'bold', margin: '16px 0 8px 0' }}>ข้อมูลสินค้า</div>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-          <span style={{ marginRight: 8, fontSize: 20 }}>ประเภท</span>
-          <select value={type} onChange={e => setType(e.target.value)} style={{ marginRight: 24, fontSize: 18, padding: 4 }}>
+      <div style={{ padding: 24, background: '#fff', borderRadius: 4, height: 'calc(100vh - 100px)' }}>
+        <h1 style={{ fontWeight: 'bold', fontSize: 32, marginBottom: 0 }}>สินค้าคงเหลือ</h1>
+        <div style={{ fontSize: 20, fontWeight: 'bold', margin: '12px 0 8px 0' }}>ข้อมูลสินค้า</div>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
+          <span style={{ marginRight: 8, fontSize: 18 }}>ประเภท</span>
+          <select value={type} onChange={e => setType(e.target.value)} style={{ marginRight: 24, fontSize: 16, padding: 4 }}>
             <option value="">ทั้งหมด</option>
             {types.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
-          <label style={{ marginRight: 24, fontSize: 20 }}>
+          <label style={{ marginRight: 24, fontSize: 18 }}>
             <input
               type="checkbox"
               checked={showCritical}
@@ -96,19 +96,19 @@ function StockReport() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               style={{
-                fontSize: 18,
+                fontSize: 16,
                 padding: '4px 12px',
                 border: '1px solid #aaa',
                 borderRadius: 4,
-                width: 220,
+                width: 200,
                 marginRight: 8
               }}
             />
             <button style={{
               background: '#009fe3',
               color: '#fff',
-              fontSize: 20,
-              padding: '6px 32px',
+              fontSize: 18,
+              padding: '4px 24px',
               border: 'none',
               borderRadius: 4,
               cursor: 'pointer'
@@ -119,9 +119,10 @@ function StockReport() {
           borderRadius: 4,
           overflow: 'hidden',
           background: '#f7f7f7',
-          maxHeight: 580, minHeight: 580, overflowY: "auto" 
+          height: 'calc(100vh - 280px)',
+          overflowY: "auto" 
         }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 18 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 16 }}>
             <thead className='sticky top-0' style={{ background: '#009fe3', color: '#fff' }}>
               <tr>
                 <th style={{ padding: 8, width: 50 }}></th>
@@ -164,16 +165,15 @@ function StockReport() {
               })}
             </tbody>
           </table>
-          <div style={{ height: 180, background: '#e5e5e5' }}></div>
         </div>
-        <div style={{ textAlign: 'right', marginTop: 24 }}>
+        <div style={{ textAlign: 'right', marginTop: 16 }}>
           <button 
             onClick={handlePurchase}
             style={{
               background: '#009fe3',
               color: '#fff',
-              fontSize: 22,
-              padding: '10px 40px',
+              fontSize: 18,
+              padding: '8px 32px',
               border: 'none',
               borderRadius: 4,
               cursor: 'pointer'

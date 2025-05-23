@@ -116,16 +116,15 @@ function PurchasePage() {
   console.log('showReceipt:', showReceipt);
   return (
     <MainLayout user={user} title="สั่งซื้อสินค้า">
-      <div className="h-full min-h-0 overflow-hidden p-8 bg-white box-border flex flex-col">
+      <div className="h-full p-6 bg-white box-border flex flex-col">
+        <h2 className="text-lg font-semibold mb-4">สั่งซื้อสินค้า</h2>
 
-        <h2 className="text-xl font-semibold mb-5">สั่งซื้อสินค้า</h2>
-
-        <div className="flex items-center justify-end gap-2 mb-5">
-          <label className="font-medium">เลือกบริษัทคู่ค้า</label>
+        <div className="flex items-center justify-end gap-2 mb-4">
+          <label className="font-medium text-sm">เลือกบริษัทคู่ค้า</label>
           <select
             value={selectedSupplierId}
             onChange={(e) => setSelectedSupplierId(e.target.value)}
-            className="border px-2 py-1 rounded"
+            className="border px-2 py-1 rounded text-sm"
           >
             <option value="">-- กรุณาเลือกคู่ค้า --</option>
             {supplierList
@@ -137,55 +136,53 @@ function PurchasePage() {
               ))}
           </select>
           <button
-            className="bg-[#0073ac] text-white px-4 py-1.5 rounded hover:bg-[#005f8f]"
+            className="bg-[#0073ac] text-white px-3 py-1 rounded hover:bg-[#005f8f] text-sm"
             onClick={() => setIsModalOpen(true)}
           >
             เพิ่มสินค้า
           </button>
         </div>
 
-        <div className="overflow-y-auto max-h-[580px] h-[580px] rounded-md bg-[#d9d9d9] p-3">
+        <div className="overflow-y-auto flex-1 rounded-md bg-[#d9d9d9] p-3">
           <table className="w-full border-separate border-spacing-y-2">
-            <thead className="bg-[#d9d9d9] h-[50px] sticky top-0 z-10">
+            <thead className="bg-[#d9d9d9] h-[40px] sticky top-0 z-10">
               <tr>
-                <th className="py-2 px-4 text-center">รูปภาพสินค้า</th>
-                <th className="py-2 px-4 text-center">ชื่อสินค้า</th>
-                <th className="py-2 px-4 text-center">จำนวนสินค้า</th>
-                <th className="py-2 px-4 text-center">ราคาสั่งซื้อ</th>
-                <th className="py-2 px-4 text-center">ลบสินค้า</th>
+                <th className="py-2 px-3 text-center text-sm">รูปภาพสินค้า</th>
+                <th className="py-2 px-3 text-center text-sm">ชื่อสินค้า</th>
+                <th className="py-2 px-3 text-center text-sm">จำนวนสินค้า</th>
+                <th className="py-2 px-3 text-center text-sm">ราคาสั่งซื้อ</th>
+                <th className="py-2 px-3 text-center text-sm">ลบสินค้า</th>
               </tr>
             </thead>
             <tbody>
               {products.map(product => (
                 <tr key={product.id} className="bg-[#f0f0f0]">
-                  <td className="py-2 px-4 text-center">
-                    {product.image && <img src={product.image} alt={product.name} className="w-[50px] h-[50px]" />}
+                  <td className="py-2 px-3 text-center">
+                    {product.image && <img src={product.image} alt={product.name} className="w-[40px] h-[40px]" />}
                   </td>
-                  <td className="py-2 px-4 text-center">{product.name}</td>
-                  <td className="py-2 px-4 text-center">
+                  <td className="py-2 px-3 text-center text-sm">{product.name}</td>
+                  <td className="py-2 px-3 text-center">
                     <input
                       type="number"
                       min="0"
                       value={product.quantity}
                       onChange={(e) => handleChange(product.id, 'quantity', e.target.value)}
-                      className="w-[60px] text-center border border-gray-300 rounded"
+                      className="w-[50px] text-center border border-gray-300 rounded text-sm"
                     />
-
                   </td>
-
-                  <td className="py-2 px-4 text-center">
+                  <td className="py-2 px-3 text-center">
                     <input
                       type="number"
                       min="0"
                       value={product.price}
                       onChange={e => handleChange(product.id, 'price', e.target.value)}
-                      className="w-[80px] text-center border border-gray-300 rounded"
+                      className="w-[70px] text-center border border-gray-300 rounded text-sm"
                     /> บาท
                   </td>
-                  <td className="py-2 px-4 text-center">
+                  <td className="py-2 px-3 text-center">
                     <button
                       onClick={() => handleDelete(product.id)}
-                      className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                      className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 text-sm"
                     >
                       ลบ
                     </button>
@@ -194,17 +191,16 @@ function PurchasePage() {
               ))}
             </tbody>
           </table>
-
         </div>
 
-        <div className="text-right mt-3">
+        <div className="text-right mt-3 text-sm">
           <p>สินค้าทั้งหมด {totalQuantity} รายการ</p>
           <p>ราคาต้นทุนรวม {totalCost.toFixed(2)} บาท</p>
         </div>
 
-        <div className="flex justify-end gap-3 mt-5">
+        <div className="flex justify-end gap-2 mt-4">
           <button
-            className="bg-[#0073ac] text-white px-6 py-2 rounded hover:bg-[#005f8f]"
+            className="bg-[#0073ac] text-white px-4 py-1.5 rounded hover:bg-[#005f8f] text-sm"
             onClick={() => {
               if (!selectedSupplierId) {
                 setStatusModal({ isOpen: true, message: 'กรุณาเลือกคู่ค้าก่อน' });
@@ -226,10 +222,10 @@ function PurchasePage() {
             ยืนยัน
           </button>
           <button
-            className="bg-[#dc3546] text-white px-6 py-2 rounded hover:bg-[#b02a37]"
+            className="bg-[#dc3546] text-white px-4 py-1.5 rounded hover:bg-[#b02a37] text-sm"
             onClick={() => {
-              setProducts([]); // เคลียร์สินค้า
-              setSelectedSupplierId(''); // เคลียร์คู่ค้า (ถ้าต้องการล้างตรงนี้ด้วย)
+              setProducts([]);
+              setSelectedSupplierId('');
             }}
           >
             ลบรายการทั้งหมด
