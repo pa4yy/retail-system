@@ -17,8 +17,9 @@ function ProductSelectModal({ isOpen, onClose, onAdd }) {
 
   const filtered = products.filter(
     p =>
-      p.Product_Name.toLowerCase().includes(search.toLowerCase()) ||
-      (p.PType_Name && p.PType_Name.toLowerCase().includes(search.toLowerCase()))
+      (p.Product_Name.toLowerCase().includes(search.toLowerCase()) ||
+      (p.PType_Name && p.PType_Name.toLowerCase().includes(search.toLowerCase()))) &&
+      p.Product_Amount > 0
   );
 
   const toggleSelect = id => {
@@ -64,7 +65,9 @@ function ProductSelectModal({ isOpen, onClose, onAdd }) {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-4 text-gray-500">ไม่พบข้อมูลสินค้า</td>
+                  <td colSpan={6} className="text-center py-4 text-gray-500">
+                    {search ? "ไม่พบข้อมูลสินค้าตามที่ค้นหา" : "ไม่มีสินค้าในคลัง"}
+                  </td>
                 </tr>
               ) : (
                 <>
