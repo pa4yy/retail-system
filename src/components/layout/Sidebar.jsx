@@ -49,14 +49,20 @@ function Sidebar() {
       fetchCriticalStock();
     };
 
+    const handleReceipt = () => {
+      fetchCriticalStock();
+    };
+
     // เพิ่ม event listener
     window.addEventListener('sale-completed', handleSale);
     window.addEventListener('purchase-completed', handlePurchase);
+    window.addEventListener('product-received', handleReceipt);
 
     // ลบ event listener เมื่อ component unmount
     return () => {
       window.removeEventListener('sale-completed', handleSale);
       window.removeEventListener('purchase-completed', handlePurchase);
+      window.removeEventListener('product-received', handleReceipt);
     };
   }, []);
 
