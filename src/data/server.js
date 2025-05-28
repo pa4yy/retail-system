@@ -629,21 +629,56 @@ app.get('/api/purchases', (req, res) => {
 
 // API สำหรับดึงข้อมูลการขาย พร้อมรายละเอียดสินค้า
 app.get('/api/sales', (req, res) => {
-  const sqlSales = `SELECT * FROM Sales`;
+  const { startDate, endDate, groupBy } = req.query;
+  
+  let dateFilter = '';
+  let params = [];
+  
+  if (startDate && endDate) {
+    if (groupBy === 'year') {
+      dateFilter = 'WHERE YEAR(Sale_Date) BETWEEN ? AND ?';
+      params = [startDate, endDate];
+    } else if (groupBy === 'month') {
+      dateFilter = 'WHERE DATE_FORMAT(Sale_Date, "%Y-%m") BETWEEN ? AND ?';
+      params = [startDate, endDate];
+    } else {
+      dateFilter = 'WHERE Sale_Date BETWEEN ? AND ?';
+      params = [startDate, endDate];
+    }
+  }
 
-  db.query(sqlSales, (err, sales) => {
+  const sqlSales = `
+    SELECT * FROM Sales 
+    ${dateFilter}
+    ORDER BY Sale_Date DESC
+  `;
+
+  db.query(sqlSales, params, (err, sales) => {
     if (err) {
       console.error("Database Error:", err);
       return res.status(500).json({ message: 'ดึงข้อมูลล้มเหลว' });
     }
-    // ดึงรายละเอียดสินค้าแต่ละ Sale
+
     const saleIds = sales.map(s => s.Sale_Id);
     if (saleIds.length === 0) return res.json([]);
 
     const sqlDetail = `
-      SELECT d.Sale_Id, d.Product_Id, d.Sale_Amount, d.Sale_Price, p.Product_Name
+      SELECT 
+        d.Sale_Id, 
+        d.Product_Id, 
+        d.Sale_Amount, 
+        d.Sale_Price, 
+        p.Product_Name,
+        t.PType_Name AS Product_Type,
+        pd.Purchase_Price AS Cost
       FROM Sales_Detail d
       LEFT JOIN Product p ON d.Product_Id = p.Product_Id
+      LEFT JOIN Product_Type t ON p.PType_Id = t.PType_Id
+      LEFT JOIN (
+          SELECT Product_Id, Purchase_Price
+          FROM Purchase_Detail
+          ORDER BY Purchase_Id DESC
+      ) pd ON d.Product_Id = pd.Product_Id
       WHERE d.Sale_Id IN (?)
     `;
 
@@ -652,7 +687,7 @@ app.get('/api/sales', (req, res) => {
         console.error("Database Error:", err2);
         return res.status(500).json({ message: 'ดึงข้อมูลล้มเหลว' });
       }
-      // รวมรายละเอียดเข้าแต่ละ sale
+
       const saleMap = {};
       sales.forEach(s => { saleMap[s.Sale_Id] = { ...s, Sale_Detail: [] }; });
       details.forEach(d => {

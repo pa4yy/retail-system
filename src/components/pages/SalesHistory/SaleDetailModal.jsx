@@ -9,6 +9,25 @@ const paymentMethodText = (method) => {
 function SaleDetailModal({ open, onClose, sale, saleDetail }) {
   if (!open || !sale) return null;
 
+  // กรองรายการที่ซ้ำกันโดยใช้ Sale_Id และ Product_Id เป็นเกณฑ์
+  const uniqueItems = saleDetail ? saleDetail.reduce((acc, currentItem) => {
+    // สมมติว่า Sale_Id และ Product_Id เป็นเกณฑ์ที่ถูกต้องสำหรับรายการที่ไม่ซ้ำกันภายในรายการขายเดียว
+    const existingItemIndex = acc.findIndex(item => item.Product_Id === currentItem.Product_Id);
+    if (existingItemIndex === -1) {
+      // ไม่พบรายการ เพิ่มรายการเข้าไป
+      acc.push(currentItem);
+    } else {
+      // พบรายการ (ซ้ำ) เพื่อความง่าย เราจะเก็บเฉพาะรายการที่ไม่ซ้ำกันรายการแรกที่พบ โดยอิงจาก Product_Id
+      // หากต้องการรวมจำนวนสำหรับรายการที่ซ้ำกัน จะต้องใช้ Logic ที่แตกต่างออกไป
+    }
+    return acc;
+  }, []) : [];
+
+  // คำนวณราคารวมโดยใช้รายการที่ไม่ซ้ำกัน (หรืออาจใช้ยอดรวมเดิมจากอ็อบเจกต์ sale หากมี)
+  // การใช้ยอดรวมจากอ็อบเจกต์ sale อาจปลอดภัยกว่าหากข้อมูลใน Modal เป็นเพียงส่วนหนึ่ง หรือข้อมูลไม่สอดคล้องกัน
+  // สำหรับ Modal นี้ เราจะใช้ Total_Sale_Price จากอ็อบเจกต์ sale เนื่องจากน่าจะเป็นยอดรวมที่ถูกต้องที่สุด
+  const totalDisplayAmount = sale.Total_Sale_Price ? parseFloat(sale.Total_Sale_Price).toFixed(2) : "0.00";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
       <div className="bg-white rounded-lg shadow-lg p-8 min-w-[800px]">
@@ -36,9 +55,9 @@ function SaleDetailModal({ open, onClose, sale, saleDetail }) {
             </tr>
           </thead>
           <tbody>
-            {saleDetail && saleDetail.length > 0 ? (
-              saleDetail.map((item, idx) => (
-                <tr key={idx}>
+            {uniqueItems && uniqueItems.length > 0 ? (
+              uniqueItems.map((item, idx) => (
+                <tr key={`${item.Sale_Id}-${item.Product_Id}-${idx}`}>
                   <td className="py-1 border text-center">{item.Product_Id}</td>
                   <td className="py-1 border">{item.Product_Name || "-"}</td>
                   <td className="py-1 border text-center">
@@ -65,7 +84,7 @@ function SaleDetailModal({ open, onClose, sale, saleDetail }) {
           <div>
             ราคารวมทั้งหมด:{" "}
             <span className="font-bold">
-              {parseFloat(sale.Total_Sale_Price).toFixed(2)}
+              {totalDisplayAmount}
             </span>{" "}
             บาท
           </div>
