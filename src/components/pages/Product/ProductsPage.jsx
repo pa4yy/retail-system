@@ -176,7 +176,7 @@ function ProductsPage() {
                   <th className="py-3 px-4 text-left font-semibold">ชื่อสินค้า</th>
                   <th className="py-3 px-4 text-left font-semibold">ประเภท</th>
                   <th className="py-3 px-4 text-right font-semibold">ราคาขาย(บาท)</th>
-                  <th className="py-3 px-4 text-right font-semibold">ราคาซื้อ(บาท)</th>
+                  <th className="py-3 px-4 text-right font-semibold">ราคาต้นทุน(บาท)</th>
                   <th className="py-3 px-4 text-right font-semibold">จำนวนที่เหลือ (ชิ้น)</th>
                   <th className="py-3 px-4 text-center font-semibold last:rounded-tr-lg">แก้ไขข้อมูลสินค้า</th>
                 </tr>
@@ -185,9 +185,8 @@ function ProductsPage() {
                 {filteredProducts.map((p, idx) => (
                   <tr
                     key={p.Product_Id}
-                    className={`hover:bg-gray-50 transition-colors ${
-                      idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-                    } ${idx === filteredProducts.length - 1 ? 'last-row' : ''}`}
+                    className={`hover:bg-gray-50 transition-colors ${idx % 2 === 0 ? "bg-white" : "bg-gray-50"
+                      } ${idx === filteredProducts.length - 1 ? 'last-row' : ''}`}
                   >
                     <td className="py-3 px-4 border-b border-gray-200 first:pl-6">{idx + 1}</td>
                     <td className="py-3 px-4 border-b border-gray-200 font-medium">{p.Product_Name}</td>
@@ -197,7 +196,9 @@ function ProductsPage() {
                     <td className="py-3 px-4 border-b border-gray-200 text-right">
                       {parseFloat(p.Product_Price).toLocaleString('th-TH', { minimumFractionDigits: 2 })}
                     </td>
-                    <td className="py-3 px-4 border-b border-gray-200 text-right">0</td>
+                    <td className="py-3 px-4 border-b border-gray-200 text-right">
+                      {parseFloat(p.Max_Purchase_Price || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })}
+                    </td>
                     <td className="py-3 px-4 border-b border-gray-200 text-right">
                       {parseInt(p.Product_Amount).toLocaleString('th-TH')}
                     </td>
