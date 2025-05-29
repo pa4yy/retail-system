@@ -656,7 +656,7 @@ function SalesReport() {
                         <th className="py-2 px-3">ชื่อสินค้า</th>
                         <th className="py-2 px-3">ประเภทสินค้า</th>
                         <th className="py-2 px-3">ราคาขาย (บาท)</th>
-                        <th className="py-2 px-3">ต้นทุนรวม (บาท)</th>
+                        <th className="py-2 px-3">ต้นทุนต่อชิ้น (บาท)</th>
                         <th className="py-2 px-3">จำนวนที่ขายได้ (ชิ้น)</th>
                       </tr>
                     </thead>
@@ -673,7 +673,7 @@ function SalesReport() {
                             {formatNumber(item.price)}
                           </td>
                           <td className="text-right py-2 px-3">
-                            {formatNumber(item.totalCost)}
+                            {formatNumber(item.totalCost / item.amount)}
                           </td>
                           <td className="text-right py-2 px-3">
                             {Math.floor(item.amount)}

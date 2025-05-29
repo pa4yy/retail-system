@@ -670,15 +670,19 @@ app.get('/api/sales', (req, res) => {
         d.Sale_Price, 
         p.Product_Name,
         t.PType_Name AS Product_Type,
-        pd.Purchase_Price AS Cost
+        (
+          SELECT pd.Purchase_Price 
+          FROM Purchase_Detail pd
+          JOIN Purchase pu ON pd.Purchase_Id = pu.Purchase_Id
+          WHERE pd.Product_Id = d.Product_Id 
+          AND pu.Purchase_Date <= s.Sale_Date
+          ORDER BY pu.Purchase_Date DESC
+          LIMIT 1
+        ) AS Cost
       FROM Sales_Detail d
       LEFT JOIN Product p ON d.Product_Id = p.Product_Id
       LEFT JOIN Product_Type t ON p.PType_Id = t.PType_Id
-      LEFT JOIN (
-          SELECT Product_Id, Purchase_Price
-          FROM Purchase_Detail
-          ORDER BY Purchase_Id DESC
-      ) pd ON d.Product_Id = pd.Product_Id
+      LEFT JOIN Sales s ON d.Sale_Id = s.Sale_Id
       WHERE d.Sale_Id IN (?)
     `;
 
