@@ -206,9 +206,12 @@ app.get("/api/products", (req, res) => {
     SELECT 
       p.Product_Id, p.Product_Name, p.Product_Detail, p.Product_Amount, p.Product_Price, p.Product_Minimum,
       p.PType_Id, p.Product_Image,
-      t.PType_Name
+      t.PType_Name,
+      MAX(pd.Purchase_Price) AS Max_Purchase_Price
     FROM Product p
     LEFT JOIN Product_Type t ON p.PType_Id = t.PType_Id
+    LEFT JOIN Purchase_Detail pd ON p.Product_Id = pd.Product_Id
+    GROUP BY p.Product_Id, p.Product_Name, p.Product_Detail, p.Product_Amount, p.Product_Price, p.Product_Minimum, p.PType_Id, p.Product_Image, t.PType_Name
   `;
   db.query(sql, (err, results) => {
     if (err) {

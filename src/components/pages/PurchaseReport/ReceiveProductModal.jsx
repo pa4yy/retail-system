@@ -80,12 +80,11 @@ function ReceiveProductModal({ isOpen, onClose, purchase, user, onReceiveSuccess
 
     try {
       await axios.post("http://localhost:5000/api/receives", payload);
-      setStatusModal({
+      setConfirmModal({
         isOpen: true,
         message: "รับสินค้าเรียบร้อยแล้ว"
       });
       if (onReceiveSuccess) onReceiveSuccess();
-      onClose();
     } catch (error) {
       console.error("รับสินค้าไม่สำเร็จ", error);
       setStatusModal({
@@ -163,7 +162,7 @@ function ReceiveProductModal({ isOpen, onClose, purchase, user, onReceiveSuccess
                 onClick={handleConfirm}
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
               >
-                ยืนยัน
+                รับสินค้า
               </button>
             )}
             <button
@@ -189,7 +188,11 @@ function ReceiveProductModal({ isOpen, onClose, purchase, user, onReceiveSuccess
         message={confirmModal.message}
         onConfirm={() => {
           setConfirmModal({ isOpen: false, message: '' });
-          handleConfirmSubmit();
+          if (confirmModal.message === "รับสินค้าเรียบร้อยแล้ว") {
+            onClose();
+          } else {
+            handleConfirmSubmit();
+          }
         }}
         onCancel={() => setConfirmModal({ isOpen: false, message: '' })}
       />
