@@ -78,7 +78,8 @@ function Sidebar() {
           badge: criticalStockCount > 0 ? criticalStockCount : null 
         },
         { path: '/purchase-report', label: 'การสั่งซื้อสินค้า' },
-        { path: '/sales-history', label: 'ประวัติการขาย' }
+        { path: '/sales-history', label: 'ประวัติการขาย' },
+        { path: '/user-history', label: 'ประวัติการเข้าใช้งาน' }
       ]
     },
     {
@@ -105,7 +106,7 @@ function Sidebar() {
         { path: '/sales-report', label: 'รายงานการขาย' },
         { path: '/stock-report', label: 'สินค้าคงเหลือ' },
         { path: '/purchase-report', label: 'การสั่งซื้อสินค้า' },
-        { path: '/sales-history', label: 'ประวัติการขาย' }
+        { path: '/sales-history', label: 'ประวัติการขาย' },
       ]
     }
   ];

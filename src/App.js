@@ -12,6 +12,7 @@ import PurchasePage from './components/pages/Purchase/PurchasePage';
 import Employees from './components/pages/Employees';
 import Suppliers from './components/pages/Suppliers';
 import ProtectedRoute from './components/ProtectedRoute';
+import UserLoginHistory from './components/pages/UserHistory';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/stock-report" element={<ProtectedRoute><StockReport /></ProtectedRoute>} />
           <Route path="/purchase" element={<ProtectedRoute><PurchasePage /></ProtectedRoute>} />
           <Route path="/purchase-report" element={<ProtectedRoute><PurchaseReport /></ProtectedRoute>} />
+          <Route path="/user-history" element={<ProtectedRoute><UserLoginHistory /></ProtectedRoute>} />
           <Route path="/" element={<Navigate to="/sale" replace />} />
         </Routes>
       </AuthProvider>

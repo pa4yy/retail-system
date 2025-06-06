@@ -949,9 +949,21 @@ app.post('/api/receives', (req, res) => {
   });
 });
 
-
-
-
+// API สำหรับดึงข้อมูลประวัติการเข้าใช้งาน
+app.get('/api/login-history', (req, res) => {
+  const sql = `
+    SELECT Emp_Id, Login_Time, LogOut_Time
+    FROM Login_History
+    ORDER BY Login_Time DESC
+  `;
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ message: "เกิดข้อผิดพลาดของเซิร์ฟเวอร์" });
+    }
+    res.json(results);
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
