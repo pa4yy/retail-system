@@ -45,7 +45,7 @@ function UserLoginHistory() {
   // หา Emp Name จาก Emp_Id
   const getEmpName = (empId) => {
     const emp = employees.find(e => e.Emp_Id === empId);
-    return emp ? `${emp.Fname} ${emp.Lname}` : empId || "-";
+    return emp ? `${emp.Fname} ${emp.Lname}` : String(empId || "-");
   };
 
   // หา Role จาก Emp_Id
