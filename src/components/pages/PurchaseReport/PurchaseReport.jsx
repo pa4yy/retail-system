@@ -10,6 +10,10 @@ function PurchaseReport({ user }) {
   const [endDate, setEndDate] = useState("");
   const [selectedPurchase, setSelectedPurchase] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [statusFilter, setStatusFilter] = useState({
+    Purchased: true,
+    Received: true
+  });
 
   useEffect(() => {
     axios.get("http://localhost:5000/api/purchases")
@@ -44,9 +48,17 @@ function PurchaseReport({ user }) {
     const purchaseDate = new Date(p.Purchase_Date);
     const isAfterStart = startDate ? purchaseDate >= new Date(startDate) : true;
     const isBeforeEnd = endDate ? purchaseDate <= new Date(endDate) : true;
+    const matchStatus = statusFilter[p.Purchase_Status];
 
-    return matchSearch && isAfterStart && isBeforeEnd;
+    return matchSearch && isAfterStart && isBeforeEnd && matchStatus;
   });
+
+  const handleStatusChange = (status) => {
+    setStatusFilter(prev => ({
+      ...prev,
+      [status]: !prev[status]
+    }));
+  };
 
   return (
     <MainLayout user={user} title="การสั่งซื้อสินค้า">
@@ -55,22 +67,46 @@ function PurchaseReport({ user }) {
 
         {/* Filter */}
         <div className="flex flex-wrap justify-between items-center mb-6">
-          {/* วันที่ */}
-          <div className="flex items-center gap-2">
-            <label className="font-medium">วันที่</label>
-            <input
-              type="date"
-              className="border px-3 py-2 rounded"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-            <span>ถึง</span>
-            <input
-              type="date"
-              className="border px-3 py-2 rounded"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
+          {/* วันที่และสถานะ */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label className="font-medium">วันที่</label>
+              <input
+                type="date"
+                className="border px-3 py-2 rounded"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+              <span>ถึง</span>
+              <input
+                type="date"
+                className="border px-3 py-2 rounded"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </div>
+
+            {/* สถานะ */}
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={statusFilter.Purchased}
+                  onChange={() => handleStatusChange('Purchased')}
+                  className="w-4 h-4"
+                />
+                <span>สั่งซื้อแล้ว</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={statusFilter.Received}
+                  onChange={() => handleStatusChange('Received')}
+                  className="w-4 h-4"
+                />
+                <span>รับสินค้าแล้ว</span>
+              </label>
+            </div>
           </div>
 
           {/* ค้นหา */}
@@ -91,7 +127,7 @@ function PurchaseReport({ user }) {
         {/* Table */}
         <div className="flex-1 overflow-hidden">
           <div className="h-[600px] overflow-y-auto">
-            <table className="min-w-[800px] w-full table-fixed">
+            <table className="w-full border-collapse">
               <colgroup>
                 <col style={{ width: "60px" }} />
                 <col style={{ width: "140px" }} />
@@ -100,8 +136,8 @@ function PurchaseReport({ user }) {
                 <col style={{ width: "120px" }} />
                 <col style={{ width: "100px" }} />
               </colgroup>
-              <thead className="bg-blue-800 text-white sticky top-0">
-                <tr>
+              <thead className="sticky top-0">
+                <tr className="bg-blue-700 text-white">
                   <th className="py-3 text-sm">หมายเลขคำสั่งซื้อ</th>
                   <th className="py-3 text-sm">วันที่สั่งซื้อ</th>
                   <th className="py-3 text-sm">คู่ค้า</th>
@@ -119,10 +155,12 @@ function PurchaseReport({ user }) {
                   filtered.map((p, index) => (
                     <tr
                       key={p.Purchase_Id}
-                      className={`${index % 2 === 0 ? "bg-white" : "bg-blue-50"} hover:bg-blue-100 transition`}
+                      className={`border-b border-gray-200 hover:bg-gray-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
                     >
                       <td className="py-2 text-center">{p.Purchase_Id}</td>
-                      <td className="py-2 text-center">{new Date(p.Purchase_Date).toLocaleString()}</td>
+                      <td className="py-2 text-center">
+                        {new Date(p.Purchase_Date).toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })}
+                      </td>
                       <td className="py-2 text-center">{p.Supplier_Name}</td>
                       <td className="py-2 text-center">{parseFloat(p.Total_Purchase_Price).toFixed(2)}</td>
                       <td className="py-2 text-center">{p.Purchase_Status}</td>

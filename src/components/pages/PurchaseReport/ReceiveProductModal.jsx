@@ -3,6 +3,13 @@ import axios from 'axios';
 import StatusModal from '../../ui/StatusModal';
 import ConfirmModal from '../../ui/ConfirmModal';
 
+function getThaiDateTimeString() {
+  const now = new Date();
+  const thOffset = 7 * 60 * 60 * 1000; // +7 ชั่วโมง
+  const thDate = new Date(now.getTime() + thOffset);
+  return thDate.toISOString().slice(0, 19).replace('T', ' ');
+}
+
 function ReceiveProductModal({ isOpen, onClose, purchase, user, onReceiveSuccess }) {
   const [products, setProducts] = useState([]);
   const [purchaseDetail, setPurchaseDetail] = useState(null);
@@ -33,6 +40,7 @@ function ReceiveProductModal({ isOpen, onClose, purchase, user, onReceiveSuccess
             Purchase_Date: res.data.Purchase_Date,
             Supplier_Name: res.data.Supplier_Name,
             Receiver_Name: res.data.Receiver_Name || '-',
+            Receive_Date: res.data.Receive_Date || null,
           });
         })
         .catch((err) => {
@@ -76,6 +84,7 @@ function ReceiveProductModal({ isOpen, onClose, purchase, user, onReceiveSuccess
     const payload = {
       Purchase_Id: purchase.Purchase_Id,
       Employee_Id: user.Employee_Id || user.Emp_Id,
+      Receive_Date: getThaiDateTimeString(),
     };
 
     try {
@@ -108,8 +117,13 @@ function ReceiveProductModal({ isOpen, onClose, purchase, user, onReceiveSuccess
             <p><span className="font-semibold">รหัสคำสั่งซื้อ:</span> {purchase.Purchase_Id}</p>
             <p><span className="font-semibold">ชื่อพนักงานที่สั่งซื้อ:</span> {purchaseDetail?.Employee_Name || "-"}</p>
             <p><span className="font-semibold">ชื่อพนักงานที่รับสินค้า:</span> {purchaseDetail?.Receiver_Name || "-"}</p>
-            <p><span className="font-semibold">วันที่สั่งซื้อ:</span> {purchaseDetail?.Purchase_Date ? new Date(purchaseDetail.Purchase_Date).toLocaleString() : "-"}</p>
+            <p><span className="font-semibold">วันที่สั่งซื้อ:</span> {purchaseDetail?.Purchase_Date ? new Date(purchaseDetail.Purchase_Date).toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' }) : "-"}</p>
             <p><span className="font-semibold">คู่ค้า:</span> {purchaseDetail?.Supplier_Name || "-"}</p>
+            {purchase.Purchase_Status === 'Received' && purchaseDetail?.Receive_Date && (
+              <p>
+                <span className="font-semibold">วันที่รับสินค้า:</span> {new Date(purchaseDetail.Receive_Date).toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })}
+              </p>
+            )}
           </div>
         </div>
 

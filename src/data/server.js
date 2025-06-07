@@ -772,7 +772,8 @@ app.get("/api/purchase-detail/:purchaseId", (req, res) => {
         pu.Purchase_Date,
         s.Supplier_Name,
         r.Emp_Id AS Receiver_Id,
-        CONCAT(er.Fname, ' ', er.Lname) AS Receiver_Name
+        CONCAT(er.Fname, ' ', er.Lname) AS Receiver_Name,
+        r.Receive_Date
       FROM Purchase_Detail d
       LEFT JOIN Product p ON d.Product_Id = p.Product_Id
       LEFT JOIN Purchase pu ON d.Purchase_Id = pu.Purchase_Id
@@ -802,7 +803,7 @@ app.get("/api/purchase-detail/:purchaseId", (req, res) => {
           return res.status(404).json({ message: "ไม่พบข้อมูลคำสั่งซื้อนี้" });
         }
 
-        const { Employee_Id, Employee_Name, Purchase_Date, Supplier_Name, Receiver_Id, Receiver_Name } = results[0];
+        const { Employee_Id, Employee_Name, Purchase_Date, Supplier_Name, Receiver_Id, Receiver_Name, Receive_Date } = results[0];
 
         const items = results.map(row => ({
           Product_Id: row.Product_Id,
@@ -822,6 +823,7 @@ app.get("/api/purchase-detail/:purchaseId", (req, res) => {
           Supplier_Name,
           Receiver_Id,
           Receiver_Name,
+          Receive_Date,
           Items: items
         };
 
@@ -834,8 +836,8 @@ app.get("/api/purchase-detail/:purchaseId", (req, res) => {
 
 // API สำหรับรับสินค้า
 app.post('/api/receives', (req, res) => {
-  const { Purchase_Id, Employee_Id } = req.body;
-  console.log('Received request to /api/receives:', { Purchase_Id, Employee_Id });
+  const { Purchase_Id, Employee_Id, Receive_Date } = req.body;
+  console.log('Received request to /api/receives:', { Purchase_Id, Employee_Id, Receive_Date });
 
   if (!Purchase_Id || !Employee_Id) {
     console.log('Missing required fields:', { Purchase_Id, Employee_Id });
@@ -878,9 +880,9 @@ app.post('/api/receives', (req, res) => {
 
         const insertReceiveSql = `
           INSERT INTO Receive (Purchase_Id, Receive_Date, Emp_Id)
-          VALUES (?, NOW(), ?)
+          VALUES (?, ?, ?)
         `;
-        db.query(insertReceiveSql, [Purchase_Id, Employee_Id], (err, result) => {
+        db.query(insertReceiveSql, [Purchase_Id, Receive_Date, Employee_Id], (err, result) => {
           if (err) {
             return db.rollback(() => {
               console.error('Error inserting receive record:', err);
@@ -888,61 +890,49 @@ app.post('/api/receives', (req, res) => {
             });
           }
 
+          // อัปเดต stock และสถานะ purchase ตามเดิม
           const Receive_Id = result.insertId;
-          const insertReceiveDetailSql = `
-            INSERT INTO Receive_Detail (Receive_Id, Product_Id, Receive_Amount)
-            SELECT ?, Product_Id, Purchase_Amout FROM Purchase_Detail WHERE Purchase_Id = ?
-          `;
-          db.query(insertReceiveDetailSql, [Receive_Id, Purchase_Id], (err) => {
-            if (err) {
-              return db.rollback(() => {
-                console.error('Error inserting receive details:', err);
-                res.status(500).json({ message: 'บันทึกรายละเอียดรับสินค้าไม่สำเร็จ' });
+          const updateProductStock = (index) => {
+            if (index >= purchaseResults.length) {
+              const updatePurchaseSql = `
+                UPDATE Purchase SET Purchase_Status = 'R' WHERE Purchase_Id = ?
+              `;
+              return db.query(updatePurchaseSql, [Purchase_Id], (err) => {
+                if (err) {
+                  return db.rollback(() => {
+                    console.error('Error updating purchase status:', err);
+                    res.status(500).json({ message: 'อัพเดตสถานะคำสั่งซื้อไม่สำเร็จ' });
+                  });
+                }
+
+                db.commit(err => {
+                  if (err) {
+                    return db.rollback(() => {
+                      console.error('Error committing transaction:', err);
+                      res.status(500).json({ message: 'commit transaction ไม่สำเร็จ' });
+                    });
+                  }
+                  res.json({ message: 'รับสินค้าและอัพเดตสต็อกเรียบร้อย' });
+                });
               });
             }
 
-            const updateProductStock = (index) => {
-              if (index >= purchaseResults.length) {
-                const updatePurchaseSql = `
-                  UPDATE Purchase SET Purchase_Status = 'R' WHERE Purchase_Id = ?
-                `;
-                return db.query(updatePurchaseSql, [Purchase_Id], (err) => {
-                  if (err) {
-                    return db.rollback(() => {
-                      console.error('Error updating purchase status:', err);
-                      res.status(500).json({ message: 'อัพเดตสถานะคำสั่งซื้อไม่สำเร็จ' });
-                    });
-                  }
-
-                  db.commit(err => {
-                    if (err) {
-                      return db.rollback(() => {
-                        console.error('Error committing transaction:', err);
-                        res.status(500).json({ message: 'commit transaction ไม่สำเร็จ' });
-                      });
-                    }
-                    res.json({ message: 'รับสินค้าและอัพเดตสต็อกเรียบร้อย' });
-                  });
+            const { Product_Id, Purchase_Amout } = purchaseResults[index];
+            const updateProductSql = `
+              UPDATE Product SET Product_Amount = Product_Amount + ? WHERE Product_Id = ?
+            `;
+            db.query(updateProductSql, [Purchase_Amout, Product_Id], (err) => {
+              if (err) {
+                return db.rollback(() => {
+                  console.error('Error updating product stock:', err);
+                  res.status(500).json({ message: 'อัพเดตสต็อกสินค้าไม่สำเร็จ' });
                 });
               }
+              updateProductStock(index + 1);
+            });
+          };
 
-              const { Product_Id, Purchase_Amout } = purchaseResults[index];
-              const updateProductSql = `
-                UPDATE Product SET Product_Amount = Product_Amount + ? WHERE Product_Id = ?
-              `;
-              db.query(updateProductSql, [Purchase_Amout, Product_Id], (err) => {
-                if (err) {
-                  return db.rollback(() => {
-                    console.error('Error updating product stock:', err);
-                    res.status(500).json({ message: 'อัพเดตสต็อกสินค้าไม่สำเร็จ' });
-                  });
-                }
-                updateProductStock(index + 1);
-              });
-            };
-
-            updateProductStock(0);
-          });
+          updateProductStock(0);
         });
       });
     });

@@ -3,6 +3,14 @@ import ConfirmModal from '../../ui/ConfirmModal';
 import StatusModal from '../../ui/StatusModal';
 import axios from 'axios';
 
+// ฟังก์ชันคืนค่าเวลาประเทศไทย (YYYY-MM-DD HH:mm:ss)
+function getThaiDateTimeString() {
+  const now = new Date();
+  const thOffset = 7 * 60 * 60 * 1000; // +7 ชั่วโมง
+  const thDate = new Date(now.getTime() + thOffset);
+  return thDate.toISOString().slice(0, 19).replace('T', ' ');
+}
+
 function ConfirmProductModal({ isOpen, onClose, products = [], user, selectedSupplierId, onResult }) {
   const totalItems = products.length;
   const totalPrice = products.reduce((sum, item) => sum + (Number(item.price) * Number(item.quantity)), 0);
@@ -27,8 +35,11 @@ function ConfirmProductModal({ isOpen, onClose, products = [], user, selectedSup
     setStatusType('loading');
     setStatusModalOpen(true);
 
+    // ใช้ฟังก์ชันเวลาประเทศไทย
+    const formattedDate = getThaiDateTimeString();
+
     const payload = {
-      Purchase_Date: new Date().toISOString().split('T')[0],
+      Purchase_Date: formattedDate,
       Purchase_Status: "P",
       Total_Purchase_Price: Number(totalPrice) || 0,
       Supplier_Id: Number(selectedSupplierId) || 0,
