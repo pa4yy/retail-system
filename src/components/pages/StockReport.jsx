@@ -123,7 +123,7 @@ function StockReport() {
           overflowY: "auto" 
         }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 16 }}>
-            <thead className='sticky top-0' style={{ background: '#009fe3', color: '#fff' }}>
+            <thead className='sticky top-0' style={{ background: '#0072AC', color: '#fff' }}>
               <tr>
                 <th style={{ padding: 8, width: 50 }}></th>
                 <th style={{ padding: 8, width: 60 }}>ลำดับ</th>
@@ -142,9 +142,7 @@ function StockReport() {
                 return (
                   <tr
                     key={p.id}
-                    style={{
-                      background: highlight ? '#ffcccc' : (idx % 2 ? '#eaf6fd' : '#fff')
-                    }}
+                    className={`hover:bg-gray-50 transition-colors ${highlight ? 'bg-red-100' : (idx % 2 === 0 ? 'bg-white' : 'bg-gray-50')}`}
                   >
                     <td style={{ textAlign: 'center' }}>
                       <input

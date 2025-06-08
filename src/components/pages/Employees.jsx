@@ -284,7 +284,7 @@ function Employees() {
           } catch (err) {
             setStatusModal({
               open: true,
-              message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูลพนักงาน'
+              message: err.response?.data?.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูลพนักงาน'
             });
           }
           setConfirmModal({ ...confirmModal, open: false });
@@ -356,21 +356,21 @@ function Employees() {
         <div className="bg-gray-200 p-3 rounded-lg flex-1 overflow-auto">
           <table className="w-full border-collapse bg-white">
             <thead className="sticky top-0">
-              <tr className="bg-gray-200">
+              <tr className="bg-blue-700 text-white">
                 <th className="p-3 text-left">รหัสพนักงาน</th>
                 <th className="p-3 text-left">User</th>
-                <th className="p-3 text-left">ชื่อพนักงาน</th>
+                <th className="p-3 text-left">ชื่อ</th>
                 <th className="p-3 text-left">นามสกุล</th>
                 <th className="p-3 text-left">เบอร์โทร</th>
                 <th className="p-3 text-left">ที่อยู่</th>
                 <th className="p-3 text-left">ตำแหน่ง</th>
                 <th className="p-3 text-left">สถานะ</th>
-                <th className="p-3 text-left">แก้ไขข้อมูล</th>
+                <th className="p-3 text-left">แก้ไข</th>
               </tr>
             </thead>
             <tbody>
-              {filteredEmployees.map(emp => (
-                <tr key={emp.Emp_Id} className="border-b border-gray-200">
+              {filteredEmployees.map((emp, idx) => (
+                <tr key={emp.Emp_Id} className={`hover:bg-gray-50 transition-colors ${idx % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
                   <td className="p-3">{emp.Emp_Id}</td>
                   <td className="p-3">{emp.Emp_user}</td>
                   <td className="p-3">{emp.Fname}</td>

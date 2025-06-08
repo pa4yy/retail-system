@@ -61,8 +61,9 @@ function UserLoginHistory() {
     const start = new Date(login);
     const end = new Date(logout);
     const diff = Math.max(0, end - start);
-    const hours = diff / (1000 * 60 * 60);
-    return `${hours.toFixed(2)} ชม.`;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    return `${hours} ชั่วโมง ${minutes} นาที`;
   };
 
   // ฟิลเตอร์ข้อมูล
