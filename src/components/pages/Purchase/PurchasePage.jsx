@@ -158,7 +158,22 @@ function PurchasePage() {
               {products.map(product => (
                 <tr key={product.id} className="bg-[#f0f0f0]">
                   <td className="py-2 px-3 text-center">
-                    {product.image && <img src={product.image} alt={product.name} className="w-[40px] h-[40px]" />}
+                    <img
+                      src={
+                        product.image
+                          ? product.image.startsWith("/uploads/")
+                            ? `http://localhost:5000${product.image}`
+                            : product.image
+                          : "/noimage.jpg"
+                      }
+                      alt={product.name}
+                      className="w-28 h-28 object-cover rounded mx-auto"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/noimage.jpg";
+                      }}
+                      style={{ maxWidth: 120, maxHeight: 120 }}
+                    />
                   </td>
                   <td className="py-2 px-3 text-center text-sm">{product.name}</td>
                   <td className="py-2 px-3 text-center">
