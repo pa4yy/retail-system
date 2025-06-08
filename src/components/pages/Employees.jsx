@@ -284,7 +284,7 @@ function Employees() {
           } catch (err) {
             setStatusModal({
               open: true,
-              message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูลพนักงาน'
+              message: err.response?.data?.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูลพนักงาน'
             });
           }
           setConfirmModal({ ...confirmModal, open: false });
