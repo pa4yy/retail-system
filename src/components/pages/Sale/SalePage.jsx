@@ -174,9 +174,7 @@ function SalePage() {
                     selectedProducts.map((p, idx) => (
                       <tr
                         key={p.Product_Id}
-                        className={`border-b border-gray-200 ${
-                          idx % 2 === 0 ? "bg-white" : "bg-blue-50"
-                        } hover:bg-blue-100 transition-colors`}
+                        className={`hover:bg-gray-50 transition-colors ${idx % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
                       >
                         <td className="align-middle text-center font-semibold">
                           {idx + 1}

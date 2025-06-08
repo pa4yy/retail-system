@@ -142,9 +142,7 @@ function StockReport() {
                 return (
                   <tr
                     key={p.id}
-                    style={{
-                      background: highlight ? '#ffcccc' : (idx % 2 ? '#eaf6fd' : '#fff')
-                    }}
+                    className={`hover:bg-gray-50 transition-colors ${highlight ? 'bg-red-100' : (idx % 2 === 0 ? 'bg-white' : 'bg-gray-50')}`}
                   >
                     <td style={{ textAlign: 'center' }}>
                       <input

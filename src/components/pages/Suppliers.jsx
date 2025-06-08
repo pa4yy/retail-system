@@ -150,12 +150,12 @@ function Suppliers() {
         <div className="bg-gray-200 rounded-lg p-3 flex-1 overflow-auto">
           <table className="w-full border-collapse bg-white">
             <thead className="sticky top-0">
-              <tr className="bg-gray-200">
+              <tr className="bg-blue-700 text-white">
                 <th className="p-3 w-[180px]">ชื่อคู่ค้า</th>
                 <th className="p-3 w-[500px]">ที่อยู่คู่ค้า</th>
-                <th className="p-3 w-[200px]">เบอร์โทรคู่ค้า</th>
-                <th className="p-3 w-[150px] text-center">สถานะ</th>
-                <th className="p-3 w-[150px] text-center">แก้ไขข้อมูล</th>
+                <th className="p-3 w-[200px]">เบอร์โทร</th>
+                <th className="p-3 w-[150px]">สถานะ</th>
+                <th className="p-3 w-[150px]">แก้ไข</th>
               </tr>
             </thead>
             <tbody>
@@ -165,17 +165,10 @@ function Suppliers() {
                 </tr>
               ) : (
                 (() => {
-                  const active = [];
-                  const inactive = [];
-                  suppliers.forEach((supplier) => {
-                    if (supplier.is_Active) {
-                      active.push(supplier);
-                    } else {
-                      inactive.push(supplier);
-                    }
-                  });
-                  return [...active, ...inactive].map((supplier) => (
-                    <tr key={supplier.Supplier_Id} className="border-b border-gray-200">
+                  const active = suppliers.filter(s => s.is_Active === 1);
+                  const inactive = suppliers.filter(s => s.is_Active === 0);
+                  return [...active, ...inactive].map((supplier, idx) => (
+                    <tr key={supplier.Supplier_Id} className={`hover:bg-gray-50 transition-colors ${idx % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
                       <td className="p-3">{supplier.Supplier_Name}</td>
                       <td className="p-3">{supplier.Supplier_Address}</td>
                       <td className="p-3">{supplier.Supplier_Tel}</td>

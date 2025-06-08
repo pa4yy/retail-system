@@ -131,7 +131,7 @@ function SalesHistory() {
               <col style={{ width: "120px" }} />
               <col style={{ width: "100px" }} />
             </colgroup>
-            <thead className="bg-blue-800 text-white sticky top-0">
+            <thead className="bg-blue-700 text-white sticky top-0">
               <tr>
                 <th className="py-3 text-sm">หมายเลขการขาย</th>
                 <th className="py-3 text-sm">วันที่ขาย</th>
@@ -150,7 +150,7 @@ function SalesHistory() {
                 filterSales().map((p, index) => (
                   <tr
                     key={p.Sale_Id}
-                    className={`${index % 2 === 0 ? "bg-white" : "bg-blue-50"} hover:bg-blue-100 transition`}
+                    className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
                   >
                     <td className="py-2 text-center">{p.Sale_Id}</td>
                     <td className="py-2 text-center">
