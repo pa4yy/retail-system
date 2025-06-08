@@ -116,8 +116,8 @@ function PurchasePage() {
   console.log('showReceipt:', showReceipt);
   return (
     <MainLayout user={user} title="สั่งซื้อสินค้า">
-      <div className="h-full p-6 bg-white box-border flex flex-col">
-        <h2 className="text-lg font-semibold mb-4">สั่งซื้อสินค้า</h2>
+      <div className="bg-white p-6 rounded-lg">
+        <h2 className="font-bold text-2xl">สั่งซื้อสินค้า</h2>
 
         <div className="flex items-center justify-end gap-2 mb-4">
           <label className="font-medium text-sm">เลือกบริษัทคู่ค้า</label>
@@ -143,14 +143,14 @@ function PurchasePage() {
           </button>
         </div>
 
-        <div className="overflow-y-auto flex-1 rounded-md bg-[#d9d9d9] p-3">
+        <div className="overflow-y-auto h-[700px]">
           <table className="w-full border-separate border-spacing-y-2">
             <thead className="bg-[#d9d9d9] h-[40px] sticky top-0 z-10">
-              <tr>
-                <th className="py-2 px-3 text-center text-sm">รูปภาพสินค้า</th>
-                <th className="py-2 px-3 text-center text-sm">ชื่อสินค้า</th>
-                <th className="py-2 px-3 text-center text-sm">จำนวนสินค้า</th>
-                <th className="py-2 px-3 text-center text-sm">ราคาสั่งซื้อ</th>
+              <tr className="bg-blue-700 text-white">
+                <th className="py-3 px-4 text-left font-semibold">รูปภาพสินค้า</th>
+                <th className="py-3 px-4 text-left font-semibold">ชื่อสินค้า</th>
+                <th className="py-3 px-4 text-left font-semibold">จำนวนสินค้า</th>
+                <th className="py-3 px-4 text-left font-semibold">ราคาสั่งซื้อ</th>
                 <th className="py-2 px-3 text-center text-sm">ลบสินค้า</th>
               </tr>
             </thead>
