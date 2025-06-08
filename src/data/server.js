@@ -131,21 +131,45 @@ app.post("/api/employees", (req, res) => {
     Emp_Status,
     Emp_Address,
   } = req.body;
-  const sql =
-    "INSERT INTO Employee (Emp_user, Password, Fname, Lname, Emp_Tel, Role, Emp_Status, Emp_Address) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-  db.query(
-    sql,
-    [Emp_user, Password, Fname, Lname, Emp_Tel, Role, Emp_Status, Emp_Address],
-    (err, result) => {
-      if (err) {
-        console.error("Database error:", err);
-        return res
-          .status(500)
-          .json({ message: "เกิดข้อผิดพลาดของเซิร์ฟเวอร์" });
-      }
-      res.json({ message: "เพิ่มข้อมูลสำเร็จ", id: result.insertId });
+
+  // ตรวจสอบความซ้ำซ้อนของ Emp_user และ Emp_Tel
+  const checkDuplicateSql = "SELECT * FROM Employee WHERE Emp_user = ? OR Emp_Tel = ?";
+  db.query(checkDuplicateSql, [Emp_user, Emp_Tel], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ message: "เกิดข้อผิดพลาดของเซิร์ฟเวอร์" });
     }
-  );
+
+    if (results.length > 0) {
+      const duplicateUser = results.some(r => r.Emp_user === Emp_user);
+      const duplicateTel = results.some(r => r.Emp_Tel === Emp_Tel);
+      
+      let message = [];
+      if (duplicateUser) message.push("ชื่อผู้ใช้");
+      if (duplicateTel) message.push("เบอร์โทรศัพท์");
+      
+      return res.status(400).json({ 
+        message: `${message.join(" และ ")}นี้มีอยู่ในระบบแล้ว` 
+      });
+    }
+
+    // ถ้าไม่ซ้ำ ให้เพิ่มข้อมูล
+    const sql =
+      "INSERT INTO Employee (Emp_user, Password, Fname, Lname, Emp_Tel, Role, Emp_Status, Emp_Address) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    db.query(
+      sql,
+      [Emp_user, Password, Fname, Lname, Emp_Tel, Role, Emp_Status, Emp_Address],
+      (err, result) => {
+        if (err) {
+          console.error("Database error:", err);
+          return res
+            .status(500)
+            .json({ message: "เกิดข้อผิดพลาดของเซิร์ฟเวอร์" });
+        }
+        res.json({ message: "เพิ่มข้อมูลสำเร็จ", id: result.insertId });
+      }
+    );
+  });
 });
 
 // API สำหรับแก้ไขข้อมูลพนักงาน
@@ -161,43 +185,56 @@ app.put("/api/employees/:id", (req, res) => {
     Emp_Address,
   } = req.body;
   const { id } = req.params;
-  console.log("PUT /api/employees/:id", {
-    id,
-    Emp_user,
-    Password,
-    Fname,
-    Lname,
-    Emp_Tel,
-    Role,
-    Emp_Status,
-    Emp_Address,
-  });
-  const sql =
-    "UPDATE Employee SET Emp_user=?, Password=?, Fname=?, Lname=?, Emp_Tel=?, Role=?, Emp_Status=?, Emp_Address=? WHERE Emp_Id=?";
-  db.query(
-    sql,
-    [
-      Emp_user,
-      Password,
-      Fname,
-      Lname,
-      Emp_Tel,
-      Role,
-      Emp_Status,
-      Emp_Address,
-      id,
-    ],
-    (err, result) => {
-      if (err) {
-        console.error("Database error:", err);
-        return res
-          .status(500)
-          .json({ message: "เกิดข้อผิดพลาดของเซิร์ฟเวอร์" });
-      }
-      console.log("UPDATE result:", result);
-      res.json({ message: "แก้ไขข้อมูลสำเร็จ" });
+
+  // ตรวจสอบความซ้ำซ้อนของ Emp_user และ Emp_Tel (ยกเว้นข้อมูลของพนักงานคนปัจจุบัน)
+  const checkDuplicateSql = "SELECT * FROM Employee WHERE (Emp_user = ? OR Emp_Tel = ?) AND Emp_Id != ?";
+  db.query(checkDuplicateSql, [Emp_user, Emp_Tel, id], (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ message: "เกิดข้อผิดพลาดของเซิร์ฟเวอร์" });
     }
-  );
+
+    if (results.length > 0) {
+      const duplicateUser = results.some(r => r.Emp_user === Emp_user);
+      const duplicateTel = results.some(r => r.Emp_Tel === Emp_Tel);
+      
+      let message = [];
+      if (duplicateUser) message.push("ชื่อผู้ใช้");
+      if (duplicateTel) message.push("เบอร์โทรศัพท์");
+      
+      return res.status(400).json({ 
+        message: `${message.join(" และ ")}นี้มีอยู่ในระบบแล้ว` 
+      });
+    }
+
+    // ถ้าไม่ซ้ำ ให้แก้ไขข้อมูล
+    const sql =
+      "UPDATE Employee SET Emp_user=?, Password=?, Fname=?, Lname=?, Emp_Tel=?, Role=?, Emp_Status=?, Emp_Address=? WHERE Emp_Id=?";
+    db.query(
+      sql,
+      [
+        Emp_user,
+        Password,
+        Fname,
+        Lname,
+        Emp_Tel,
+        Role,
+        Emp_Status,
+        Emp_Address,
+        id,
+      ],
+      (err, result) => {
+        if (err) {
+          console.error("Database error:", err);
+          return res
+            .status(500)
+            .json({ message: "เกิดข้อผิดพลาดของเซิร์ฟเวอร์" });
+        }
+        console.log("UPDATE result:", result);
+        res.json({ message: "แก้ไขข้อมูลสำเร็จ" });
+      }
+    );
+  });
 });
 
 // API สำหรับดึงข้อมูลสินค้า
