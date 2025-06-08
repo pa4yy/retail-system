@@ -1,12 +1,16 @@
 const mysql = require('mysql2');
 
-const connection = mysql.createConnection({
-    host: 'localhost',
-    post: '3306',
-    user: 'root',
-    password: 'a1234',
-    database: 'shopease'
-});
+const connection = mysql.createConnection(
+    process.env.DATABASE_URL
+        ? process.env.DATABASE_URL
+        : {
+            host: 'localhost',
+            port: '3306',
+            user: 'root',
+            password: 'a1234',
+            database: 'shopease'
+        }
+);
 
 connection.connect((err) => {
     if (err) {
