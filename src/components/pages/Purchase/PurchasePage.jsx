@@ -150,7 +150,7 @@ function PurchasePage() {
                 <th className="py-3 px-4 text-left font-semibold">รูปภาพสินค้า</th>
                 <th className="py-3 px-4 text-left font-semibold">ชื่อสินค้า</th>
                 <th className="py-3 px-4 text-left font-semibold">จำนวนสินค้า</th>
-                <th className="py-3 px-4 text-left font-semibold">ราคาสั่งซื้อฟ</th>
+                <th className="py-3 px-4 text-left font-semibold">ราคาสั่งซื้อ</th>
                 <th className="py-2 px-3 text-center text-sm">ลบสินค้า</th>
               </tr>
             </thead>
