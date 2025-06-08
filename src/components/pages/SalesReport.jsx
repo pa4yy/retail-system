@@ -342,7 +342,7 @@ function SalesReport() {
 
         const topProductsArr = filteredProducts
           .sort((a, b) => b.amount - a.amount)
-          .slice(0, 15);
+          .slice(0, 10);
         const dateRangeText =
           groupBy === "year"
             ? `ปี ${startYear} ถึง ${endYear}`
