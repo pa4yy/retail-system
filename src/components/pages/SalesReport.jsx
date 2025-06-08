@@ -271,7 +271,7 @@ function SalesReport() {
             if (!monthMap[key]) monthMap[key] = { sales: 0, cost: 0 };
             monthMap[key].sales += Number(sale.Total_Sale_Price);
             sale.Sale_Detail.forEach((item) => {
-              const cost = item.Cost || 0;
+              const cost = item.Cost || 1;
               monthMap[key].cost += cost * item.Sale_Amount;
             });
           });
