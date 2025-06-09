@@ -35,8 +35,12 @@ function PurchasePage() {
 
       selectedProducts.forEach(p => {
         if (productMap.has(p.Product_Id)) {
-          // ถ้ามีอยู่แล้วเพิ่ม quantity
-          productMap.get(p.Product_Id).quantity += 1;
+          // ถ้ามีอยู่แล้ว เพิ่มจำนวน 1 ชิ้น
+          const existingProduct = productMap.get(p.Product_Id);
+          productMap.set(p.Product_Id, {
+            ...existingProduct,
+            quantity: Number(existingProduct.quantity) + 1
+          });
         } else {
           // ถ้าไม่มี เพิ่มเข้ามาใหม่
           productMap.set(p.Product_Id, {
