@@ -9,7 +9,6 @@ const path = require("path");
 const app = express();
 const PORT = 5000;
 
-
 // สำหรับการอัปโหลดรูปภาพเข้า directory
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {

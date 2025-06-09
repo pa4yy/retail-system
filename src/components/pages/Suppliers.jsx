@@ -56,6 +56,63 @@ function Suppliers() {
 
   const handleAddSupplier = (e) => {
     e.preventDefault();
+
+    // ตรวจสอบข้อมูลก่อนบันทึก
+    if (!newName.trim()) {
+      setStatusModal({
+        open: true,
+        message: 'กรุณากรอกชื่อคู่ค้า'
+      });
+      return;
+    }
+
+    if (!newPhone.trim()) {
+      setStatusModal({
+        open: true,
+        message: 'กรุณากรอกเบอร์โทรคู่ค้า'
+      });
+      return;
+    }
+
+    if (newPhone.length < 10) {
+      setStatusModal({
+        open: true,
+        message: 'กรุณากรอกเบอร์โทรให้ครบ 10 หลัก'
+      });
+      return;
+    }
+
+    if (!newAddress.trim()) {
+      setStatusModal({
+        open: true,
+        message: 'กรุณากรอกที่อยู่คู่ค้า'
+      });
+      return;
+    }
+
+    // ตรวจสอบข้อมูลซ้ำ
+    const isPhoneError = suppliers.some(supplier => 
+      supplier.Supplier_Tel === newPhone && supplier.is_Active === 1
+    );
+    if (isPhoneError) {
+      setStatusModal({
+        open: true,
+        message: 'เบอร์โทรนี้มีอยู่ในระบบแล้ว'
+      });
+      return;
+    }
+
+    const isAddressError = suppliers.some(supplier => 
+      supplier.Supplier_Address === newAddress && supplier.is_Active === 1
+    );
+    if (isAddressError) {
+      setStatusModal({
+        open: true,
+        message: 'ที่อยู่นี้มีอยู่ในระบบแล้ว'
+      });
+      return;
+    }
+
     const newSupplier = {
       Supplier_Name: newName,
       Supplier_Tel: newPhone,
@@ -93,6 +150,7 @@ function Suppliers() {
 
   const handleEditSupplier = (e) => {
     e.preventDefault();
+
     const updatedSupplier = {
       Supplier_Name: editName,
       Supplier_Tel: editPhone,
