@@ -21,8 +21,10 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     if (user?.Emp_Id) {
       try {
-        await axios.post('http://localhost:5000/api/logs/logout', { Emp_Id: user.Emp_Id });
-      } catch (e) {
+        await axios.post('http://localhost:5000/api/logs/logout', { 
+          Emp_Id: user.Emp_Id 
+        });
+      } catch (e) { 
         console.error('Logout log error', e);
       }
     }
