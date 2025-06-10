@@ -70,7 +70,7 @@ function PaymentModal({
             onChange={(e) => setPaymentType(e.target.value)}
           >
             <option value="0">เงินสด</option>
-            <option value="1">บัตรเครดิต</option>
+            <option value="1">เงินโอน</option>
           </select>
           <label className="ml-4 flex items-center gap-2">
             <input
