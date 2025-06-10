@@ -121,7 +121,7 @@ function PurchasePage() {
   // console.log('showReceipt:', showReceipt);
   return (
     <MainLayout user={user} title="สั่งซื้อสินค้า">
-      <div className="bg-white p-6 rounded-lg">
+      <div className="bg-white p-6 rounded-lg h-[880px]">
         <h2 className="font-bold text-2xl">สั่งซื้อสินค้า</h2>
 
         <div className="flex items-center justify-end gap-2 mb-4">
@@ -148,14 +148,14 @@ function PurchasePage() {
           </button>
         </div>
 
-        <div className="overflow-y-auto h-[700px]">
+        <div className="overflow-y-auto h-[650px]">
           <table className="w-full border-separate border-spacing-y-2">
             <thead className="bg-[#d9d9d9] h-[40px] sticky top-0 z-10">
               <tr className="bg-blue-700 text-white">
-                <th className="py-3 px-4 text-left font-semibold">รูปภาพสินค้า</th>
-                <th className="py-3 px-4 text-left font-semibold">ชื่อสินค้า</th>
-                <th className="py-3 px-4 text-left font-semibold">จำนวนสินค้า</th>
-                <th className="py-3 px-4 text-left font-semibold">ราคาสั่งซื้อ</th>
+                <th className="py-3 px-4 text-center font-semibold">รูปภาพสินค้า</th>
+                <th className="py-3 px-4 text-center font-semibold">ชื่อสินค้า</th>
+                <th className="py-3 px-4 text-center font-semibold">จำนวนสินค้า</th>
+                <th className="py-3 px-4 text-center font-semibold">ราคาสั่งซื้อ</th>
                 <th className="py-2 px-3 text-center text-sm">ลบสินค้า</th>
               </tr>
             </thead>
@@ -213,7 +213,7 @@ function PurchasePage() {
           </table>
         </div>
 
-        <div className="text-right mt-3 text-sm">
+        <div className="text-right text-sm mt-5">
           <p>สินค้าทั้งหมด {totalQuantity} รายการ</p>
           <p>ราคาต้นทุนรวม {totalCost.toFixed(2)} บาท</p>
         </div>
