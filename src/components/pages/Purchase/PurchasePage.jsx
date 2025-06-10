@@ -92,7 +92,6 @@ function PurchasePage() {
   };
 
   useEffect(() => {
-    // รับข้อมูลสินค้าที่เลือกจากหน้า StockReport
     if (location.state?.selectedProducts) {
       const selectedProducts = location.state.selectedProducts.map(p => ({
         id: `${p.id}-${Date.now()}-${Math.random()}`,
@@ -120,7 +119,6 @@ function PurchasePage() {
 
   const totalQuantity = products.reduce((sum, p) => sum + Number(p.quantity), 0);
   const totalCost = products.reduce((sum, p) => sum + (Number(p.price) * Number(p.quantity)), 0);
-  // console.log('showReceipt:', showReceipt);
   return (
     <MainLayout user={user} title="สั่งซื้อสินค้า">
       <div className="bg-white p-6 rounded-lg h-[880px]">
