@@ -137,21 +137,6 @@ function ProductsPage() {
       console.error("Error adding product:", err);
     }
   };
-  //   try {
-  //     await axios.delete(
-  //       `http://localhost:5000/api/products/${selectedProduct.Product_Id}`
-  //     );
-  //     setProducts((prev) =>
-  //       prev.filter((p) => p.Product_Id !== selectedProduct.Product_Id)
-  //     );
-  //     setDeleteModalOpen(false);
-  //     setSuccessMessage("ลบข้อมูลสินค้าเรียบร้อยแล้ว");
-  //     setShowSuccessModal(true);
-  //     fetchData();
-  //   } catch (err) {
-  //     console.error("Error deleting product:", err);
-  //   }
-  // };
 
   return (
     <MainLayout user={user}>

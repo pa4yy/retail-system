@@ -40,7 +40,7 @@ function Suppliers() {
     setShowEditModal(true);
   };
 
-  useEffect(() => {
+  const fetchSuppliers = async () => {
     axios.get('http://localhost:5000/api/suppliers')
       .then(response => {
         setSuppliers(response.data);
@@ -52,6 +52,10 @@ function Suppliers() {
           message: 'เกิดข้อผิดพลาดในการดึงข้อมูลคู่ค้า'
         });
       });
+  }
+
+  useEffect(() => {
+    fetchSuppliers();
   }, []);
 
   const handleAddSupplier = (e) => {
@@ -144,6 +148,7 @@ function Suppliers() {
           });
         }
         setConfirmModal({ ...confirmModal, open: false });
+        fetchSuppliers();
       }
     });
   };

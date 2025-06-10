@@ -273,12 +273,16 @@ function SalePage() {
           </div>
         </div>
         <div className="flex justify-end space-x-2">
-          <button
-            className="bg-blue-700 text-white px-8 py-2 rounded hover:bg-blue-800"
-            onClick={() => setShowPayment(true)}
-          >
-            ยืนยัน
-          </button>
+          {selectedProducts.length > 0 && (
+            <>
+              <button
+                className="bg-blue-700 text-white px-8 py-2 rounded hover:bg-blue-800"
+                onClick={() => setShowPayment(true)}
+              >
+                ยืนยัน
+              </button>
+            </>
+          )}
           <button
             className="bg-red-600 text-white px-8 py-2 rounded hover:bg-red-700"
             onClick={() => setSelectedProducts([])}
