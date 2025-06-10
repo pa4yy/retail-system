@@ -219,10 +219,7 @@ function Employees() {
       (emp.Emp_user || '').toLowerCase().includes(search.toLowerCase()) ||
       (emp.Fname || '').toLowerCase().includes(search.toLowerCase()) ||
       (emp.Lname || '').toLowerCase().includes(search.toLowerCase()) ||
-      (emp.Emp_Tel || '').includes(search) ||
-      (emp.Emp_Address || '').toLowerCase().includes(search.toLowerCase()) ||
-      (emp.Role || '').toLowerCase().includes(search.toLowerCase()) ||
-      (emp.Emp_Status || '').toLowerCase().includes(search.toLowerCase());
+      (emp.Emp_Tel || '').includes(search);
 
     const matchesStatus = (emp.Emp_Status === 'W' && showWorking) || 
                          (emp.Emp_Status === 'F' && showFarewell);
