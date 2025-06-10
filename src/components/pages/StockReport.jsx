@@ -25,11 +25,13 @@ function StockReport() {
         type: p.PType_Name,
         min: p.Product_Minimum,
         stock: p.Product_Amount,
-        Product_Price: p.Product_Price
+        Product_Price: p.Product_Price,
+        Product_Image: p.Product_Image || '/noimage.jpg',
       }));
       setProducts(mapped);
       setTypes([...new Set(mapped.map(p => p.type))]);
     });
+
     // ดึงข้อมูลสินค้าที่ pending purchase
     axios.get('http://localhost:5000/api/pending-purchase-products').then(res => {
       setPendingProductIds(res.data);
@@ -64,7 +66,8 @@ function StockReport() {
     }
     const productsWithPrice = selectedProducts.map(p => ({
       ...p,
-      sellPrice: p.Product_Price || 0
+      sellPrice: p.Product_Price || 0,
+      image: p.image || '/noimage.jpg' || '',
     }));
     navigate('/purchase', { state: { selectedProducts: productsWithPrice } });
   };

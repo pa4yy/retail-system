@@ -101,7 +101,9 @@ function PurchasePage() {
         quantity: 1,
         price: 0,
         sellPrice: p.sellPrice || 0,
+        image: p.Product_Image || '/noimage.jpg',
       }));
+      console.log('selectedProducts:', selectedProducts);
       setProducts(selectedProducts);
     }
   }, [location.state]);

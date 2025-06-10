@@ -7,7 +7,6 @@ function PaymentModal({
   total,
   onCancel,
   onConfirm,
-  onPrint,
   paymentType,
   setPaymentType,
 }) {
