@@ -116,7 +116,7 @@ function ConfirmProductModal({ isOpen, onClose, products = [], user, selectedSup
             <div className="flex justify-between items-center border-t pt-3">
               <div className="text-sm">
                 <p>สินค้าทั้งหมด <strong>{totalItems}</strong> รายการ</p>
-                <p>ราคาต้นทุนรวม <strong>{totalPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong> บาท</p>
+                <p>ราคาต้นทุนรวม <strong>{totalPrice.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</strong> บาท</p>
               </div>
               <div className="flex gap-2">
                 <button
