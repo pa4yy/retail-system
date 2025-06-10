@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
     if (user?.Emp_Id) {
       try {
         await axios.post('http://localhost:5000/api/logs/logout', { Emp_Id: user.Emp_Id });
-      } catch (e) {
+      } catch (e) { 
         console.error('Logout log error', e);
       }
     }
