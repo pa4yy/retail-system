@@ -64,6 +64,7 @@ function PurchasePage() {
     setProducts(products.filter(product => product.id !== id));
   };
 
+  // เทียบราคาสั่งซื้อกับราคาขาย
   const handleChange = (id, key, value) => {
     setProducts(products.map(product => {
       if (product.id === id) {
@@ -85,7 +86,7 @@ function PurchasePage() {
     if (status === 'success') {
       setIsConfirmOpen(false);
       setShowReceipt(true);
-      // ส่ง event เมื่อสั่งซื้อสินค้าเสร็จสิ้น
+      // ส่ง event เมื่อสั่งซื้อสินค้าเสร็จสิ้น  ส่งไปหน้า  Sidebar.jsx เพื่ออัปเดตข้อมูลสินค้าคงเหลือ
       window.dispatchEvent(new Event('purchase-completed'));
     }
   };
@@ -117,7 +118,7 @@ function PurchasePage() {
 
   const totalQuantity = products.reduce((sum, p) => sum + Number(p.quantity), 0);
   const totalCost = products.reduce((sum, p) => sum + (Number(p.price) * Number(p.quantity)), 0);
-  console.log('showReceipt:', showReceipt);
+  // console.log('showReceipt:', showReceipt);
   return (
     <MainLayout user={user} title="สั่งซื้อสินค้า">
       <div className="bg-white p-6 rounded-lg">
@@ -266,22 +267,22 @@ function PurchasePage() {
         user={user}
         selectedSupplierId={selectedSupplierId}
         onResult={(resultData) => {
-          console.log("✅ resultData จาก ConfirmProductModal:", resultData);
+          // console.log(" resultData จาก ConfirmProductModal:", resultData);
       
           if (resultData.status === 'success') {
             const total = resultData.products.reduce((sum, p) => {
               const quantity = Number(p.quantity);
               const price = Number(p.price);
               if (isNaN(quantity) || isNaN(price)) {
-                console.error("❌ พบข้อมูลไม่ถูกต้องในสินค้า:", p);
+                console.error(" พบข้อมูลไม่ถูกต้องในสินค้า:", p);
               }
               return sum + quantity * price;
             }, 0);
 
             const supplierObj = supplierList.find(sup => String(sup.Supplier_Id) === String(resultData.supplier));
-            console.log('EmployeeId:', user?.Employee_Id);
-            console.log('Supplier:', supplierObj);
-            console.log('Date:', new Date().toLocaleDateString('th-TH'));
+            // console.log('EmployeeId:', user?.Employee_Id);
+            // console.log('Supplier:', supplierObj);
+            // console.log('Date:', new Date().toLocaleDateString('th-TH'));
       
             setReceiptData({
               products: resultData.products,
@@ -297,6 +298,7 @@ function PurchasePage() {
         }}
 
       />
+
       <ReceiptPurchaseModal
         isOpen={showReceipt}
         onClose={() => {
