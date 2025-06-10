@@ -23,7 +23,6 @@ function Login() {
       });
       const data = response.data;
       setUser(data);
-      localStorage.setItem('user', JSON.stringify(data));
       console.log('Login data:', data);
 
       await axios.post('http://localhost:5000/api/logs/login', { Emp_Id: data.Emp_Id });
